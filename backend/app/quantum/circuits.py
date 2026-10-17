@@ -63,7 +63,7 @@ def get_metadata(experiment_id: str)->dict:
         raise NotFoundError("Unknown experiments.")
     return metadata
 
-def all_experiment_ids() -> list[str]:
+def all_experiments() -> list[dict]:
     return [
         {"experiment_id":experiment_id,**metadata}
         for experiment_id, metadata in METADATA.items()

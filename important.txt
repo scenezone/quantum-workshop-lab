@@ -1,0 +1,5 @@
+for job manager.py
+Important correction for production: the response above returns the SHA-256 hash as tracking_id. Replace that field with the original opaque token stored only for the current submission response, or return a separate signed token. The simplest safe adjustment is to store public_tracking_token encrypted at rest or return it once and have the client retain it; never expose the database hash as an access credential.
+
+for circuits.py
+only have 3 circuits have to add more

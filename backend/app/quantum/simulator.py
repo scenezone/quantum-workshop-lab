@@ -1,4 +1,4 @@
-from qiskit import Transpile
+from qiskit import transpile
 from qiskit_aer import AerSimulator
 
 from app.config import get_settings
@@ -7,12 +7,12 @@ from app.quantum.circuits import build_circuit,get_metadata
 
 def run_simulation(experiment_id: str,shots: int)->dict:
     settings = get_settings()
-    if not 1 <= shots <= settings.max_simulation_shots:
+    if not 1 <= shots <= settings.max_simulator_shots:
         raise AppError("Invalid number of shots.")
 
     circuit = build_circuit(experiment_id)
     backend = AerSimulator()
-    compiled = Transpile(circuit,backend)
+    compiled = transpile(circuit,backend)
 
     try:
         result = backend.run(compiled,shots=shots).result()
