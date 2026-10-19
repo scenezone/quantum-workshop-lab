@@ -1,70 +1,37 @@
+from copy import deepcopy
+
 from qiskit import QuantumCircuit
+
+from app.content.curriculum import EXPERIMENTS
 from app.errors import NotFoundError
 
 
-CIRCUIT_BUILDERS = {
-    "superposition": lambda: _superposition(),
-    "bell_entanglement": lambda: _bell(),
-    "interference": lambda: _interference(),
-}
-
-METADATA = {
-    "superposition": {
-        "title": "Superposition",
-        "qubits": 1,
-        "ideal_probabilities": {"0": 0.5, "1": 0.5},
-        "description": "One Hadamard gate creates an equal superposition.",
-    },
-    "bell_entanglement": {
-        "title": "Bell-State Entanglement",
-        "qubits": 2,
-        "ideal_probabilities": {"00": 0.5, "01": 0.0, "10": 0.0, "11": 0.5},
-        "description": "Hadamard plus CNOT creates a maximally entangled Bell state.",
-    },
-    "interference": {
-        "title": "Quantum Interference",
-        "qubits": 1,
-        "ideal_probabilities": {"0": 1.0, "1": 0.0},
-        "description": "Two Hadamard gates interfere constructively for |0⟩.",
-    },
-}
-
-def _superposition() -> QuantumCircuit:
-    qc = QuantumCircuit(1, 1, name="superposition")
-    qc.h(0)
-    qc.measure(0, 0)
-    return qc
-
-
-def _bell() -> QuantumCircuit:
-    qc = QuantumCircuit(2, 2, name="bell_entanglement")
-    qc.h(0)
-    qc.cx(0, 1)
-    qc.measure([0, 1], [0, 1])
-    return qc
-
-
-def _interference() -> QuantumCircuit:
-    qc = QuantumCircuit(1, 1, name="interference")
-    qc.h(0)
-    qc.h(0)
-    qc.measure(0, 0)
-    return qc
-
-def build_circuit(experiment_id: str)-> QuantumCircuit:
-    builder = CIRCUIT_BUILDERS.get(experiment_id)
-    if not builder:
-        raise NotFoundError("Unknown experiments.")
-    return builder()
-
-def get_metadata(experiment_id: str)->dict:
-    metadata = METADATA.get(experiment_id)
+def get_metadata(experiment_id: str) -> dict:
+    metadata = EXPERIMENTS.get(experiment_id)
     if metadata is None:
-        raise NotFoundError("Unknown experiments.")
-    return metadata
+        raise NotFoundError("Unknown experiment.")
+    return deepcopy(metadata)
+
+
+def build_circuit(experiment_id: str) -> QuantumCircuit:
+    metadata = get_metadata(experiment_id)
+    qc = QuantumCircuit(metadata["qubits"], metadata["classical_bits"], name=str(experiment_id))
+    single = {"H": qc.h, "X": qc.x, "Y": qc.y, "Z": qc.z, "S": qc.s, "T": qc.t}
+    multi = {"CX": qc.cx, "CZ": qc.cz, "CCX": qc.ccx, "SWAP": qc.swap}
+    for gate in metadata["gates"]:
+        name, qubits = gate["name"], gate["qubits"]
+        if name in single:
+            single[name](*qubits)
+        elif name in multi:
+            multi[name](*qubits)
+        elif name == "CP":
+            qc.cp(gate["angle"], *qubits)
+        elif name == "Measure":
+            qc.measure(qubits, gate["classical_bits"])
+        else:
+            raise ValueError(f"Unsupported approved gate: {name}")
+    return qc
+
 
 def all_experiments() -> list[dict]:
-    return [
-        {"experiment_id":experiment_id,**metadata}
-        for experiment_id, metadata in METADATA.items()
-    ]
+    return [get_metadata(experiment_id) for experiment_id in EXPERIMENTS]

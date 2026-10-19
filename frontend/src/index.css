@@ -1,31 +1,190 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../tailwind.config.js";
 
 :root {
   color-scheme: dark;
 }
 
-body {
-  @apply bg-navy-950 text-slate-100 antialiased;
+@layer base {
+  body {
+    @apply bg-navy-950 text-slate-100 antialiased;
+  }
 }
 
-.glass {
-  @apply rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md;
+/* Keep component defaults below utilities so responsive overrides can win. */
+@layer components {
+  .glass {
+    @apply rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md;
+  }
+
+  .quantum-gradient {
+    background-image: linear-gradient(135deg, rgba(34, 211, 238, 0.18), rgba(168, 85, 247, 0.18));
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-purple-500 px-5 py-3 font-semibold text-navy-950 transition hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-5 py-3 font-semibold text-slate-100 transition hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400;
+  }
+
+  .input {
+    @apply min-w-0 w-full rounded-xl border border-white/10 bg-navy-900 px-4 py-3 text-slate-100 focus:border-cyan-400 focus:outline-none;
+  }
+
+  .markdown-content {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    line-height: 1.85;
+  }
+
+  .markdown-content :where(p, ul, ol, blockquote, pre, .markdown-table-scroll) {
+    margin-block: 1rem;
+  }
+
+  .markdown-content > :first-child {
+    margin-top: 0;
+  }
+
+  .markdown-content > :last-child {
+    margin-bottom: 0;
+  }
+
+  .markdown-content :where(h1, h2, h3, h4, h5, h6) {
+    margin-block: 1.75rem 0.75rem;
+    color: #f1f5f9;
+    font-weight: 700;
+    line-height: 1.4;
+  }
+
+  .markdown-content h1 { font-size: 1.4em; }
+  .markdown-content h2 { font-size: 1.25em; }
+  .markdown-content h3 { font-size: 1.125em; }
+
+  .markdown-content :where(ul, ol) {
+    padding-inline-start: 1.5rem;
+  }
+
+  .markdown-content ul { list-style-type: disc; }
+  .markdown-content ol { list-style-type: decimal; }
+  .markdown-content li + li { margin-top: 0.625rem; }
+  .markdown-content li > p { margin-block: 0.5rem; }
+  .markdown-content li::marker { color: #67e8f9; }
+  .markdown-content strong { color: #f1f5f9; font-weight: 650; }
+
+  .markdown-content a {
+    color: #67e8f9;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .markdown-content blockquote {
+    border-inline-start: 3px solid #22d3ee;
+    padding-inline-start: 1rem;
+    color: #cbd5e1;
+  }
+
+  .markdown-content :not(pre) > code {
+    border-radius: 0.375rem;
+    background: rgb(148 163 184 / 0.12);
+    padding: 0.15em 0.35em;
+    color: #a5f3fc;
+    font-size: 0.9em;
+  }
+
+  .markdown-content code::before,
+  .markdown-content code::after {
+    content: none;
+  }
+
+  .markdown-content pre {
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    overflow-wrap: normal;
+    white-space: pre;
+    border: 1px solid rgb(255 255 255 / 0.1);
+    border-radius: 0.75rem;
+    background: #050816;
+    padding: 1rem;
+    font-size: 0.875em;
+    line-height: 1.7;
+  }
+
+  .markdown-content pre code {
+    background: transparent;
+    padding: 0;
+    color: #e2e8f0;
+    font-size: inherit;
+  }
+
+  .markdown-table-scroll {
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    border: 1px solid rgb(255 255 255 / 0.12);
+    border-radius: 0.75rem;
+  }
+
+  .markdown-content table {
+    width: 100%;
+    min-width: 28rem;
+    border-collapse: collapse;
+    font-size: 0.875em;
+    line-height: 1.65;
+  }
+
+  .markdown-content :where(th, td) {
+    border-bottom: 1px solid rgb(255 255 255 / 0.1);
+    padding: 0.75rem 1rem;
+    text-align: start;
+    vertical-align: top;
+  }
+
+  .markdown-content th {
+    background: rgb(255 255 255 / 0.06);
+    color: #f1f5f9;
+    font-weight: 600;
+  }
+
+  .markdown-content tbody tr:last-child td { border-bottom: 0; }
+
+  .markdown-content hr {
+    margin-block: 1.5rem;
+    border-color: rgb(255 255 255 / 0.12);
+  }
+
+  .markdown-content .katex-display {
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    margin-block: 1.25rem;
+    padding: 0.75rem 0.5rem;
+    border-radius: 0.5rem;
+    background: rgb(5 8 22 / 0.45);
+  }
+
+  .markdown-content .katex-display > .katex {
+    text-align: start;
+  }
+
+  .markdown-content :not(.katex-display) > .katex {
+    display: inline-block;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-block: 0.2em;
+    vertical-align: middle;
+  }
+
+  .markdown-content :where(pre, .markdown-table-scroll):focus-visible {
+    outline: 2px solid #22d3ee;
+    outline-offset: 2px;
+  }
 }
 
-.quantum-gradient {
-  background-image: linear-gradient(135deg, rgba(34, 211, 238, 0.18), rgba(168, 85, 247, 0.18));
-}
-
-.btn-primary {
-  @apply inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-purple-500 px-5 py-3 font-semibold text-navy-950 transition hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400;
-}
-
-.btn-secondary {
-  @apply inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-5 py-3 font-semibold text-slate-100 transition hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400;
-}
-
-.input {
-  @apply w-full rounded-xl border border-white/10 bg-navy-900 px-4 py-3 text-slate-100 focus:border-cyan-400 focus:outline-none;
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
 }

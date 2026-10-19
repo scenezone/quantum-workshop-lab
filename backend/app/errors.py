@@ -6,6 +6,14 @@ class AppError(Exception):
     status_code = status.HTTP_400_BAD_REQUEST
     detail = "Invalid request"
 
+    def __init__(self, detail: str | None = None):
+        self.detail = detail or self.detail
+        super().__init__(self.detail)
+
+
+class ConflictError(AppError):
+    status_code = status.HTTP_409_CONFLICT
+
 
 class NotFoundError(AppError):
     status_code = status.HTTP_404_NOT_FOUND

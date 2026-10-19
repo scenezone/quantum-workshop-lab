@@ -4,13 +4,13 @@ import { Link } from 'react-router-dom';
 const features = [
   {
     icon: Book,
-    title: 'Beginner lessons',
-    description: 'Learn qubits, superposition, entanglement, gates, and circuits.',
+    title: 'Beginner to advanced',
+    description: 'Learn amplitudes, quantum algorithms, teleportation, and error correction.',
   },
   {
     icon: Zap,
     title: 'Safe experiments',
-    description: 'Run predefined circuits—no Python coding or arbitrary code execution.',
+    description: 'Explore 10 guided circuits—no Python coding or arbitrary code execution.',
   },
   {
     icon: Cpu,

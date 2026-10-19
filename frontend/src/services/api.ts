@@ -6,10 +6,13 @@ import type {
   HardwareStatus,
   JobStatusResponse,
   Lesson,
+  PublicConfig,
+  AssistantResponse,
+  PracticeFeedback,
 } from '../types/api';
 
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000',
+  baseURL: import.meta.env.VITE_API_BASE_URL?.trim() || '',
   timeout: 30000,
 });
 
@@ -20,6 +23,15 @@ export async function fetchLessons(): Promise<Lesson[]> {
 
 export async function fetchLesson(lessonId: string): Promise<Lesson> {
   const { data } = await api.get(`/api/lessons/${lessonId}`);
+  return data;
+}
+
+export async function checkPracticeAnswer(
+  lessonId: string,
+  attempt: { question_id: string; option_id?: string; answer?: string },
+  signal?: AbortSignal,
+): Promise<PracticeFeedback> {
+  const { data } = await api.post(`/api/lessons/${encodeURIComponent(lessonId)}/practice/check`, attempt, { signal });
   return data;
 }
 
@@ -42,11 +54,8 @@ export async function simulateExperiment(
 export async function submitHardwareExperiment(
   experimentId: string,
   shots: number,
+  idempotencyKey: string,
 ): Promise<{ tracking_id: string; status: string }> {
-  const idempotencyKey =
-    globalThis.crypto?.randomUUID?.() ??
-    `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-
   const { data } = await api.post('/api/experiments/hardware', {
     experiment_id: experimentId,
     shots,
@@ -55,8 +64,8 @@ export async function submitHardwareExperiment(
   return data;
 }
 
-export async function fetchJobStatus(trackingId: string): Promise<JobStatusResponse> {
-  const { data } = await api.get(`/api/experiments/jobs/${trackingId}`);
+export async function fetchJobStatus(trackingId: string, signal?: AbortSignal): Promise<JobStatusResponse> {
+  const { data } = await api.get(`/api/experiments/jobs/${trackingId}`, { signal });
   return data;
 }
 
@@ -70,13 +79,14 @@ export async function sendAssistantMessage(
   lessonId?: string,
   experimentId?: string,
   resultContext?: Record<string, unknown>,
-): Promise<{ reply: string; source: 'llm' | 'fallback' }> {
+  signal?: AbortSignal,
+): Promise<AssistantResponse> {
   const { data } = await api.post('/api/assistant/chat', {
-    messages,
+    messages: messages.map(({ role, content }) => ({ role, content })),
     lesson_id: lessonId,
     experiment_id: experimentId,
     result_context: resultContext,
-  });
+  }, { signal, timeout: 60000 });
   return data;
 }
 
@@ -87,4 +97,8 @@ export async function submitFeedback(payload: {
   comments?: string;
 }): Promise<void> {
   await api.post('/api/feedback', payload);
+}
+export async function fetchPublicConfig(): Promise<PublicConfig> {
+  const { data } = await api.get('/api/config/public');
+  return data;
 }

@@ -1,88 +1,96 @@
-from datetime import date,datetime,timezone
+"""Atomic reservations including active jobs from previous UTC days."""
 from pymongo import ReturnDocument
-from pymongo.errors import PyMongoError
+from pymongo.errors import DuplicateKeyError, PyMongoError
 
 from app.config import get_settings
-from app.database.mongodb import Mongo
-from app.errors import ExternalServiceError,QuotaExceededError
+from app.database.mongodb import Mongo, utcnow
+from app.errors import ExternalServiceError, QuotaExceededError
+
 
 class QuotaService:
+    LEDGER_ID = "hardware-ledger-v1"
+
     @staticmethod
-    def reserve_submission()->None:
+    def reserve_submission(job_id: str, quota_date: str) -> None:
         settings = get_settings()
-        today = date.today().isoformat()
+        collection = Mongo.db().hardware_quota
         try:
-            document = Mongo.db().hardware_quota.find_one_and_update(
-                {'quota_date',today},
+            try:
+                collection.update_one(
+                    {"_id": QuotaService.LEDGER_ID},
+                    {"$setOnInsert": {"entries": []}}, upsert=True,
+                )
+            except DuplicateKeyError:
+                pass
+            collection.update_one(
+                {"_id": QuotaService.LEDGER_ID},
+                {"$pull": {"entries": {"active": False, "quota_date": {"$ne": quota_date}}}},
+            )
+
+            def count(condition):
+                return {"$size": {"$filter": {
+                    "input": "$entries", "as": "entry", "cond": condition,
+                }}}
+
+            document = collection.find_one_and_update(
                 {
-                    "$setOnInsert":{
-                        "quota_date":today,
-                        "submitted_count": 0,
-                        "reserved_count": 0,
-                        "active_job_count": 0,
-                        "configured_limit": settings.ibm_max_daily_jobs,
-                        "updated_at": datetime.now(timezone.utc),
-                    },
-                    "$inc": {"reserved_count": 1},
+                    "_id": QuotaService.LEDGER_ID,
+                    "entries.job_id": {"$ne": job_id},
+                    "$expr": {"$and": [
+                        {"$lt": [count({"$eq": ["$$entry.quota_date", quota_date]}), settings.ibm_max_daily_jobs]},
+                        {"$lt": [count({"$eq": ["$$entry.active", True]}), settings.ibm_max_active_jobs]},
+                    ]},
                 },
-                upset=True,
+                {"$push": {"entries": {
+                    "job_id": job_id, "quota_date": quota_date,
+                    "state": "reserved", "active": True,
+                }}, "$set": {"updated_at": utcnow()}},
                 return_document=ReturnDocument.AFTER,
             )
+            if document is None:
+                existing = collection.find_one({
+                    "_id": QuotaService.LEDGER_ID, "entries.job_id": job_id,
+                })
+                if existing is None:
+                    raise QuotaExceededError()
         except PyMongoError as exc:
             raise ExternalServiceError("Unable to check hardware quota.") from exc
 
-        if document["reserved_count"] > settings.ibm_max_daily_jobs:
-            QuotaService.release_reservation(today)
-            raise QuotaExceededError()
-
     @staticmethod
-    def confirm_submission() -> None:
-        today = date.today().isoformat()
+    def confirm_submission(job_id: str) -> None:
         Mongo.db().hardware_quota.update_one(
-            {"quota_date": today},
-            {
-                "$inc": {"reserved_count": -1, "submitted_count": 1, "active_job_count": 1},
-                "$set": {"updated_at": datetime.now(timezone.utc)},
-            },
+            {"_id": QuotaService.LEDGER_ID, "entries.job_id": job_id},
+            {"$set": {"entries.$.state": "submitted", "updated_at": utcnow()}},
         )
 
     @staticmethod
-    def release_reservation(quota_date: str| None=None)-> None:
-        today = quota_date or date.today().isoformat()
+    def release_reservation(job_id: str) -> None:
         Mongo.db().hardware_quota.update_one(
-            {"quota_date": today, "reserved_count": {"$gt": 0}},
-            {
-                "$inc": {"reserved_count": -1},
-                "$set": {"updated_at": datetime.now(timezone.utc)},
-            },
+            {"_id": QuotaService.LEDGER_ID},
+            {"$pull": {"entries": {"job_id": job_id, "state": "reserved"}},
+             "$set": {"updated_at": utcnow()}},
         )
 
     @staticmethod
-    def release_active_job() -> None:
-        today = date.today().isoformat()
+    def release_active_job(job_id: str) -> None:
         Mongo.db().hardware_quota.update_one(
-            {"quota_date": today, "active_job_count": {"$gt": 0}},
-            {
-                "$inc": {"active_job_count": -1},
-                "$set": {"updated_at": datetime.now(timezone.utc)},
-            },
+            {"_id": QuotaService.LEDGER_ID, "entries.job_id": job_id},
+            {"$set": {"entries.$.active": False, "updated_at": utcnow()}},
         )
 
     @staticmethod
     def status() -> dict:
         settings = get_settings()
-        today = date.today().isoformat()
-        document = Mongo.db().hardware_quota.find_one({"quota_date": today}) or {}
-        submitted = int(document.get("submitted_count", 0))
-        active = int(document.get("active_job_count", 0))
+        document = Mongo.db().hardware_quota.find_one({"_id": QuotaService.LEDGER_ID}) or {}
+        entries = document.get("entries", [])
+        today = utcnow().date().isoformat()
+        todays_entries = [entry for entry in entries if entry["quota_date"] == today]
         return {
             "hardware_enabled": settings.ibm_hardware_enabled,
             "daily_limit": settings.ibm_max_daily_jobs,
-            "submitted_today": submitted,
-            "remaining_today": max(0, settings.ibm_max_daily_jobs - submitted),
-            "active_jobs": active,
+            "submitted_today": sum(entry["state"] == "submitted" for entry in todays_entries),
+            "remaining_today": max(0, settings.ibm_max_daily_jobs - len(todays_entries)),
+            "active_jobs": sum(bool(entry["active"]) for entry in entries),
             "active_limit": settings.ibm_max_active_jobs,
             "max_shots": settings.ibm_max_shots,
         }
-
-    

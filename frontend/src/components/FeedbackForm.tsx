@@ -9,16 +9,27 @@ export default function FeedbackForm() {
   const [completed, setCompleted] = useState(false);
   const [comments, setComments] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
-    await submitFeedback({
+    if (pending) return;
+    setPending(true);
+    setError(null);
+    try {
+      await submitFeedback({
       rating,
       clarity_rating: clarity,
       completed_workshop: completed,
       comments: comments || undefined,
     });
-    setSubmitted(true);
+      setSubmitted(true);
+    } catch {
+      setError('Feedback could not be submitted. Please try again.');
+    } finally {
+      setPending(false);
+    }
   }
 
   if (submitted) {
@@ -51,7 +62,8 @@ export default function FeedbackForm() {
         onChange={(e) => setComments(e.target.value)}
         placeholder="Optional comments"
       />
-      <button className="btn-primary"><Star className="h-4 w-4" /> Submit feedback</button>
+      {error && <p role="alert" className="text-sm text-rose-300">{error}</p>}
+      <button disabled={pending} className="btn-primary"><Star className="h-4 w-4" /> {pending ? 'Submitting...' : 'Submit feedback'}</button>
     </form>
   );
 }

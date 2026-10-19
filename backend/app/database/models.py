@@ -1,7 +1,26 @@
 from datetime import datetime
 from typing import Any,Literal
 
-from pydantic import BaseModel,Field
+from pydantic import BaseModel,Field,model_validator
+from app.content.curriculum import ExperimentId
+
+
+class PracticeOption(BaseModel):
+    option_id: str
+    text: str
+
+
+class PracticeQuestion(BaseModel):
+    question_id: str
+    kind: Literal["multiple_choice", "short_answer"]
+    prompt: str
+    options: list[PracticeOption] = Field(default_factory=list)
+
+
+class PracticeAnswer(BaseModel):
+    question_id: str = Field(min_length=1, max_length=100)
+    option_id: str | None = Field(default=None, min_length=1, max_length=16)
+    answer: str | None = Field(default=None, min_length=1, max_length=2000)
 
 
 class Lesson(BaseModel):
@@ -9,19 +28,27 @@ class Lesson(BaseModel):
     title:str
     description:str
     content:str
-    difficulty: Literal["beginner","intermediate"]
+    difficulty: Literal["beginner","intermediate","advanced"]
     learning_objectives: list[str]
     related_experiments: list[str]
     order: int
+    prerequisites: list[str] = Field(default_factory=list)
+    references: list[dict[str, str]] = Field(default_factory=list)
+    practice_questions: list[PracticeQuestion] = Field(default_factory=list)
 
 class ExperimentGate(BaseModel):
     name: str
     qubits: list[int]
     explanation: str
+    classical_bits: list[int] | None = None
+    angle: float | None = None
+    label: str | None = None
 
 
 class Experiment(BaseModel):
-    experiment_id:Literal["superposition",'bell_entanglement',"interference"]
+    experiment_id: ExperimentId
+    difficulty: Literal["beginner", "intermediate", "advanced"]
+    lesson_id: str
     title:str
     description:str
     qubits:int
@@ -33,12 +60,12 @@ class Experiment(BaseModel):
     next_experiment: str | None = None
 
 class SimulateRequest(BaseModel):
-    experiment_id: Literal["superposition", "bell_entanglement", "interference"]
-    shots: int = Field(default=1024, ge=1, le=10000)
+    experiment_id: ExperimentId
+    shots: int = Field(default=1024, ge=1)
 
 class HardwareRequest(BaseModel):
-    experiment_id: Literal["superposition", "bell_entanglement", "interference"]
-    shots: int = Field(default=1024, ge=1, le=4096)
+    experiment_id: ExperimentId
+    shots: int = Field(default=1024, ge=1)
     idempotency_key: str = Field(min_length=16, max_length=128)
 
 class JobStatusResponse(BaseModel):
@@ -67,10 +94,17 @@ class ExperimentResult(BaseModel):
     ideal_probabilities: dict[str, float]
     provider_job_id: str | None = None
     tracking_id: str | None = None
+    amplitudes: list[dict[str, Any]] | None = None
 
 class AssistantMessage(BaseModel):
     role:Literal["user","assistant"]
-    content: str = Field(min_length=1,max_length=2000)
+    content: str = Field(min_length=1,max_length=20000)
+
+    @model_validator(mode="after")
+    def validate_question_length(self):
+        if self.role == "user" and len(self.content) > 2000:
+            raise ValueError("Questions must be at most 2000 characters")
+        return self
 
 class AssistantRequest(BaseModel):
     messages: list[AssistantMessage] = Field(min_length=1, max_length=12)
@@ -82,6 +116,7 @@ class AssistantRequest(BaseModel):
 class AssistantResponse(BaseModel):
     reply: str
     source: Literal["llm", "fallback"]
+    notice: str | None = None
 
 
 class FeedbackRequest(BaseModel):

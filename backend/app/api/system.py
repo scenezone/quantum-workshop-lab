@@ -1,19 +1,20 @@
 from fastapi import APIRouter
+from fastapi.responses import JSONResponse
 
 from app.config import get_settings
 from app.database.mongodb import Mongo
-from app.services.quota_service import QuotaService
 
 router = APIRouter(tags=["system"])
 
 
 @router.get("/api/health")
-def health() -> dict:
-    return {
-        "status": "ok",
-        "database": "connected" if Mongo.health() else "unavailable",
+def health() -> JSONResponse:
+    connected = Mongo.health()
+    return JSONResponse(status_code=200 if connected else 503, content={
+        "status": "ok" if connected else "unavailable",
+        "database": "connected" if connected else "unavailable",
         "environment": get_settings().app_env,
-    }
+    })
 
 
 @router.get("/api/config/public")

@@ -1,7 +1,8 @@
 from datetime import datetime,timezone
 from typing import Any
+import time
 
-from pymongo import ASCENDING, MongoClient, ReturnDocument
+from pymongo import ASCENDING, MongoClient
 from pymongo.errors import PyMongoError
 
 from app.config import get_settings
@@ -19,9 +20,18 @@ class Mongo:
             serverSelectionTimeoutMS=settings.mongodb_timeout_ms,
             connectTimeoutMS=settings.mongodb_timeout_ms,
             maxPoolSize=20,
+            tz_aware=True,
         )
-        cls.client.admin.command("ping")
-        cls.ensure_indexes()
+        for attempt in range(settings.mongodb_connect_attempts):
+            try:
+                cls.client.admin.command("ping")
+                cls.ensure_indexes()
+                return
+            except PyMongoError:
+                if attempt == settings.mongodb_connect_attempts - 1:
+                    cls.close()
+                    raise
+                time.sleep(min(attempt + 1, 5))
 
     @classmethod
     def close(cls) -> None:
@@ -43,6 +53,12 @@ class Mongo:
 
         db.quantum_jobs.create_index([("public_tracking_token_hash",ASCENDING)], unique=True)
         db.quantum_jobs.create_index([("provider_job_id", ASCENDING)])
+        db.quantum_jobs.create_index(
+            [("idempotency_key_hash", ASCENDING)], unique=True,
+            partialFilterExpression={"idempotency_key_hash": {"$type": "string"}},
+        )
+        db.quantum_jobs.create_index([("status", ASCENDING)])
+        db.experiments.create_index([("experiment_id", ASCENDING)], unique=True)
         db.quantum_jobs.create_index([("expires_at", ASCENDING)], expireAfterSeconds=0)
 
         db.hardware_quota.create_index([("quota_date", ASCENDING)], unique=True)
@@ -53,7 +69,7 @@ class Mongo:
         try:
             cls.db().command("ping")
             return True
-        except PyMongoError:
+        except (PyMongoError, ExternalServiceError):
             return False
 
 

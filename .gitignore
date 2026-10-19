@@ -34,3 +34,6 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
+# Tool caches
+.npm-cache/
+*.tsbuildinfo

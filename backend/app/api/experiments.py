@@ -1,8 +1,4 @@
-from slowapi import Limiter
-from slowapi.util import get_remote_address
 from fastapi import APIRouter,Request
-from app.database.mongodb import Mongo
-from app.errors import NotFoundError
 from app.quantum import simulator
 from app.quantum.circuits import all_experiments, get_metadata
 from app.quantum.job_manager import JobManager
@@ -19,10 +15,7 @@ def list_experiments() -> dict:
 
 @router.get("/{experiment_id}")
 def get_experiment(experiment_id: str) -> dict:
-    try:
-        return get_metadata(experiment_id)
-    except NotFoundError:
-        raise
+    return get_metadata(experiment_id)
 
 
 @router.post("/simulate")
@@ -44,4 +37,4 @@ def submit_hardware(request: Request, payload: HardwareRequest) -> dict:
 @limiter.limit("60/minute")
 def job_status(request: Request, tracking_id: str) -> dict:
     job = JobManager.get_job(tracking_id)
-    return JobManager.to_response(job)
+    return JobManager.to_response(job, tracking_id)

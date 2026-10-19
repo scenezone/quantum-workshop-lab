@@ -1,4 +1,7 @@
 from contextlib import asynccontextmanager
+import asyncio
+import logging
+from contextlib import suppress
 from fastapi.responses import JSONResponse
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,15 +15,33 @@ from app.database.seed import seed_database
 from app.errors import AppError, app_error_handler, unhandled_error_handler
 from app.logging_config import configure_logging
 from app.rate_limit import limiter
+from app.quantum.job_manager import JobManager
+
+
+async def reconcile_jobs():
+    while True:
+        try:
+            await asyncio.to_thread(JobManager.reconcile)
+        except Exception:
+            logging.getLogger(__name__).exception("Hardware reconciliation failed")
+        await asyncio.sleep(get_settings().job_poll_seconds)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     configure_logging()
-    Mongo.connect()
-    seed_database()
-    yield
-    Mongo.close()
+    await asyncio.to_thread(Mongo.connect)
+    task = None
+    try:
+        await asyncio.to_thread(seed_database)
+        task = asyncio.create_task(reconcile_jobs())
+        yield
+    finally:
+        if task:
+            task.cancel()
+            with suppress(asyncio.CancelledError):
+                await task
+        Mongo.close()
 
 
 app = FastAPI(

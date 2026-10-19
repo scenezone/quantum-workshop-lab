@@ -1,26 +1,18 @@
 import { useQuery } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import axios from 'axios';
 import { fetchJobStatus } from '../services/api';
-import type { JobStatusResponse } from '../types/api';
-
-const TERMINAL: JobStatusResponse['status'][] = ['completed', 'failed', 'cancelled'];
 
 export function useExperimentJob(trackingId: string | null) {
-  const query = useQuery({
+  return useQuery({
     queryKey: ['hardware-job', trackingId],
-    queryFn: () => fetchJobStatus(trackingId!),
+    queryFn: ({ signal }) => fetchJobStatus(trackingId!, signal),
     enabled: Boolean(trackingId),
+    retry: (attempt, error) => !axios.isAxiosError(error) || error.response?.status !== 404 ? attempt < 2 : false,
     refetchInterval: (query) => {
+      if (axios.isAxiosError(query.state.error) && query.state.error.response?.status === 404) return false;
       const status = query.state.data?.status;
-      return status && TERMINAL.includes(status) ? false : 3000;
+      return status && ['completed', 'failed', 'cancelled'].includes(status) ? false : 5000;
     },
+    gcTime: 0,
   });
-
-  useEffect(() => {
-    return () => {
-      query.remove();
-    };
-  }, [trackingId]);
-
-  return query;
 }
