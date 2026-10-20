@@ -1,87 +1,517 @@
 # Quantum Workshop Lab
 
-Guided quantum lessons, Qiskit Aer experiments, optional IBM Quantum hardware, and an optional AI teaching assistant.
+An interactive quantum computing learning platform that combines guided lessons, circuit simulations, measurement visualizations, and a context-aware assistant. Learners can explore quantum concepts in the browser without writing Python, then run the same approved circuits on IBM Quantum hardware when access is enabled.
 
-## Learning path and circuit labs
+The project includes a React frontend, a FastAPI backend, and MongoDB persistence. Local simulation uses Qiskit Aer. IBM Quantum execution and live AI responses are optional integrations; the assistant can also answer from the built-in workshop guide.
 
-The course contains 14 lessons across beginner, intermediate, and advanced levels. Use the level filters, concept search, prerequisite links, and related-circuit links on the Learn page.
+## Contents
 
-Each lesson includes four interactive multiple-choice questions and two written questions: 56 MCQs and 28 written prompts in total. Select an option and click **Check answer** to see correctness, the correct option, and an explanation. Written practice requires an attempt before showing a sample answer and self-review points; it is not automatically graded. Answer keys stay on the backend and are omitted from public lesson responses. Practice attempts are not saved to MongoDB, and changing lessons or refreshing resets the current practice progress.
+- [Features](#features)
+- [Technology stack](#technology-stack)
+- [Architecture and project structure](#architecture-and-project-structure)
+- [Requirements](#requirements)
+- [Local setup](#local-setup)
+- [Using the workshop](#using-the-workshop)
+- [Lessons and experiments](#lessons-and-experiments)
+- [Configuration reference](#configuration-reference)
+- [Optional integrations](#optional-integrations)
+- [API reference](#api-reference)
+- [Testing and development](#testing-and-development)
+- [Deployment](#deployment)
+- [Data and operational behavior](#data-and-operational-behavior)
+- [Troubleshooting](#troubleshooting)
+- [Extending the project](#extending-the-project)
+- [License](#license)
 
-| Level | Topics |
+## Features
+
+- **14 lessons:** A learning path from qubits and gates to quantum algorithms, teleportation, error correction, and variational methods. Lessons include objectives, prerequisites, further reading, search, and difficulty filters.
+- **Lesson practice:** Multiple-choice questions return correctness and explanations. Written questions provide sample answers and key points for self-assessment.
+- **10 guided circuits:** Inspect gate diagrams, explanations, ideal distributions, and equivalent Qiskit code. Execution accepts predefined experiment IDs rather than arbitrary user code.
+- **Local quantum simulation:** Configure the number of shots and run circuits on Qiskit Aer. Inspect counts, observed probabilities, complex amplitudes, and relative phases.
+- **Result visualization:** Compare measurement histograms and ideal versus observed probabilities.
+- **Optional IBM Quantum execution:** Submit approved circuits, view hardware quotas, and track asynchronous jobs. Submission retries use idempotency keys to avoid duplicate jobs.
+- **Context-aware assistant:** Discuss the selected lesson, circuit, or recorded results through a configurable chat-completions endpoint. Missing credentials and supported provider failures trigger an explicitly labeled workshop-guide response.
+- **Anonymous feedback:** Submit workshop and clarity ratings, completion status, and optional comments.
+- **Responsive interface:** Dedicated learning, playground, assistant, and workshop-guide pages with Markdown and mathematical notation support.
+
+## Technology stack
+
+| Area | Technologies |
 | --- | --- |
-| Beginner | Qubits, superposition, Bell states, gates, measurement, and hardware noise |
-| Intermediate | Complex amplitudes, Born probabilities, Bloch-sphere coordinates, global and relative phase, phase kickback, and GHZ coherence |
-| Advanced | Deutsch–Jozsa, Grover amplitude amplification, QFT, deferred-measurement teleportation, repetition-code error correction, and variational expectation estimation |
+| Frontend | React 18, TypeScript, Vite 6, React Router 7 |
+| Styling and UI | Tailwind CSS 4, Lucide icons |
+| API access and state | Axios, TanStack React Query |
+| Charts and content | Recharts, React Markdown, remark/rehype plugins, KaTeX |
+| Backend | Python, FastAPI, Uvicorn, Pydantic 2, pydantic-settings |
+| Quantum execution | Qiskit 1.4.2, Qiskit Aer 0.17.2, Qiskit IBM Runtime 0.40.1 |
+| Database | MongoDB through PyMongo |
+| External AI | HTTPX requests to a configurable chat-completions API |
+| Rate limiting | SlowAPI; in-memory storage locally, optional Redis storage |
+| Testing | pytest, pytest-asyncio, mongomock; Vitest, React Testing Library, jsdom |
+| Frontend checks | TypeScript compiler and ESLint |
 
-The Playground provides 10 approved circuits: superposition, Bell entanglement, interference, phase kickback, a three-qubit GHZ state, a balanced Deutsch–Jozsa oracle, Grover search for 11, QFT phase encoding, coherent teleportation verification, and single-bit-flip recovery. Gate definitions, diagrams, explanations, and simulator construction share one catalog in `backend/app/content/curriculum.py`.
+Backend versions are pinned in [backend/requirements.txt](backend/requirements.txt). Frontend dependencies and scripts are defined in [frontend/package.json](frontend/package.json), with resolved versions in [frontend/package-lock.json](frontend/package-lock.json).
 
-Open each circuit's gate walkthrough and Qiskit example, then inspect its histogram and ideal complex-amplitude table. Histograms use measured classical bits, while the amplitude table describes the full ideal quantum register. A uniform QFT histogram can still carry distinct relative phases. The assistant retrieves these lessons by topic and uses them for offline guide answers too.
+## Architecture and project structure
 
-During in-app navigation, the assistant keeps the selected lesson or experiment and its available measurement results. Opening the AI Assistant page automatically introduces that topic once, shows the current study context, and offers relevant follow-up questions. Returning to the same topic preserves the conversation; selecting a different topic starts a fresh conversation and cancels any pending reply about the previous topic. Clearing chat keeps the selected topic. The workshop guide also provides contextual circuit overviews when live AI is unavailable.
-
-Assistant answers support headings, spaced paragraphs and lists, Markdown tables, code blocks, and inline or display equations. Wide tables, code, and equations scroll within their own containers on small screens. Long replies open at their beginning and do not move the view while someone is reading earlier messages. Generated answers keep their full formatting instead of being cut at 2,000 characters; provider token limits still apply, and user questions remain limited to 2,000 characters.
-
-The advanced lessons explicitly describe demonstration limits: Z-basis GHZ counts alone do not certify coherence; coherent teleportation is not separated-party classical feed-forward; a repetition code does not correct arbitrary phase errors; and fixed circuit labs do not implement a VQE optimizer. Lessons include links to [IBM Quantum Learning](https://quantum.cloud.ibm.com/learning/en/courses/basics-of-quantum-information), its [algorithms course](https://quantum.cloud.ibm.com/learning/en/courses/fundamentals-of-quantum-algorithms), and its [error-correction course](https://quantum.cloud.ibm.com/learning/en/courses/foundations-of-quantum-error-correction).
-
-## Local development
-
-Use Python 3.11–3.13, Node.js 22.12+ or 24+, and MongoDB 7. From the repository root:
-
-```powershell
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r backend\requirements.txt
-cd frontend
-npm ci
+```text
+Browser / React frontend
+          |
+          | /api requests through Vite proxy or configured backend URL
+          v
+      FastAPI backend
+          |
+          +-- MongoDB: lessons, experiments, jobs, quotas, feedback
+          +-- Qiskit Aer: local simulation and statevector analysis
+          +-- IBM Quantum Runtime: optional hardware submissions
+          +-- Chat-completions API: optional live assistant
+              Built-in workshop guide: assistant fallback
 ```
 
-On a fresh checkout, copy `backend/.env.example` to `backend/.env`. Preserve an existing `.env`. Set `MONGODB_URI` to a reachable local MongoDB or Atlas database. Hardware requires `IBM_HARDWARE_ENABLED=true` and IBM Cloud credentials. Without `LLM_API_KEY`, the assistant returns an educational fallback.
+The backend connects to MongoDB, creates indexes, seeds lesson and experiment content, and starts a hardware-job reconciliation loop during application startup. MongoDB must be reachable for normal application startup, including simulator-only workshops.
 
-The backend loads `backend/.env` independently of the launch directory. To start from its directory:
+```text
+Quantum-Workshop-Lab/
+|-- README.md
+|-- .gitignore
+|-- backend/
+|   |-- .env.example          # Backend configuration template
+|   |-- requirements.txt     # Pinned Python dependencies
+|   |-- app/
+|   |   |-- main.py          # FastAPI application and startup/shutdown lifecycle
+|   |   |-- config.py        # Environment settings and validation
+|   |   |-- api/             # HTTP routes
+|   |   |-- ai/              # Assistant, prompts, and context assembly
+|   |   |-- content/         # Canonical lessons, experiments, and practice
+|   |   |-- database/        # MongoDB connection, indexes, models, and seed logic
+|   |   |-- quantum/         # Circuit builder, simulator, IBM client, job manager
+|   |   |-- schemas/         # Request and response model exports
+|   |   |-- services/        # Hardware quota management
+|   |   |-- errors.py        # Application errors and HTTP handlers
+|   |   |-- logging_config.py
+|   |   `-- rate_limit.py
+|   `-- test/                # Backend tests
+`-- frontend/
+    |-- .env.example         # Frontend URL and development proxy template
+    |-- package.json
+    |-- package-lock.json
+    |-- vite.config.ts
+    |-- vitest.config.ts
+    `-- src/
+        |-- App.tsx          # Page routes and layout
+        |-- main.tsx         # Application bootstrap and providers
+        |-- pages/           # Home, Learn, Playground, Assistant, About
+        |-- components/      # Circuit diagrams, charts, practice, chat, feedback
+        |-- context/         # Shared assistant and study context
+        |-- hooks/           # Hardware job polling
+        |-- services/        # API client, experiment helpers, hardware storage
+        |-- types/           # API and experiment types
+        `-- test/            # Frontend tests and setup
+```
+
+## Requirements
+
+- **Python 3.11 or 3.12** is a suitable starting environment. The backend requires at least Python 3.11 because it uses `enum.StrEnum`; installed packages must also support the selected Python version.
+- **Node.js 22.x and npm** for the frontend and its test tooling.
+- **MongoDB**, running locally or accessible through a connection URI. A local instance uses port `27017` by default.
+- **Optional:** IBM Quantum credentials for hardware execution, a compatible AI provider API key for live chat, and Redis for shared rate-limit storage.
+
+The default configuration supports simulation and guide-based assistant replies without IBM or AI credentials.
+
+## Local setup
+
+Run the commands below from your local checkout. Keep the backend and frontend running in separate terminals.
+
+### 1. Configure environment files
+
+Copy the example files only when the corresponding `.env` files do not already exist. Preserve any existing configuration.
+
+**PowerShell, from the repository root:**
+
+```powershell
+if (-not (Test-Path backend/.env)) { Copy-Item backend/.env.example backend/.env }
+if (-not (Test-Path frontend/.env)) { Copy-Item frontend/.env.example frontend/.env }
+```
+
+**macOS/Linux:**
+
+```bash
+test -f backend/.env || cp backend/.env.example backend/.env
+test -f frontend/.env || cp frontend/.env.example frontend/.env
+```
+
+Set `MONGODB_URI` in `backend/.env` to a reachable database. Leave `IBM_HARDWARE_ENABLED=false` for a local simulator workshop. Leave `LLM_API_KEY` empty to use the built-in guide.
+
+### 2. Start MongoDB
+
+Start your existing MongoDB service, or configure a hosted database URI. If Docker is available, an optional local database can be started with:
+
+```bash
+docker run --name quantum-workshop-mongo -d -p 127.0.0.1:27017:27017 -v quantum-workshop-mongo-data:/data/db mongo:7
+```
+
+For subsequent runs of this container, use `docker start quantum-workshop-mongo`. Its named volume preserves database data.
+
+### 3. Install and start the backend
+
+**PowerShell:**
 
 ```powershell
 cd backend
-..\.venv\Scripts\python.exe -m uvicorn app.main:app --reload --port 8000
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-Alternatively, from the repository root use `.\.venv\Scripts\python.exe -m uvicorn app.main:app --app-dir backend --reload --port 8000`.
+**macOS/Linux:**
 
-The default Groq model is `openai/gpt-oss-20b`. `LLM_MODEL` must name a model available to your account; check the provider's model list if live responses stop working. Restart the backend after editing `.env`. The chat labels live AI responses and offline workshop guide answers separately. Guide answers respond to the question and available measurements when the provider is unavailable. Failed requests can be retried without duplicating the question, and navigation keeps an in-flight request active.
+```bash
+cd backend
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+```
 
-In another terminal:
+Using the virtual environment's Python directly avoids needing to activate it. Startup creates database indexes and seeds the curriculum automatically; no separate seed command is required.
 
-```powershell
+### 4. Install and start the frontend
+
+In a second terminal, from the repository root:
+
+```bash
 cd frontend
+npm ci
 npm run dev
 ```
 
-Open http://localhost:5173. Empty or absent `VITE_API_BASE_URL` uses the Vite `/api` proxy to port 8000. Existing frontend environment values take precedence; use an empty value to use the proxy. `API_PROXY_TARGET` changes the proxy destination. `npm run preview` uses the same proxy after a production build.
+The default frontend configuration leaves `VITE_API_BASE_URL` empty and proxies `/api` requests to `http://127.0.0.1:8000` through Vite.
 
-## Hosting
+### 5. Open the application
 
-For separate frontend hosting, set `VITE_API_BASE_URL` to the public HTTPS API URL at build time and add the frontend origin to backend `CORS_ORIGINS`. Configure the frontend host to serve `index.html` for React routes such as `/learn` and `/playground`. Never put backend secrets in Vite variables.
+| Service | Local address |
+| --- | --- |
+| Web application | http://localhost:5173 |
+| Backend health | http://127.0.0.1:8000/api/health |
+| Swagger API documentation | http://127.0.0.1:8000/docs |
+| ReDoc API documentation | http://127.0.0.1:8000/redoc |
+| OpenAPI schema | http://127.0.0.1:8000/openapi.json |
 
-MongoDB must be available through the configured `MONGODB_URI`, using a local installation or Atlas. For one API worker, `RATE_LIMIT_STORAGE_URI=memory://` is sufficient. Multiple workers or instances require shared Redis storage; configure its connection URL in `RATE_LIMIT_STORAGE_URI`.
+A healthy response from `/api/health` includes `"status": "ok"` and `"database": "connected"`.
 
-## Hardware jobs
+## Using the workshop
 
-Daily quota uses UTC. Atomic reservations include outstanding submissions and active jobs from previous days. Retries use the same idempotency key and tracking ID. Reusing a key with different parameters returns HTTP 409. The database stores a tracking-token hash and nonce, not the original tracking credential.
+1. Open **Learn** and select a lesson. Use the difficulty filters or search to find a concept, read its objectives, and complete the practice questions.
+2. Follow a related experiment link or open **Playground**. Inspect the circuit gates, expected behavior, and Qiskit code.
+3. Choose a shot count and select **Run Simulator**. One shot represents one circuit execution and measurement.
+4. Compare observed counts with ideal probabilities. Inspect the statevector amplitudes and phases available from the simulator.
+5. Open **Assistant** or the playground chat to ask about the active lesson, circuit, or result.
+6. If hardware access is enabled and quota is available, submit the circuit to IBM Quantum and monitor its job status.
+7. Open **Workshop Guide** to review the workflow and leave optional feedback.
 
-Tracking IDs and pending submission keys are saved in browser local storage per experiment. The Playground can clear an expired tracking ID. Active jobs do not expire; terminal records expire after `JOB_RETENTION_DAYS` (default seven). A background task checks jobs every `JOB_POLL_SECONDS` (default fifteen), independently of browser polling.
+| Page | Route |
+| --- | --- |
+| Home | `/` |
+| Lessons | `/learn` |
+| Quantum Playground | `/playground` |
+| Assistant | `/assistant` |
+| Workshop Guide and feedback | `/about` |
 
-IBM submissions carry a correlation tag. After a network interruption, reconciliation searches for that tag instead of submitting another paid job. Uncertain submissions retain their reservations until reconciled. If IBM persistently reports no matching tagged job, an operator must verify the provider account before clearing the reservation; the application does not assume a timed-out submission was rejected.
+Specific topics can be linked directly, for example `/learn?lesson=entanglement` and `/playground?experiment=bell_entanglement`.
 
-## Verification
+## Lessons and experiments
+
+### Curriculum
+
+| Level | Lessons |
+| --- | --- |
+| Beginner | Introduction to Quantum Computing; Superposition and the Hadamard Gate; Entanglement and Bell States; Quantum Gates; Quantum Hardware and Noise |
+| Intermediate | Statevectors, Complex Amplitudes, and Measurement; Relative Phase and Phase Kickback; GHZ States, Correlations, and Coherence |
+| Advanced | Deutsch-Jozsa and Quantum Oracle Queries; Grover Search and Amplitude Amplification; Quantum Fourier Transform and Phase Encoding; Teleportation and Deferred Measurement; Repetition Codes, Syndromes, and Error Correction; Variational Algorithms and Expectation Values |
+
+### Approved circuit experiments
+
+The following expectations describe the bundled ideal circuits. Finite sampling can change observed frequencies, and hardware noise can introduce additional deviations.
+
+| Experiment ID | Qubits | Level | Ideal measured outcome |
+| --- | --- | --- | --- |
+| `superposition` | 1 | Beginner | `0` and `1`, each with probability 0.5 |
+| `bell_entanglement` | 2 | Beginner | `00` and `11`, each with probability 0.5 |
+| `interference` | 1 | Beginner | `0` with probability 1 |
+| `phase_kickback` | 2 | Intermediate | `1` with probability 1 |
+| `ghz_entanglement` | 3 | Intermediate | `000` and `111`, each with probability 0.5 |
+| `deutsch_jozsa` | 3 | Advanced | `01` with probability 1 for the bundled balanced oracle |
+| `grover_search` | 2 | Advanced | `11` with probability 1 |
+| `qft_phase` | 2 | Advanced | `00`, `01`, `10`, and `11`, each with probability 0.25 |
+| `quantum_teleportation` | 3 | Advanced | `0` with probability 1 in the bundled verification circuit |
+| `bit_flip_correction` | 3 | Advanced | `1` with probability 1 after correcting the chosen bit flip |
+
+Measured bitstrings describe classical measurement registers; some experiments measure fewer bits than the total qubit count. Interpret bit order using each circuit's measurement mapping and Qiskit's bitstring conventions.
+
+The teleportation demonstration uses deferred measurement. The bit-flip circuit demonstrates a specific ideal recovery rather than a complete fault-tolerant error-correction cycle. Variational methods are covered in the curriculum; the playground does not implement a variational optimization loop or arbitrary circuit editing.
+
+## Configuration reference
+
+The backend loads `backend/.env` using an absolute path derived from `app/config.py`. Process environment variables take precedence. Restart the backend after changing settings.
+
+### Backend: application and database
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `APP_ENV` | `development` | Environment label returned by the health endpoint |
+| `LOG_LEVEL` | `INFO` | Backend logging level |
+| `MONGODB_URI` | `mongodb://localhost:27017` | Database connection URI |
+| `MONGODB_DATABASE` | `quantum_workshop` | Application database name |
+| `MONGODB_TIMEOUT_MS` | `5000` | Connection and server-selection timeout in milliseconds |
+| `MONGODB_CONNECT_ATTEMPTS` | `5` | Startup connection attempts, from 1 to 20 |
+| `CORS_ORIGINS` | `http://localhost:5173` | Comma-separated allowed frontend origins |
+| `RATE_LIMIT_STORAGE_URI` | `memory://` | SlowAPI storage URI; use a shared Redis URI for multiple workers or instances |
+
+### Backend: execution and hardware
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `DEFAULT_SHOTS` | `1024` | Default shot count exposed to the frontend |
+| `MAX_SIMULATOR_SHOTS` | `10000` | Maximum shots per simulator request |
+| `IBM_HARDWARE_ENABLED` | `false` | Enables new hardware submissions |
+| `IBM_QUANTUM_API_KEY` | Empty | IBM Quantum credential, used only by the backend |
+| `IBM_QUANTUM_INSTANCE` | Empty | Optional runtime instance identifier passed to the IBM service |
+| `IBM_MAX_DAILY_JOBS` | `25` | Global daily hardware reservation/submission limit, using UTC dates |
+| `IBM_MAX_ACTIVE_JOBS` | `3` | Global active hardware job limit, including earlier UTC days |
+| `IBM_MAX_SHOTS` | `4096` | Maximum shots per hardware request |
+| `JOB_POLL_SECONDS` | `15` | Background hardware reconciliation interval in seconds |
+| `JOB_RETENTION_DAYS` | `7` | Retention after a terminal job's quota accounting is settled |
+
+`DEFAULT_SHOTS` must not exceed `MAX_SIMULATOR_SHOTS`. Hardware and simulator request schemas default omitted `shots` to `1024`; clients can read `/api/config/public` and send the configured default explicitly.
+
+### Backend: assistant
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `LLM_API_KEY` | Empty | Credential for live assistant responses; empty selects the workshop guide |
+| `LLM_BASE_URL` | `https://api.groq.com/openai/v1` | API base URL; the backend appends `/chat/completions` |
+| `LLM_MODEL` | `openai/gpt-oss-20b` | Model identifier sent to the configured provider |
+| `LLM_MAX_REQUESTS_PER_MINUTE` | `10` | Assistant request limit per client IP |
+| `LLM_TIMEOUT_SECONDS` | `25` | External assistant request timeout in seconds |
+
+The provider URL and model above are repository defaults. Model access and compatibility depend on the configured provider and account.
+
+### Frontend
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `VITE_API_BASE_URL` | Empty | Backend origin for browser requests, such as `https://api.example.com`; omit a trailing `/api` because request paths already include it |
+| `API_PROXY_TARGET` | `http://127.0.0.1:8000` | Backend target for the Vite development and preview `/api` proxy |
+
+Vite embeds `VITE_*` values into the browser build. Keep credentials in the backend configuration. Restart Vite after development environment changes and rebuild after changing production frontend variables.
+
+## Optional integrations
+
+### Live assistant
+
+Set `LLM_API_KEY`, `LLM_BASE_URL`, and `LLM_MODEL` in `backend/.env`, then restart the backend. The service sends the conversation and selected workshop context to the configured provider.
+
+Responses identify their origin using `source: "llm"` or `source: "fallback"`. Guide replies include a notice explaining that live AI is unavailable. The backend falls back for missing API credentials, provider HTTP errors, timeouts, transport failures, and supported malformed-response cases.
+
+### IBM Quantum hardware
+
+Configure the following backend variables with credentials and an instance accessible to your account:
+
+```dotenv
+IBM_HARDWARE_ENABLED=true
+IBM_QUANTUM_API_KEY=your_ibm_quantum_api_key
+IBM_QUANTUM_INSTANCE=your_runtime_instance_identifier
+IBM_MAX_DAILY_JOBS=25
+IBM_MAX_ACTIVE_JOBS=3
+IBM_MAX_SHOTS=4096
+```
+
+The implementation uses the `ibm_quantum_platform` channel, selects an operational nonsimulator backend with enough qubits and the fewest pending jobs among the returned candidates, transpiles the approved circuit, and submits through `SamplerV2`.
+
+Hardware access depends on account permissions, provider capacity, and configured quotas. The application quotas are global to the deployment. A local simulation does not require IBM access.
+
+Clients must send an `idempotency_key` of 16 to 128 characters. Reusing it with the same experiment and shots retrieves the existing submission; using it with different parameters returns HTTP `409`. Retain the returned tracking ID to query results. Disabling new submissions does not stop reconciliation of existing jobs; that still requires usable IBM credentials.
+
+## API reference
+
+Use the running backend's `/docs` for interactive request schemas and validation details. Application errors generally return a `detail` field; FastAPI validation errors use its standard validation response.
+
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| `GET` | `/api/health` | Database health and environment; HTTP `503` if the database health check fails |
+| `GET` | `/api/config/public` | Public hardware flag and shot limits |
+| `GET` | `/api/lessons` | Ordered lessons with public practice questions |
+| `GET` | `/api/lessons/{lesson_id}` | One lesson and its practice questions |
+| `POST` | `/api/lessons/{lesson_id}/practice/check` | Check a multiple-choice selection or retrieve a written-answer comparison |
+| `GET` | `/api/experiments` | All approved circuit metadata |
+| `GET` | `/api/experiments/{experiment_id}` | One circuit's metadata |
+| `POST` | `/api/experiments/simulate` | Execute an approved circuit on Qiskit Aer |
+| `POST` | `/api/experiments/hardware` | Submit an approved circuit to IBM Quantum |
+| `GET` | `/api/experiments/jobs/{tracking_id}` | Refresh job status and return any available results |
+| `GET` | `/api/hardware/status` | Hardware flag, shot cap, daily capacity, and active jobs |
+| `POST` | `/api/assistant/chat` | Ask the assistant with optional lesson, experiment, and result context |
+| `POST` | `/api/feedback` | Save anonymous workshop feedback |
+
+### Example: simulation
+
+Send this JSON body to `POST /api/experiments/simulate`:
+
+```json
+{
+  "experiment_id": "bell_entanglement",
+  "shots": 1024
+}
+```
+
+PowerShell example:
 
 ```powershell
-cd backend
-..\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider
-cd ..\frontend
-npm run lint
+$simulationBody = @{ experiment_id = 'bell_entanglement'; shots = 1024 } | ConvertTo-Json
+Invoke-RestMethod -Uri 'http://127.0.0.1:8000/api/experiments/simulate' -Method Post -ContentType 'application/json' -Body $simulationBody
+```
+
+The response includes `experiment_id`, `backend`, `backend_name`, `shots`, `counts`, `observed_probabilities`, `ideal_probabilities`, and simulator `amplitudes`. Each amplitude includes its basis outcome, real and imaginary parts, probability, and phase in degrees. Hardware responses expose counts and probabilities rather than a measured statevector.
+
+### Example: assistant
+
+Send this JSON body to `POST /api/assistant/chat`:
+
+```json
+{
+  "messages": [
+    { "role": "user", "content": "Why does this circuit measure only 00 and 11?" }
+  ],
+  "experiment_id": "bell_entanglement",
+  "lesson_id": "entanglement"
+}
+```
+
+`result_context` can optionally carry recorded experiment results. Requests accept 1 to 12 messages; user messages are limited to 2,000 characters each.
+
+### Example: feedback
+
+Send this JSON body to `POST /api/feedback`:
+
+```json
+{
+  "rating": 5,
+  "clarity_rating": 4,
+  "completed_workshop": true,
+  "comments": "The circuit diagrams helped explain entanglement."
+}
+```
+
+Both ratings must be from 1 to 5; comments are optional and limited to 1,000 characters.
+
+### Request limits
+
+SlowAPI keys limits by the request's remote address. Configured limits are:
+
+| Operation | Limit |
+| --- | --- |
+| Default for routes without an explicit override | 120 requests/minute |
+| Simulation | 20 requests/minute |
+| Hardware submission | 5 requests/minute |
+| Hardware job lookup | 60 requests/minute |
+| Assistant | `LLM_MAX_REQUESTS_PER_MINUTE`, default 10 |
+| Feedback | 5 requests/minute |
+
+Rate-limit and hardware-quota exhaustion both return HTTP `429`; inspect the response detail to distinguish them.
+
+## Testing and development
+
+### Backend
+
+From `backend/`, using the virtual environment created above:
+
+```powershell
+# Windows PowerShell
+.\.venv\Scripts\python.exe -m pytest test -q
+```
+
+```bash
+# macOS/Linux
+.venv/bin/python -m pytest test -q
+```
+
+Tests cover circuits, simulations, API behavior, lesson practice, hardware job lifecycle, quotas, assistant responses and failure handling, and system endpoints. Test fixtures use mongomock and service mocks, disable live hardware, clear the assistant API key, and use in-memory rate limiting. The suite is designed to run without a live MongoDB, IBM, or AI service.
+
+### Frontend
+
+From `frontend/`:
+
+```bash
 npm test
+npm run lint
 npm run build
 ```
 
-Backend tests use an isolated MongoDB mock and fake IBM/LLM responses. They never use credentials or submit real jobs. Coverage includes quota limits, concurrent completion, idempotency, interrupted submission recovery, assistant fallbacks, result extraction, health checks, and simulations. Frontend tests cover experiment selection, configured shot options, persisted retries, result switching, assistant context, feedback errors, SVG attributes, and math rendering.
+Tests use Vitest and React Testing Library with jsdom. Coverage includes workshop flows, practice, navigation, Markdown rendering, and assistant behavior/context. The build runs TypeScript checks before generating static assets in `frontend/dist/`.
 
-Styling uses Tailwind CSS 4 and requires modern browsers (Safari 16.4+, Chrome 111+, Firefox 128+). Run `npm audit` to check dependency advisories against the current registry.
+To inspect the production bundle locally:
+
+```bash
+npm run preview
+```
+
+The preview server also proxies `/api` using `API_PROXY_TARGET`. It is intended for local inspection.
+
+## Deployment
+
+Deploy the backend and frontend as separate services, or place them behind one reverse proxy.
+
+1. Provision MongoDB and configure backend environment variables. The backend database user must be able to write application collections and create indexes.
+2. Install `backend/requirements.txt` and run Uvicorn from `backend/` without development reload:
+
+   ```bash
+   python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+   ```
+
+3. Set `CORS_ORIGINS` to the frontend origins when browsers call the backend directly. If deploying multiple backend workers or instances, configure shared rate-limit storage, such as `RATE_LIMIT_STORAGE_URI=redis://your-redis-host:6379/0`.
+4. Build the frontend with `npm ci` and `npm run build`. For separate origins, set `VITE_API_BASE_URL` before building. For a shared origin, leave it empty and configure the reverse proxy to forward `/api` to the backend.
+5. Serve `frontend/dist/` through a static host. Configure SPA fallback so browser visits to `/learn`, `/playground`, `/assistant`, and `/about` return `index.html`.
+6. Use `/api/health` for backend health checks. When behind a proxy, configure trusted forwarded addresses so per-client rate limiting sees the intended client IP.
+
+The Vite proxy configuration applies to development and local preview; a deployed static bundle needs its own API routing or a configured backend origin. This repository does not include application Dockerfiles, a Compose stack, or a hosting-specific deployment manifest.
+
+## Data and operational behavior
+
+- **MongoDB collections:** `lessons`, `experiments`, `quantum_jobs`, `hardware_quota`, and `feedback`.
+- **Content synchronization:** Startup upserts canonical lesson and experiment definitions. Changes made directly to seeded fields in MongoDB can be overwritten on the next startup. Runtime circuit metadata comes from the canonical Python definitions.
+- **Job tracking:** Job states include `queued`, `running`, `completed`, `failed`, `cancelled`, and `unknown`. A background loop reconciles unfinished jobs; status requests also refresh the requested job.
+- **Retry recovery:** Ambiguous IBM submissions are searched by provider job tags rather than automatically submitted again. An uncertain submission can retain its reservation while reconciliation continues.
+- **Retention:** Terminal hardware jobs receive a MongoDB TTL expiry after quota settlement, using `JOB_RETENTION_DAYS`. MongoDB removes expired records asynchronously. Active and unresolved jobs are retained for reconciliation.
+- **Browser storage:** Hardware submission keys, shot counts, and tracking IDs are stored in local storage when available. Clearing browser data can remove this recovery information. Chat context lives in application memory and resets on a full page reload.
+- **Access model:** The application has no user account or authentication system. Hardware tracking IDs grant access to their job lookup and should be treated as private. Hardware tracking and idempotency keys are stored as hashes in MongoDB; the frontend retains the values needed to resume requests.
+- **External data flow:** Live assistant requests send conversation and selected context to the configured AI provider. IBM submissions send approved circuits and execution settings to IBM Quantum. Guide-based assistant replies require no external AI request.
+- **Secrets:** Keep provider keys and database credentials in backend environment variables. `.env` files are ignored by Git; `.env.example` templates are tracked.
+
+## Troubleshooting
+
+| Symptom | What to check |
+| --- | --- |
+| Backend exits during startup | Confirm MongoDB is running, `MONGODB_URI` is correct, and the database user can create indexes. Startup retries are controlled by `MONGODB_CONNECT_ATTEMPTS`. |
+| `ModuleNotFoundError: app` | Run Uvicorn or pytest from `backend/` using the installed virtual environment. |
+| Lessons or experiments fail to load | Check that the backend is listening on port 8000, then check `/api/health`. Verify `API_PROXY_TARGET` or `VITE_API_BASE_URL`. |
+| Requests go to `/api/api/...` | Set `VITE_API_BASE_URL` to the backend origin without an `/api` suffix. |
+| Browser reports a CORS error | For direct backend requests, add the exact frontend scheme, host, and port to `CORS_ORIGINS`, then restart the backend. |
+| Assistant says live AI is unavailable | Check `LLM_API_KEY`, the provider base URL, model access, and backend logs. Guide replies remain available during supported provider failures. |
+| Hardware control is unavailable | Check the hardware flag, credentials, selected shot count, active jobs, and remaining daily quota through `/api/hardware/status`. |
+| Hardware job stays `unknown` | The provider may be unavailable or submission acceptance may be uncertain. Retain the existing tracking ID and allow reconciliation to continue. |
+| Job lookup returns `404` | The tracking ID may be invalid, or the completed job may have expired under the retention policy. |
+| HTTP `409` on submission | The idempotency key was reused with different experiment parameters. Use the original parameters for a retry, or a new key for a new job. |
+| HTTP `429` | A client request limit or deployment-wide hardware quota has been reached; inspect the response detail. |
+| Frontend tests fail due to Node compatibility | Use Node.js 22.x and reinstall from the frontend lockfile with `npm ci`. |
+| Refreshing a deployed page returns `404` | Configure the static host's SPA fallback to serve `index.html` for frontend routes. |
+
+## Extending the project
+
+- **Lessons and experiments:** Edit [backend/app/content/curriculum.py](backend/app/content/curriculum.py). Keep experiment IDs, gate definitions, Qiskit examples, classical mappings, and ideal distributions consistent.
+- **Practice questions:** Edit [backend/app/content/practice.py](backend/app/content/practice.py). Public questions omit answer keys; answer checking returns explanations or self-assessment material.
+- **New circuit support:** Update the experiment enum and approved gate builder in [backend/app/quantum/circuits.py](backend/app/quantum/circuits.py) as needed, then update frontend experiment types and validation helpers.
+- **Assistant behavior:** Adjust [backend/app/ai/prompts.py](backend/app/ai/prompts.py), the knowledge-base context builder, and guide replies to match new content.
+- **Verification:** Run the relevant existing tests and frontend checks when changing behavior. Restart the backend to synchronize seeded content.
+
+## License
+
+No project license file is currently included in this repository. Add an explicit license before distributing the project under specified reuse terms.
