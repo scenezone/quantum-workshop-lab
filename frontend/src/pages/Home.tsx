@@ -1,16 +1,16 @@
-import { Atom, Bot, Cpu, LineChart, ShieldCheck, Zap } from 'lucide-react';
+import { Atom, Bot, Cpu, FlaskConical, LineChart, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const features = [
   {
-    icon: Book,
+    icon: Atom,
     title: 'Beginner to advanced',
     description: 'Learn amplitudes, quantum algorithms, teleportation, and error correction.',
   },
   {
-    icon: Zap,
+    icon: FlaskConical,
     title: 'Safe experiments',
-    description: 'Explore 10 guided circuits—no Python coding or arbitrary code execution.',
+    description: 'Explore 10 guided circuits with no Python setup or arbitrary code execution.',
   },
   {
     icon: Cpu,
@@ -24,8 +24,8 @@ const features = [
   },
   {
     icon: Bot,
-    title: 'AI assistant',
-    description: 'Ask context-aware questions about your lessons and results.',
+    title: 'Workshop assistant',
+    description: 'Ask context-aware questions. Live AI is optional; the built-in guide works without credentials.',
   },
   {
     icon: ShieldCheck,
@@ -33,10 +33,6 @@ const features = [
     description: 'No accounts, conservative public quotas, and secure backend secrets.',
   },
 ];
-
-function Book(props: { className?: string }) {
-  return <Atom {...props} />;
-}
 
 export default function Home() {
   return (
@@ -50,8 +46,9 @@ export default function Home() {
             Explore Quantum Computing
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-lg text-slate-300">
-            Understand quantum computing through interactive lessons, run real quantum circuits, and
-            explore results with your personal AI quantum assistant.
+            Learn quantum computing through guided lessons, simulate circuits in your browser, and
+            compare your results with ideal quantum behavior. Optional IBM Quantum access is available
+            when the workshop is configured for hardware.
           </p>
 
           <div className="mt-8 flex flex-wrap justify-center gap-4">

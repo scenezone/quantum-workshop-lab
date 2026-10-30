@@ -4,7 +4,6 @@ from fastapi import HTTPException
 
 from app.errors import NotFoundError
 
-
 # MCQ tuples: prompt, four options, correct option index, explanation.
 # Written tuples: prompt, sample answer, self-review points.
 PRACTICE = {

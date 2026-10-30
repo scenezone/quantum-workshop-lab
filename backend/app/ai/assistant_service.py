@@ -11,20 +11,33 @@ from app.content.curriculum import EXPERIMENTS, LESSONS
 
 logger = logging.getLogger(__name__)
 
-FALLBACK_NOTICE = "Live AI is currently unavailable. This explanation comes from the workshop guide."
+FALLBACK_NOTICE = (
+    "Live AI is currently unavailable. This explanation comes from the workshop guide."
+)
 
 
-def guide_reply(question: str, lesson_id: str | None, experiment_id: str | None, result_context: dict | None) -> str:
+def guide_reply(
+    question: str, lesson_id: str | None, experiment_id: str | None, result_context: dict | None
+) -> str:
     question = question.lower()
     overview = "overview" in question
     result_summary = None
-    if result_context and any(word in question for word in ("result", "count", "probabil", "50/50", "shot")):
+    if result_context and any(
+        word in question for word in ("result", "count", "probabil", "50/50", "shot")
+    ):
         counts = result_context.get("counts")
         if isinstance(counts, dict):
-            counts = {key: value for key, value in counts.items() if isinstance(value, int) and not isinstance(value, bool) and value >= 0}
+            counts = {
+                key: value
+                for key, value in counts.items()
+                if isinstance(value, int) and not isinstance(value, bool) and value >= 0
+            }
             total = sum(counts.values())
             if total:
-                frequencies = "\n".join(f"- **`{key}`:** {value / total:.1%}" for key, value in sorted(counts.items())[:16])
+                frequencies = "\n".join(
+                    f"- **`{key}`:** {value / total:.1%}"
+                    for key, value in sorted(counts.items())[:16]
+                )
                 result_summary = (
                     f"Your recorded measurements contain {total} shots.\n\n{frequencies}\n\n"
                     "A shot is one circuit execution and measurement.\n\nFinite samples can differ from ideal "
@@ -36,20 +49,39 @@ def guide_reply(question: str, lesson_id: str | None, experiment_id: str | None,
                     return result_summary
     selected = find_lesson_id(question, lesson_id, experiment_id)
     experiment = EXPERIMENTS.get(experiment_id)
-    if experiment and selected == experiment["lesson_id"] and (overview or any(
-        phrase in question for phrase in ("this circuit", "these gates", "this experiment", "current experiment")
-    )):
+    if (
+        experiment
+        and selected == experiment["lesson_id"]
+        and (
+            overview
+            or any(
+                phrase in question
+                for phrase in (
+                    "this circuit",
+                    "these gates",
+                    "this experiment",
+                    "current experiment",
+                )
+            )
+        )
+    ):
         gates = "\n".join(
             f"{index}. **{gate.get('label') or gate['name']}({', '.join(f'q{qubit}' for qubit in gate['qubits'])})** "
             f"— {gate['explanation']}"
             for index, gate in enumerate(experiment["gates"], 1)
         )
-        probabilities = "\n".join(f"- **`{key}`:** {value:.1%}" for key, value in experiment["ideal_probabilities"].items())
+        probabilities = "\n".join(
+            f"- **`{key}`:** {value:.1%}"
+            for key, value in experiment["ideal_probabilities"].items()
+        )
         return (
             f"### {experiment['title']}\n\n{experiment['description']}\n\n"
             f"### Circuit, left to right\n\n{gates}\n\n### What to expect\n\n{experiment['interpretation']}\n\n"
             f"### Ideal measurement probabilities\n\n{probabilities}\n\n"
-            + (result_summary or "Run the simulator and compare its measurement frequencies with these ideal probabilities.")
+            + (
+                result_summary
+                or "Run the simulator and compare its measurement frequencies with these ideal probabilities."
+            )
         )
     if selected is None and ("interference" in question or experiment_id == "interference"):
         return (
@@ -68,8 +100,15 @@ def guide_reply(question: str, lesson_id: str | None, experiment_id: str | None,
     )
 
 
-def fallback(messages: list[dict], lesson_id: str | None, experiment_id: str | None, result_context: dict | None) -> dict:
-    question = next((message["content"] for message in reversed(messages) if message["role"] == "user"), "")
+def fallback(
+    messages: list[dict],
+    lesson_id: str | None,
+    experiment_id: str | None,
+    result_context: dict | None,
+) -> dict:
+    question = next(
+        (message["content"] for message in reversed(messages) if message["role"] == "user"), ""
+    )
     return {
         "reply": guide_reply(question, lesson_id, experiment_id, result_context),
         "source": "fallback",
@@ -79,15 +118,24 @@ def fallback(messages: list[dict], lesson_id: str | None, experiment_id: str | N
 
 class AssistantService:
     @staticmethod
-    async def chat(messages: list[dict], lesson_id: str | None, experiment_id: str | None, result_context: dict | None) -> dict:
+    async def chat(
+        messages: list[dict],
+        lesson_id: str | None,
+        experiment_id: str | None,
+        result_context: dict | None,
+    ) -> dict:
         settings = get_settings()
         if not settings.llm_api_key.strip():
             logger.warning("Live assistant is not configured: LLM_API_KEY is missing")
             return fallback(messages, lesson_id, experiment_id, result_context)
 
         # MongoDB uses a synchronous driver; do not block the API event loop.
-        question = next((message["content"] for message in reversed(messages) if message["role"] == "user"), "")
-        context = await asyncio.to_thread(build_context, lesson_id, experiment_id, result_context, question)
+        question = next(
+            (message["content"] for message in reversed(messages) if message["role"] == "user"), ""
+        )
+        context = await asyncio.to_thread(
+            build_context, lesson_id, experiment_id, result_context, question
+        )
         payload = {
             "model": settings.llm_model,
             "messages": [{"role": "system", "content": f"{SYSTEM_PROMPT}\n\nCONTEXT:\n{context}"}]
@@ -122,7 +170,9 @@ class AssistantService:
             logger.warning("LLM request timed out")
         except httpx.HTTPStatusError as exc:
             # Never log the provider body: it can contain account or credential details.
-            logger.warning("LLM HTTP %s for configured model %s", exc.response.status_code, settings.llm_model)
+            logger.warning(
+                "LLM HTTP %s for configured model %s", exc.response.status_code, settings.llm_model
+            )
         except (httpx.RequestError, ValueError, KeyError, IndexError, TypeError):
             logger.warning("LLM request failed or returned an invalid response")
 

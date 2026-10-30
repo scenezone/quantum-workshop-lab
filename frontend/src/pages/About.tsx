@@ -10,9 +10,19 @@ export default function About() {
         <li><strong>2. Experiment:</strong> Choose one of 10 guided circuits, inspect its gates, and open the related theory lesson.</li>
         <li><strong>3. Simulate:</strong> Run on Qiskit Aer, compare probabilities, and inspect complex amplitudes and relative phases.</li>
         <li><strong>4. Hardware:</strong> If enabled, submit the same approved circuit to IBM Quantum and monitor its job.</li>
-        <li><strong>5. Understand:</strong> Ask the AI assistant why ideal and observed results differ.</li>
+        <li><strong>5. Understand:</strong> Ask the workshop assistant why ideal and observed results differ. Live AI is optional.</li>
         <li><strong>6. Reflect:</strong> Submit optional anonymous feedback.</li>
       </ol>
+
+      <section className="glass mt-8 p-5 sm:p-6" aria-labelledby="data-use-heading">
+        <h2 id="data-use-heading" className="text-xl font-semibold">Data and privacy</h2>
+        <ul className="mt-4 list-disc space-y-3 pl-5 text-sm leading-relaxed text-slate-300">
+          <li>You can use the workshop without creating an account. Lesson and simulation context stays in this browser session.</li>
+          <li>Optional feedback ratings, completion status, comments, and submission time are stored until the workshop operator removes them. Avoid including personal or sensitive information in comments.</li>
+          <li>When live AI is configured, your chat messages and selected lesson, circuit, or result context are sent to the configured AI provider. Otherwise, replies come from the built-in guide.</li>
+          <li>If IBM Quantum access is enabled, approved circuit settings are sent to IBM when you submit a hardware job. Job status and results are stored by the workshop operator; terminal jobs are retained for seven days by default. Tracking details are kept in this browser to resume status checks.</li>
+        </ul>
+      </section>
 
       <div className="mt-8"><FeedbackForm /></div>
 

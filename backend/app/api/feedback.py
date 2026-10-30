@@ -1,7 +1,6 @@
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Request
-from slowapi import Limiter
 
 from app.database.mongodb import Mongo
 from app.rate_limit import limiter

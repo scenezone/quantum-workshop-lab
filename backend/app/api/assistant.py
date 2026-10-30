@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request
-from app.config import get_settings
 
 from app.ai.assistant_service import AssistantService
+from app.config import get_settings
 from app.rate_limit import limiter
 from app.schemas import AssistantRequest, AssistantResponse
 

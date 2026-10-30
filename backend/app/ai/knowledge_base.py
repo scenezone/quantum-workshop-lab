@@ -1,11 +1,13 @@
-from app.database.mongodb import Mongo
-from app.quantum.circuits import get_metadata
-from app.content.curriculum import LESSONS, EXPERIMENTS
-from app.errors import ExternalServiceError, NotFoundError
-from pymongo.errors import PyMongoError
 import json
 import logging
 import re
+
+from pymongo.errors import PyMongoError
+
+from app.content.curriculum import EXPERIMENTS, LESSONS
+from app.database.mongodb import Mongo
+from app.errors import ExternalServiceError, NotFoundError
+from app.quantum.circuits import get_metadata
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +29,10 @@ TOPICS = [
     (("deutsch", "balanced oracle"), "deutsch-jozsa"),
     (("fourier", "qft", "phase estimation"), "quantum-fourier-transform"),
     (("teleport", "feed-forward", "deferred measurement"), "quantum-teleportation"),
-    (("syndrome", "repetition", "error correction", "stabilizer", "bit flip"), "quantum-error-correction"),
+    (
+        ("syndrome", "repetition", "error correction", "stabilizer", "bit flip"),
+        "quantum-error-correction",
+    ),
     (("ghz", "multipartite", "coherence"), "multipartite-entanglement"),
     (("kickback",), "phase-kickback"),
     (("vqe", "variational", "optimizer", "parameter shift"), "variational-methods"),
@@ -40,11 +45,16 @@ TOPICS = [
 ]
 
 
-def find_lesson_id(question: str, lesson_id: str | None = None, experiment_id: str | None = None) -> str | None:
+def find_lesson_id(
+    question: str, lesson_id: str | None = None, experiment_id: str | None = None
+) -> str | None:
     selected = lesson_id or EXPERIMENTS.get(experiment_id, {}).get("lesson_id")
     if selected and re.search(r"\b(current|this|these|that|my|our)\b", question.lower()):
         return selected
-    matched = next((topic for keywords, topic in TOPICS if any(word in question.lower() for word in keywords)), None)
+    matched = next(
+        (topic for keywords, topic in TOPICS if any(word in question.lower() for word in keywords)),
+        None,
+    )
     return matched or selected
 
 
@@ -54,7 +64,6 @@ def build_context(
     result_context: dict | None,
     question: str = "",
 ) -> str:
-
     sections: list[str] = [WORKSHOP_OVERVIEW]
 
     related_id = find_lesson_id(question)
@@ -62,7 +71,7 @@ def build_context(
 
     if lesson_id:
         try:
-            lesson = Mongo.db().lessons.find_one({"lesson_id":lesson_id})
+            lesson = Mongo.db().lessons.find_one({"lesson_id": lesson_id})
         except (PyMongoError, ExternalServiceError):
             logger.warning("Using bundled lesson context while the database is unavailable")
             lesson = None

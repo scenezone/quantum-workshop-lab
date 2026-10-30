@@ -1,4 +1,5 @@
 """Atomic reservations including active jobs from previous UTC days."""
+
 from pymongo import ReturnDocument
 from pymongo.errors import DuplicateKeyError, PyMongoError
 
@@ -18,7 +19,8 @@ class QuotaService:
             try:
                 collection.update_one(
                     {"_id": QuotaService.LEDGER_ID},
-                    {"$setOnInsert": {"entries": []}}, upsert=True,
+                    {"$setOnInsert": {"entries": []}},
+                    upsert=True,
                 )
             except DuplicateKeyError:
                 pass
@@ -28,29 +30,57 @@ class QuotaService:
             )
 
             def count(condition):
-                return {"$size": {"$filter": {
-                    "input": "$entries", "as": "entry", "cond": condition,
-                }}}
+                return {
+                    "$size": {
+                        "$filter": {
+                            "input": "$entries",
+                            "as": "entry",
+                            "cond": condition,
+                        }
+                    }
+                }
 
             document = collection.find_one_and_update(
                 {
                     "_id": QuotaService.LEDGER_ID,
                     "entries.job_id": {"$ne": job_id},
-                    "$expr": {"$and": [
-                        {"$lt": [count({"$eq": ["$$entry.quota_date", quota_date]}), settings.ibm_max_daily_jobs]},
-                        {"$lt": [count({"$eq": ["$$entry.active", True]}), settings.ibm_max_active_jobs]},
-                    ]},
+                    "$expr": {
+                        "$and": [
+                            {
+                                "$lt": [
+                                    count({"$eq": ["$$entry.quota_date", quota_date]}),
+                                    settings.ibm_max_daily_jobs,
+                                ]
+                            },
+                            {
+                                "$lt": [
+                                    count({"$eq": ["$$entry.active", True]}),
+                                    settings.ibm_max_active_jobs,
+                                ]
+                            },
+                        ]
+                    },
                 },
-                {"$push": {"entries": {
-                    "job_id": job_id, "quota_date": quota_date,
-                    "state": "reserved", "active": True,
-                }}, "$set": {"updated_at": utcnow()}},
+                {
+                    "$push": {
+                        "entries": {
+                            "job_id": job_id,
+                            "quota_date": quota_date,
+                            "state": "reserved",
+                            "active": True,
+                        }
+                    },
+                    "$set": {"updated_at": utcnow()},
+                },
                 return_document=ReturnDocument.AFTER,
             )
             if document is None:
-                existing = collection.find_one({
-                    "_id": QuotaService.LEDGER_ID, "entries.job_id": job_id,
-                })
+                existing = collection.find_one(
+                    {
+                        "_id": QuotaService.LEDGER_ID,
+                        "entries.job_id": job_id,
+                    }
+                )
                 if existing is None:
                     raise QuotaExceededError()
         except PyMongoError as exc:
@@ -67,8 +97,10 @@ class QuotaService:
     def release_reservation(job_id: str) -> None:
         Mongo.db().hardware_quota.update_one(
             {"_id": QuotaService.LEDGER_ID},
-            {"$pull": {"entries": {"job_id": job_id, "state": "reserved"}},
-             "$set": {"updated_at": utcnow()}},
+            {
+                "$pull": {"entries": {"job_id": job_id, "state": "reserved"}},
+                "$set": {"updated_at": utcnow()},
+            },
         )
 
     @staticmethod

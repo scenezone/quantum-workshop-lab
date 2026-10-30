@@ -22,7 +22,17 @@ export default function App() {
             <Route path="/playground" element={<Playground />} />
             <Route path="/assistant" element={<Assistant />} />
             <Route path="/about" element={<About />} />
-            <Route path="*" element={<div className="p-10">Page not found. <Link to="/">Return home</Link></div>} />
+            <Route
+              path="*"
+              element={
+                <section className="mx-auto flex min-h-[55vh] max-w-3xl flex-col items-center justify-center px-6 py-16 text-center">
+                  <p className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-300">404 · Page not found</p>
+                  <h1 className="mt-4 text-3xl font-bold text-slate-100 sm:text-4xl">This page is outside the lab.</h1>
+                  <p className="mt-3 max-w-xl text-slate-300">The address may be out of date, or the page may have moved.</p>
+                  <Link to="/" className="btn-primary mt-7">Return to the workshop</Link>
+                </section>
+              }
+            />
           </Routes>
         </Suspense>
       </main>

@@ -48,10 +48,10 @@ The project includes a React frontend, a FastAPI backend, and MongoDB persistenc
 | Database | MongoDB through PyMongo |
 | External AI | HTTPX requests to a configurable chat-completions API |
 | Rate limiting | SlowAPI; in-memory storage locally, optional Redis storage |
-| Testing | pytest, pytest-asyncio, mongomock; Vitest, React Testing Library, jsdom |
-| Frontend checks | TypeScript compiler and ESLint |
+| Testing | pytest, pytest-asyncio, mongomock; Vitest, React Testing Library, jsdom, Playwright |
+| Code checks | Ruff, TypeScript compiler, ESLint |
 
-Backend versions are pinned in [backend/requirements.txt](backend/requirements.txt). Frontend dependencies and scripts are defined in [frontend/package.json](frontend/package.json), with resolved versions in [frontend/package-lock.json](frontend/package-lock.json).
+Runtime backend versions are pinned in [backend/requirements.txt](backend/requirements.txt); development and test dependencies are in [backend/requirements-dev.txt](backend/requirements-dev.txt). Frontend dependencies and scripts are defined in [frontend/package.json](frontend/package.json), with resolved versions in [frontend/package-lock.json](frontend/package-lock.json).
 
 ## Architecture and project structure
 
@@ -71,13 +71,20 @@ Browser / React frontend
 
 The backend connects to MongoDB, creates indexes, seeds lesson and experiment content, and starts a hardware-job reconciliation loop during application startup. MongoDB must be reachable for normal application startup, including simulator-only workshops.
 
+Background hardware reconciliation uses a MongoDB lease so that only one API worker performs each reconciliation pass. The lease renews while a pass is active and expires if a worker stops unexpectedly.
+
 ```text
 Quantum-Workshop-Lab/
 |-- README.md
 |-- .gitignore
+|-- docker-compose.yml       # Local app, API, and MongoDB stack
+|-- .github/workflows/ci.yml # Automated backend and frontend checks
 |-- backend/
+|   |-- .dockerignore
+|   |-- Dockerfile
 |   |-- .env.example          # Backend configuration template
 |   |-- requirements.txt     # Pinned Python dependencies
+|   |-- requirements-dev.txt # Test and lint dependencies
 |   |-- app/
 |   |   |-- main.py          # FastAPI application and startup/shutdown lifecycle
 |   |   |-- config.py        # Environment settings and validation
@@ -93,6 +100,9 @@ Quantum-Workshop-Lab/
 |   |   `-- rate_limit.py
 |   `-- test/                # Backend tests
 `-- frontend/
+    |-- .dockerignore
+    |-- Dockerfile
+    |-- nginx.conf           # Static hosting, API proxy, and SPA fallback
     |-- .env.example         # Frontend URL and development proxy template
     |-- package.json
     |-- package-lock.json
@@ -160,7 +170,7 @@ For subsequent runs of this container, use `docker start quantum-workshop-mongo`
 ```powershell
 cd backend
 python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
 .\.venv\Scripts\python.exe -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
@@ -169,7 +179,7 @@ python -m venv .venv
 ```bash
 cd backend
 python3 -m venv .venv
-.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python -m pip install -r requirements-dev.txt
 .venv/bin/python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
@@ -434,7 +444,14 @@ From `backend/`, using the virtual environment created above:
 .venv/bin/python -m pytest test -q
 ```
 
-Tests cover circuits, simulations, API behavior, lesson practice, hardware job lifecycle, quotas, assistant responses and failure handling, and system endpoints. Test fixtures use mongomock and service mocks, disable live hardware, clear the assistant API key, and use in-memory rate limiting. The suite is designed to run without a live MongoDB, IBM, or AI service.
+Tests cover circuits, simulations, API behavior, lesson practice, hardware job lifecycle, quotas, assistant responses and failure handling, system endpoints, and single-owner hardware reconciliation leases. Test fixtures use mongomock and service mocks, disable live hardware, clear the assistant API key, and use in-memory rate limiting. The suite is designed to run without a live MongoDB, IBM, or AI service.
+
+Use Ruff to check and format backend code:
+
+```bash
+ruff check app test
+ruff format app test
+```
 
 ### Frontend
 
@@ -448,6 +465,14 @@ npm run build
 
 Tests use Vitest and React Testing Library with jsdom. Coverage includes workshop flows, practice, navigation, Markdown rendering, and assistant behavior/context. The build runs TypeScript checks before generating static assets in `frontend/dist/`.
 
+The Playwright browser smoke test runs the lesson, practice, and simulator flow against deterministic API fixtures. Install Chromium once with `npx playwright install chromium`, then run:
+
+```bash
+npm run test:e2e
+```
+
+GitHub Actions runs backend lint and tests, frontend tests, the Playwright smoke test, ESLint, and the production build on pushes and pull requests.
+
 To inspect the production bundle locally:
 
 ```bash
@@ -458,7 +483,15 @@ The preview server also proxies `/api` using `API_PROXY_TARGET`. It is intended 
 
 ## Deployment
 
-Deploy the backend and frontend as separate services, or place them behind one reverse proxy.
+For a reproducible local deployment, copy `backend/.env.example` to `backend/.env` only if it does not already exist, then run:
+
+```bash
+docker compose up --build
+```
+
+Open http://localhost:8080. The stack includes MongoDB with a persistent volume, an API container, an Nginx frontend/API proxy, health checks, and the SPA route fallback. The API is only exposed inside the Compose network. Optional IBM and AI credentials can be set in `backend/.env`; leave them empty for simulator and guide-only use. Stop the stack with `docker compose down`; data remains in the named `mongo-data` volume. Remove that volume only when you intend to delete local database data.
+
+For hosted deployments, deploy the backend and frontend as separate services, or place them behind one reverse proxy.
 
 1. Provision MongoDB and configure backend environment variables. The backend database user must be able to write application collections and create indexes.
 2. Install `backend/requirements.txt` and run Uvicorn from `backend/` without development reload:
@@ -472,7 +505,7 @@ Deploy the backend and frontend as separate services, or place them behind one r
 5. Serve `frontend/dist/` through a static host. Configure SPA fallback so browser visits to `/learn`, `/playground`, `/assistant`, and `/about` return `index.html`.
 6. Use `/api/health` for backend health checks. When behind a proxy, configure trusted forwarded addresses so per-client rate limiting sees the intended client IP.
 
-The Vite proxy configuration applies to development and local preview; a deployed static bundle needs its own API routing or a configured backend origin. This repository does not include application Dockerfiles, a Compose stack, or a hosting-specific deployment manifest.
+The Vite proxy configuration applies to development and local preview. For production, the included Nginx config serves the static bundle, forwards `/api` to the backend, and applies the SPA fallback. The Compose API trusts forwarded client addresses only from the Nginx container; configure trusted proxy addresses explicitly for other hosting setups rather than trusting arbitrary forwarded headers.
 
 ## Data and operational behavior
 
@@ -482,6 +515,7 @@ The Vite proxy configuration applies to development and local preview; a deploye
 - **Retry recovery:** Ambiguous IBM submissions are searched by provider job tags rather than automatically submitted again. An uncertain submission can retain its reservation while reconciliation continues.
 - **Retention:** Terminal hardware jobs receive a MongoDB TTL expiry after quota settlement, using `JOB_RETENTION_DAYS`. MongoDB removes expired records asynchronously. Active and unresolved jobs are retained for reconciliation.
 - **Browser storage:** Hardware submission keys, shot counts, and tracking IDs are stored in local storage when available. Clearing browser data can remove this recovery information. Chat context lives in application memory and resets on a full page reload.
+- **Feedback retention:** Feedback ratings, completion status, optional comments, and creation timestamps are stored in MongoDB. The application does not currently expire feedback records; the deployment operator must define and apply a retention policy. Users should avoid entering personal or sensitive information in comments.
 - **Access model:** The application has no user account or authentication system. Hardware tracking IDs grant access to their job lookup and should be treated as private. Hardware tracking and idempotency keys are stored as hashes in MongoDB; the frontend retains the values needed to resume requests.
 - **External data flow:** Live assistant requests send conversation and selected context to the configured AI provider. IBM submissions send approved circuits and execution settings to IBM Quantum. Guide-based assistant replies require no external AI request.
 - **Secrets:** Keep provider keys and database credentials in backend environment variables. `.env` files are ignored by Git; `.env.example` templates are tracked.
@@ -514,4 +548,4 @@ The Vite proxy configuration applies to development and local preview; a deploye
 
 ## License
 
-No project license file is currently included in this repository. Add an explicit license before distributing the project under specified reuse terms.
+No license is included. This repository does not grant permission to reuse, modify, or distribute the code.

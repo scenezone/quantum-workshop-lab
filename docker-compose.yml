@@ -1,0 +1,61 @@
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    networks:
+      - workshop
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "mongodb://localhost:27017/admin", "--eval", "db.runCommand({ ping: 1 }).ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      APP_ENV: production
+      MONGODB_URI: mongodb://mongo:27017
+      MONGODB_DATABASE: quantum_workshop
+      CORS_ORIGINS: http://localhost:8080
+      RATE_LIMIT_STORAGE_URI: memory://
+      FORWARDED_ALLOW_IPS: 172.30.0.3
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      workshop:
+        ipv4_address: 172.30.0.2
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=4)"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  web:
+    build:
+      context: ./frontend
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      workshop:
+        ipv4_address: 172.30.0.3
+
+volumes:
+  mongo-data:
+
+networks:
+  workshop:
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24

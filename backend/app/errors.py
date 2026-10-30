@@ -1,4 +1,4 @@
-from fastapi import Request,status
+from fastapi import Request, status
 from fastapi.responses import JSONResponse
 
 
@@ -19,13 +19,16 @@ class NotFoundError(AppError):
     status_code = status.HTTP_404_NOT_FOUND
     detail = "Resource not found"
 
+
 class QuotaExceededError(AppError):
     status_code = status.HTTP_429_TOO_MANY_REQUESTS
     detail = "The public hardware usage limit has been reached. Please try again later."
 
+
 class HardwareUnavailableError(AppError):
     status_code = status.HTTP_503_SERVICE_UNAVAILABLE
     detail = "IBM Quantum hardware is currently unavailable."
+
 
 class ExternalServiceError(AppError):
     status_code = status.HTTP_502_BAD_GATEWAY
@@ -41,5 +44,3 @@ async def unhandled_error_handler(_: Request, exc: Exception) -> JSONResponse:
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={"detail": "An unexpected error occurred. Please try again."},
     )
-
-

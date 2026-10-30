@@ -19,6 +19,7 @@ class IBMRuntimeClient:
             raise HardwareUnavailableError("IBM Quantum API key is not configured.")
         if cls._service is None:
             from qiskit_ibm_runtime import QiskitRuntimeService
+
             cls._service = QiskitRuntimeService(
                 channel="ibm_quantum_platform",
                 token=settings.ibm_quantum_api_key,
@@ -39,6 +40,7 @@ class IBMRuntimeClient:
     @classmethod
     def submit_job(cls, experiment_id: str, shots: int, job_tag: str) -> tuple[str, str, str]:
         from qiskit_ibm_runtime import SamplerV2 as Sampler
+
         from app.quantum.circuits import build_circuit
 
         try:
@@ -49,7 +51,9 @@ class IBMRuntimeClient:
             sampler = Sampler(mode=backend, options={"environment": {"job_tags": [job_tag]}})
         except Exception as exc:
             # No sampler submission has happened, so the reservation can be released.
-            raise HardwareUnavailableError("Hardware could not be prepared for this experiment.") from exc
+            raise HardwareUnavailableError(
+                "Hardware could not be prepared for this experiment."
+            ) from exc
 
         job = sampler.run([isa_circuit], shots=shots)
         logger.info("Submitted IBM job %s", job.job_id())
@@ -64,7 +68,9 @@ class IBMRuntimeClient:
         return job.job_id(), job.backend().name
 
     @classmethod
-    def get_status_and_counts(cls, provider_job_id: str) -> tuple[str, dict[str, int] | None, str | None]:
+    def get_status_and_counts(
+        cls, provider_job_id: str
+    ) -> tuple[str, dict[str, int] | None, str | None]:
         try:
             job = cls.service().job(provider_job_id)
             status = str(job.status()).upper()

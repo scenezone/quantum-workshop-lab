@@ -1,7 +1,8 @@
 import logging
+
 from pymongo.errors import DuplicateKeyError
 
-from app.content.curriculum import LESSONS, EXPERIMENTS
+from app.content.curriculum import EXPERIMENTS, LESSONS
 from app.database.mongodb import Mongo, utcnow
 
 logger = logging.getLogger(__name__)

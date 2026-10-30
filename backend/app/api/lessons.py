@@ -1,11 +1,11 @@
 from fastapi import APIRouter
 
-from app.database.mongodb import Mongo
 from app.content.practice import check_answer, public_questions
 from app.database.models import PracticeAnswer
+from app.database.mongodb import Mongo
 from app.errors import NotFoundError
 
-router = APIRouter(prefix='/api/lessons',tags=['lessons'])
+router = APIRouter(prefix="/api/lessons", tags=["lessons"])
 
 
 def with_practice(lesson: dict) -> dict:

@@ -1,6 +1,6 @@
+from concurrent.futures import ThreadPoolExecutor
 from copy import deepcopy
 from datetime import timedelta
-from concurrent.futures import ThreadPoolExecutor
 from unittest.mock import patch
 
 import pytest
@@ -8,8 +8,8 @@ from pymongo.errors import AutoReconnect
 
 from app.database.mongodb import utcnow
 from app.errors import ConflictError, HardwareUnavailableError
-from app.quantum.job_manager import JobManager, _hash_token
 from app.quantum.ibm_runtime import IBMRuntimeClient
+from app.quantum.job_manager import JobManager, _hash_token
 from app.services.quota_service import QuotaService
 
 
@@ -18,7 +18,9 @@ def submit():
 
 
 def test_retry_reuses_token_and_does_not_resubmit(database, hardware_settings):
-    with patch.object(IBMRuntimeClient, "submit_job", return_value=("provider-1", "backend", "circuit")) as provider:
+    with patch.object(
+        IBMRuntimeClient, "submit_job", return_value=("provider-1", "backend", "circuit")
+    ) as provider:
         token, _ = submit()
         assert submit()[0] == token
         assert provider.call_count == 1
@@ -33,6 +35,7 @@ def test_retry_reuses_token_and_does_not_resubmit(database, hardware_settings):
 
 def test_unique_index_rejects_duplicate_idempotency_keys(database, hardware_settings):
     from pymongo.errors import DuplicateKeyError
+
     with patch.object(IBMRuntimeClient, "submit_job", return_value=("p", "b", "c")):
         submit()
     job = database.quantum_jobs.find_one()
@@ -47,7 +50,9 @@ def test_stale_concurrent_completions_release_only_their_own_slot(database, hard
         submit()
         JobManager.submit("superposition", 100, "another-idempotency-key")
     job = database.quantum_jobs.find_one()
-    with patch.object(IBMRuntimeClient, "get_status_and_counts", return_value=("completed", {"0": 100}, None)):
+    with patch.object(
+        IBMRuntimeClient, "get_status_and_counts", return_value=("completed", {"0": 100}, None)
+    ):
         with ThreadPoolExecutor(max_workers=2) as pool:
             list(pool.map(JobManager._refresh, [deepcopy(job), deepcopy(job)]))
     assert QuotaService.status()["active_jobs"] == 1
@@ -58,7 +63,9 @@ def test_background_reconciliation_finishes_job_without_browser(database, hardwa
     with patch.object(IBMRuntimeClient, "submit_job", return_value=("p", "b", "c")):
         token, _ = submit()
     assert "expires_at" not in database.quantum_jobs.find_one()
-    with patch.object(IBMRuntimeClient, "get_status_and_counts", return_value=("failed", None, "Provider failure")):
+    with patch.object(
+        IBMRuntimeClient, "get_status_and_counts", return_value=("failed", None, "Provider failure")
+    ):
         JobManager.reconcile()
     job = database.quantum_jobs.find_one()
     assert job["status"] == "failed"
@@ -81,8 +88,11 @@ def test_ambiguous_submission_is_not_repeated_and_is_recovered_by_tag(database, 
         assert submit()[0] == token
         assert provider.call_count == 1
     database.quantum_jobs.update_one({}, {"$set": {"created_at": utcnow() - timedelta(minutes=3)}})
-    with patch.object(IBMRuntimeClient, "find_submission", return_value=("recovered", "backend")), patch.object(
-        IBMRuntimeClient, "get_status_and_counts", return_value=("completed", {"0": 100}, None)
+    with (
+        patch.object(IBMRuntimeClient, "find_submission", return_value=("recovered", "backend")),
+        patch.object(
+            IBMRuntimeClient, "get_status_and_counts", return_value=("completed", {"0": 100}, None)
+        ),
     ):
         JobManager.reconcile()
     job = database.quantum_jobs.find_one()
@@ -93,14 +103,18 @@ def test_ambiguous_submission_is_not_repeated_and_is_recovered_by_tag(database, 
 
 
 def test_failure_to_store_provider_id_can_be_recovered(database, hardware_settings):
-    with patch.object(IBMRuntimeClient, "submit_job", return_value=("p", "b", "c")), patch.object(
-        JobManager, "_record_submission", side_effect=AutoReconnect()
+    with (
+        patch.object(IBMRuntimeClient, "submit_job", return_value=("p", "b", "c")),
+        patch.object(JobManager, "_record_submission", side_effect=AutoReconnect()),
     ):
         token, _ = submit()
     assert database.quantum_jobs.find_one()["provider_job_id"] is None
     database.quantum_jobs.update_one({}, {"$set": {"created_at": utcnow() - timedelta(minutes=3)}})
-    with patch.object(IBMRuntimeClient, "find_submission", return_value=("p", "b")), patch.object(
-        IBMRuntimeClient, "get_status_and_counts", return_value=("running", None, None)
+    with (
+        patch.object(IBMRuntimeClient, "find_submission", return_value=("p", "b")),
+        patch.object(
+            IBMRuntimeClient, "get_status_and_counts", return_value=("running", None, None)
+        ),
     ):
         assert JobManager.get_job(token)["provider_job_id"] == "p"
     assert QuotaService.status()["submitted_today"] == 1
@@ -109,8 +123,11 @@ def test_failure_to_store_provider_id_can_be_recovered(database, hardware_settin
 def test_interrupted_quota_settlement_remains_recoverable(database, hardware_settings):
     with patch.object(IBMRuntimeClient, "submit_job", return_value=("p", "b", "c")):
         submit()
-    with patch.object(IBMRuntimeClient, "get_status_and_counts", return_value=("completed", {"0": 100}, None)), patch.object(
-        QuotaService, "release_active_job", side_effect=AutoReconnect()
+    with (
+        patch.object(
+            IBMRuntimeClient, "get_status_and_counts", return_value=("completed", {"0": 100}, None)
+        ),
+        patch.object(QuotaService, "release_active_job", side_effect=AutoReconnect()),
     ):
         JobManager.reconcile()
     job = database.quantum_jobs.find_one()

@@ -1,14 +1,14 @@
 import math
 
+import pytest
 from qiskit.quantum_info import Statevector
 
-from app.quantum.circuits import build_circuit
-from app.content.curriculum import EXPERIMENTS, LESSONS, ExperimentId
-from app.quantum.simulator import run_simulation
-from app.database.models import SimulateRequest, HardwareRequest
-from app.ai.knowledge_base import build_context
 from app.ai.assistant_service import guide_reply
-import pytest
+from app.ai.knowledge_base import build_context
+from app.content.curriculum import EXPERIMENTS, LESSONS, ExperimentId
+from app.database.models import HardwareRequest, SimulateRequest
+from app.quantum.circuits import build_circuit
+from app.quantum.simulator import run_simulation
 
 
 def probabilities(circuit):
@@ -43,10 +43,13 @@ def test_circuit_measurements_match_documented_distribution(experiment_id):
     # Measurements may read only a subset, or map q2 to c0.
     mapping = {
         circuit.find_bit(classical).index: circuit.find_bit(qubit).index
-        for instruction in circuit.data if instruction.operation.name == "measure"
+        for instruction in circuit.data
+        if instruction.operation.name == "measure"
         for qubit, classical in zip(instruction.qubits, instruction.clbits)
     }
-    observed = state.probabilities_dict(qargs=[mapping[index] for index in range(circuit.num_clbits)])
+    observed = state.probabilities_dict(
+        qargs=[mapping[index] for index in range(circuit.num_clbits)]
+    )
     ideal = EXPERIMENTS[experiment_id]["ideal_probabilities"]
     for outcome in set(observed) | set(ideal):
         assert observed.get(outcome, 0) == pytest.approx(ideal.get(outcome, 0), abs=1e-10)
@@ -56,7 +59,12 @@ def test_circuit_measurements_match_documented_distribution(experiment_id):
 @pytest.mark.parametrize("experiment_id", list(EXPERIMENTS))
 def test_all_approved_experiments_validate_and_run(experiment_id):
     assert SimulateRequest(experiment_id=experiment_id).experiment_id == experiment_id
-    assert HardwareRequest(experiment_id=experiment_id, idempotency_key="valid-submission-key").experiment_id == experiment_id
+    assert (
+        HardwareRequest(
+            experiment_id=experiment_id, idempotency_key="valid-submission-key"
+        ).experiment_id
+        == experiment_id
+    )
     result = run_simulation(experiment_id, 128)
     allowed = {key for key, value in result["ideal_probabilities"].items() if value > 0}
     assert sum(result["counts"].values()) == 128
@@ -65,10 +73,12 @@ def test_all_approved_experiments_validate_and_run(experiment_id):
 
 
 def test_qft_encodes_relative_phase_despite_uniform_probabilities():
-    state = Statevector.from_instruction(build_circuit("qft_phase").remove_final_measurements(inplace=False))
-    assert list(state.data) == pytest.approx([.5, .5j, -.5, -.5j])
+    state = Statevector.from_instruction(
+        build_circuit("qft_phase").remove_final_measurements(inplace=False)
+    )
+    assert list(state.data) == pytest.approx([0.5, 0.5j, -0.5, -0.5j])
     result = run_simulation("qft_phase", 128)
-    assert [row["probability"] for row in result["amplitudes"]] == pytest.approx([.25] * 4)
+    assert [row["probability"] for row in result["amplitudes"]] == pytest.approx([0.25] * 4)
 
 
 def test_catalog_links_and_prerequisites_are_consistent():

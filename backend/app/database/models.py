@@ -1,7 +1,8 @@
 from datetime import datetime
-from typing import Any,Literal
+from typing import Any, Literal
 
-from pydantic import BaseModel,Field,model_validator
+from pydantic import BaseModel, Field, model_validator
+
 from app.content.curriculum import ExperimentId
 
 
@@ -24,17 +25,18 @@ class PracticeAnswer(BaseModel):
 
 
 class Lesson(BaseModel):
-    lesson_id:str
-    title:str
-    description:str
-    content:str
-    difficulty: Literal["beginner","intermediate","advanced"]
+    lesson_id: str
+    title: str
+    description: str
+    content: str
+    difficulty: Literal["beginner", "intermediate", "advanced"]
     learning_objectives: list[str]
     related_experiments: list[str]
     order: int
     prerequisites: list[str] = Field(default_factory=list)
     references: list[dict[str, str]] = Field(default_factory=list)
     practice_questions: list[PracticeQuestion] = Field(default_factory=list)
+
 
 class ExperimentGate(BaseModel):
     name: str
@@ -49,32 +51,33 @@ class Experiment(BaseModel):
     experiment_id: ExperimentId
     difficulty: Literal["beginner", "intermediate", "advanced"]
     lesson_id: str
-    title:str
-    description:str
-    qubits:int
-    classical_bits:int
-    gates:list[ExperimentGate]
-    qiskit_code:str
+    title: str
+    description: str
+    qubits: int
+    classical_bits: int
+    gates: list[ExperimentGate]
+    qiskit_code: str
     ideal_probabilities: dict[str, float]
     interpretation: str
     next_experiment: str | None = None
 
+
 class SimulateRequest(BaseModel):
     experiment_id: ExperimentId
     shots: int = Field(default=1024, ge=1)
+
 
 class HardwareRequest(BaseModel):
     experiment_id: ExperimentId
     shots: int = Field(default=1024, ge=1)
     idempotency_key: str = Field(min_length=16, max_length=128)
 
+
 class JobStatusResponse(BaseModel):
-    tracking_id:str
-    status:Literal[
-        "queued", "running", "completed", "failed", "cancelled", "unknown"
-    ]
-    experiment_id:str
-    backend_name:str|None=None
+    tracking_id: str
+    status: Literal["queued", "running", "completed", "failed", "cancelled", "unknown"]
+    experiment_id: str
+    backend_name: str | None = None
     provider_job_id: str | None = None
     shots: int
     counts: dict[str, int] | None = None
@@ -83,6 +86,7 @@ class JobStatusResponse(BaseModel):
     error: str | None = None
     created_at: datetime | None = None
     updated_at: datetime | None = None
+
 
 class ExperimentResult(BaseModel):
     experiment_id: str
@@ -96,15 +100,17 @@ class ExperimentResult(BaseModel):
     tracking_id: str | None = None
     amplitudes: list[dict[str, Any]] | None = None
 
+
 class AssistantMessage(BaseModel):
-    role:Literal["user","assistant"]
-    content: str = Field(min_length=1,max_length=20000)
+    role: Literal["user", "assistant"]
+    content: str = Field(min_length=1, max_length=20000)
 
     @model_validator(mode="after")
     def validate_question_length(self):
         if self.role == "user" and len(self.content) > 2000:
             raise ValueError("Questions must be at most 2000 characters")
         return self
+
 
 class AssistantRequest(BaseModel):
     messages: list[AssistantMessage] = Field(min_length=1, max_length=12)

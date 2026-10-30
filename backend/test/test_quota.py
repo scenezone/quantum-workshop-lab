@@ -1,9 +1,9 @@
-from datetime import timedelta
 from concurrent.futures import ThreadPoolExecutor
+from datetime import timedelta
+from unittest.mock import patch
 
 import pytest
 from fastapi.testclient import TestClient
-from unittest.mock import patch
 
 from app.database.mongodb import utcnow
 from app.errors import QuotaExceededError
@@ -54,21 +54,31 @@ def test_release_after_midnight_targets_original_reservation(database, hardware_
 
 def test_parallel_reservations_obey_limit(database, hardware_settings):
     hardware_settings.ibm_max_active_jobs = 2
+
     def reserve(index):
         try:
             QuotaService.reserve_submission(str(index), utcnow().date().isoformat())
             return True
         except QuotaExceededError:
             return False
+
     with ThreadPoolExecutor(max_workers=6) as pool:
         assert sum(pool.map(reserve, range(12))) == 2
     assert QuotaService.status()["active_jobs"] == 2
 
 
 def test_hardware_disabled_rejects_submission(database):
-    with patch("app.database.mongodb.Mongo.connect"), patch("app.database.mongodb.Mongo.close"), TestClient(app) as client:
-        response = client.post("/api/experiments/hardware", json={
-            "experiment_id": "superposition", "shots": 100,
-            "idempotency_key": "test-idempotency-key-123",
-        })
+    with (
+        patch("app.database.mongodb.Mongo.connect"),
+        patch("app.database.mongodb.Mongo.close"),
+        TestClient(app) as client,
+    ):
+        response = client.post(
+            "/api/experiments/hardware",
+            json={
+                "experiment_id": "superposition",
+                "shots": 100,
+                "idempotency_key": "test-idempotency-key-123",
+            },
+        )
     assert response.status_code == 503

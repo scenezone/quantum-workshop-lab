@@ -10,12 +10,16 @@ from app.quantum.ibm_runtime import IBMRuntimeClient
 
 @pytest.mark.asyncio
 async def test_assistant_works_without_credentials():
-    result = await AssistantService.chat([{"role": "user", "content": "What is a qubit?"}], None, None, None)
+    result = await AssistantService.chat(
+        [{"role": "user", "content": "What is a qubit?"}], None, None, None
+    )
     assert result["source"] == "fallback"
 
 
 @pytest.mark.asyncio
-async def test_assistant_sends_context_and_preserves_complete_formatted_reply(database, monkeypatch):
+async def test_assistant_sends_context_and_preserves_complete_formatted_reply(
+    database, monkeypatch
+):
     monkeypatch.setattr(get_settings(), "llm_api_key", "test-key")
     client = AsyncMock()
     response = MagicMock()
@@ -26,7 +30,10 @@ async def test_assistant_sends_context_and_preserves_complete_formatted_reply(da
     with patch("httpx.AsyncClient") as factory:
         factory.return_value.__aenter__.return_value = client
         result = await AssistantService.chat(
-            [{"role": "user", "content": "Explain"}], "superposition", "superposition", None,
+            [{"role": "user", "content": "Explain"}],
+            "superposition",
+            "superposition",
+            None,
         )
     assert result["source"] == "llm"
     assert len(result["reply"]) > 2000
@@ -38,16 +45,21 @@ async def test_assistant_sends_context_and_preserves_complete_formatted_reply(da
 
 def test_long_assistant_answer_is_valid_in_followup_history():
     from app.database.models import AssistantRequest
-    payload = AssistantRequest(messages=[
-        {"role": "assistant", "content": "A detailed explanation. " * 150},
-        {"role": "user", "content": "Explain the last step."},
-    ])
+
+    payload = AssistantRequest(
+        messages=[
+            {"role": "assistant", "content": "A detailed explanation. " * 150},
+            {"role": "user", "content": "Explain the last step."},
+        ]
+    )
     assert len(payload.messages[0].content) > 2000
 
 
 def test_long_user_question_still_exceeds_the_input_limit():
     from pydantic import ValidationError
+
     from app.database.models import AssistantRequest
+
     with pytest.raises(ValidationError, match="Questions must be at most 2000 characters"):
         AssistantRequest(messages=[{"role": "user", "content": "A" * 2001}])
 
@@ -57,11 +69,15 @@ async def test_llm_timeout_returns_fallback(monkeypatch):
     monkeypatch.setattr(get_settings(), "llm_api_key", "test-key")
     with patch("httpx.AsyncClient") as factory:
         factory.return_value.__aenter__.return_value.post.side_effect = httpx.ReadTimeout("timeout")
-        result = await AssistantService.chat([{"role": "user", "content": "Explain"}], None, None, None)
+        result = await AssistantService.chat(
+            [{"role": "user", "content": "Explain"}], None, None, None
+        )
     assert result["source"] == "fallback"
 
 
-@pytest.mark.parametrize("raw,expected", [("ERROR", "failed"), ("CANCELLED", "cancelled"), ("RUNNING", "running")])
+@pytest.mark.parametrize(
+    "raw,expected", [("ERROR", "failed"), ("CANCELLED", "cancelled"), ("RUNNING", "running")]
+)
 def test_ibm_status_mapping(raw, expected):
     with patch.object(IBMRuntimeClient, "service") as service:
         service.return_value.job.return_value.status.return_value = raw
@@ -69,8 +85,10 @@ def test_ibm_status_mapping(raw, expected):
 
 
 def test_completed_ibm_job_uses_named_register():
-    from qiskit.primitives import DataBin, BitArray
     from types import SimpleNamespace
+
+    from qiskit.primitives import BitArray, DataBin
+
     data = DataBin(c=BitArray.from_samples(["0", "1", "1"]))
     with patch.object(IBMRuntimeClient, "service") as service:
         job = service.return_value.job.return_value

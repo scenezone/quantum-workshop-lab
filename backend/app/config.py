@@ -1,7 +1,9 @@
 from functools import lru_cache
 from pathlib import Path
-from pydantic_settings import BaseSettings,SettingsConfigDict
+
 from pydantic import Field, model_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
@@ -10,8 +12,8 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    app_env: str = 'development'
-    log_level: str = 'INFO'
+    app_env: str = "development"
+    log_level: str = "INFO"
 
     mongodb_uri: str = "mongodb://localhost:27017"
     mongodb_database: str = "quantum_workshop"
@@ -29,26 +31,26 @@ class Settings(BaseSettings):
     job_poll_seconds: int = Field(default=15, ge=1)
     job_retention_days: int = Field(default=7, ge=1)
 
-
-    llm_api_key: str = ''
+    llm_api_key: str = ""
     llm_base_url: str = "https://api.groq.com/openai/v1"
     llm_model: str = "openai/gpt-oss-20b"
     llm_max_requests_per_minute: int = Field(default=10, ge=1)
     llm_timeout_seconds: int = Field(default=25, ge=1)
-    rate_limit_storage_uri: str = 'memory://'
+    rate_limit_storage_uri: str = "memory://"
 
     max_simulator_shots: int = Field(default=10000, ge=1)
     default_shots: int = Field(default=1024, ge=1)
 
-    @model_validator(mode='after')
+    @model_validator(mode="after")
     def validate_shots(self):
         if self.default_shots > self.max_simulator_shots:
-            raise ValueError('DEFAULT_SHOTS must not exceed MAX_SIMULATOR_SHOTS')
+            raise ValueError("DEFAULT_SHOTS must not exceed MAX_SIMULATOR_SHOTS")
         return self
 
     @property
     def cors_origin_list(self):
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
+
 
 @lru_cache()
 def get_settings() -> Settings:

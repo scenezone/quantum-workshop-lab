@@ -10,11 +10,14 @@ router = APIRouter(tags=["system"])
 @router.get("/api/health")
 def health() -> JSONResponse:
     connected = Mongo.health()
-    return JSONResponse(status_code=200 if connected else 503, content={
-        "status": "ok" if connected else "unavailable",
-        "database": "connected" if connected else "unavailable",
-        "environment": get_settings().app_env,
-    })
+    return JSONResponse(
+        status_code=200 if connected else 503,
+        content={
+            "status": "ok" if connected else "unavailable",
+            "database": "connected" if connected else "unavailable",
+            "environment": get_settings().app_env,
+        },
+    )
 
 
 @router.get("/api/config/public")
