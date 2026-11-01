@@ -9,9 +9,10 @@ export default function About() {
         <li><strong>1. Learn:</strong> Follow 14 lessons from qubits to oracle algorithms, Fourier transforms, teleportation, error correction, and variational methods.</li>
         <li><strong>2. Experiment:</strong> Choose one of 10 guided circuits, inspect its gates, and open the related theory lesson.</li>
         <li><strong>3. Simulate:</strong> Run on Qiskit Aer, compare probabilities, and inspect complex amplitudes and relative phases.</li>
-        <li><strong>4. Hardware:</strong> If enabled, submit the same approved circuit to IBM Quantum and monitor its job.</li>
-        <li><strong>5. Understand:</strong> Ask the workshop assistant why ideal and observed results differ. Live AI is optional.</li>
-        <li><strong>6. Reflect:</strong> Submit optional anonymous feedback.</li>
+        <li><strong>4. Explore:</strong> Step through gates on Bloch spheres, add preset noise, or build a small custom circuit for simulation.</li>
+        <li><strong>5. Hardware:</strong> If enabled, submit an approved guided circuit to IBM Quantum and monitor its job.</li>
+        <li><strong>6. Understand:</strong> Ask the workshop assistant for an explanation, hint, or quiz. Live AI is optional.</li>
+        <li><strong>7. Reflect:</strong> Track lesson and challenge progress in this browser, then submit optional anonymous feedback.</li>
       </ol>
 
       <section className="glass mt-8 p-5 sm:p-6" aria-labelledby="data-use-heading">

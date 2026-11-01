@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import axios from 'axios';
 import { sendAssistantMessage } from '../services/api';
-import type { ChatMessage, Experiment, Lesson } from '../types/api';
+import type { AssistantMode, ChatMessage, Experiment, Lesson } from '../types/api';
 
 type StudyContext = { kind: 'lesson'; lesson: Lesson } | { kind: 'experiment'; experiment: Experiment };
 
@@ -15,6 +15,7 @@ interface PendingRequest {
   lessonId?: string;
   experimentId?: string;
   resultContext?: Record<string, unknown>;
+  mode?: AssistantMode;
 }
 
 interface AssistantContextValue {
@@ -25,23 +26,36 @@ interface AssistantContextValue {
   loading: boolean;
   error: string | null;
   studyContext?: StudyContext;
+  pageContextAvailable: boolean;
+  includePageContext: boolean;
   setStudyContext: (context: StudyContext) => void;
   setResultContext: (context?: Record<string, unknown>) => void;
+  setIncludePageContext: (include: boolean) => void;
   addMessage: (message: ChatMessage) => void;
-  sendMessage: (question: string) => Promise<void>;
+  sendMessage: (question: string, mode?: AssistantMode) => Promise<void>;
   introduceTopic: () => Promise<void>;
   retry: () => Promise<void>;
   reset: () => void;
 }
 
 const AssistantContext = createContext<AssistantContextValue | null>(null);
+const PAGE_CONTEXT_PREFERENCE_KEY = 'quantum-workshop-assistant-page-context-v1';
 
 export function AssistantProvider({ children }: { children: ReactNode }) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [studyContext, updateStudyContext] = useState<StudyContext>();
+  const [pageStudyContext, updateStudyContext] = useState<StudyContext>();
+  const [includePageContext, updateIncludePageContext] = useState(() => {
+    try {
+      return window.localStorage.getItem(PAGE_CONTEXT_PREFERENCE_KEY) !== 'false';
+    } catch {
+      return true;
+    }
+  });
+  const studyContext = includePageContext ? pageStudyContext : undefined;
   const lessonId = studyContext?.kind === 'lesson' ? studyContext.lesson.lesson_id : studyContext?.experiment.lesson_id;
   const experimentId = studyContext?.kind === 'experiment' ? studyContext.experiment.experiment_id : undefined;
-  const [resultContext, setResultContext] = useState<Record<string, unknown>>();
+  const [pageResultContext, updateResultContext] = useState<Record<string, unknown>>();
+  const resultContext = includePageContext ? pageResultContext : undefined;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const requestRef = useRef<AbortController | null>(null);
@@ -63,7 +77,7 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
     setError(null);
     try {
       const response = await sendAssistantMessage(
-        request.messages, request.lessonId, request.experimentId, request.resultContext, controller.signal,
+        request.messages, request.lessonId, request.experimentId, request.resultContext, controller.signal, request.mode,
       );
       if (requestRef.current !== controller) return;
       if (typeof response.reply !== 'string' || !response.reply.trim()) throw new Error('Empty assistant response');
@@ -85,13 +99,13 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const sendMessage = useCallback(async (question: string) => {
+  const sendMessage = useCallback(async (question: string, mode: AssistantMode = 'explain') => {
     const content = question.trim();
     if (!content || requestRef.current) return;
     const userMessage: ChatMessage = { role: 'user', content: content.slice(0, 2000) };
     addMessage(userMessage);
     await runRequest({
-      messages: [...messages, userMessage].slice(-8), lessonId, experimentId, resultContext,
+      messages: [...messages, userMessage].slice(-8), lessonId, experimentId, resultContext, mode,
     });
   }, [messages, lessonId, experimentId, resultContext, addMessage, runRequest]);
 
@@ -123,17 +137,35 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
     const key = topicKey(context);
     if (selectedTopicRef.current !== key) {
       reset();
-      setResultContext(undefined);
+      updateResultContext(undefined);
       introducedTopicRef.current = undefined;
       selectedTopicRef.current = key;
     }
     updateStudyContext(context);
   }, [reset]);
 
+  const setResultContext = useCallback((context?: Record<string, unknown>) => {
+    updateResultContext(context);
+  }, []);
+
+  const setIncludePageContext = useCallback((include: boolean) => {
+    if (includePageContext === include) return;
+    updateIncludePageContext(include);
+    try {
+      window.localStorage.setItem(PAGE_CONTEXT_PREFERENCE_KEY, String(include));
+    } catch {
+      // Keep the preference for this session even when browser storage is unavailable.
+    }
+    introducedTopicRef.current = undefined;
+    reset();
+  }, [includePageContext, reset]);
+
   const value = useMemo(() => ({
-    messages, lessonId, experimentId, resultContext, studyContext, loading, error,
-    setStudyContext, setResultContext, addMessage, sendMessage, introduceTopic, retry, reset,
-  }), [messages, lessonId, experimentId, resultContext, studyContext, loading, error, setStudyContext, addMessage, sendMessage, introduceTopic, retry, reset]);
+    messages, lessonId, experimentId, resultContext, studyContext, pageContextAvailable: Boolean(pageStudyContext),
+    includePageContext, loading, error, setStudyContext, setResultContext, setIncludePageContext,
+    addMessage, sendMessage, introduceTopic, retry, reset,
+  }), [messages, lessonId, experimentId, resultContext, studyContext, pageStudyContext, includePageContext, loading, error,
+    setStudyContext, setResultContext, setIncludePageContext, addMessage, sendMessage, introduceTopic, retry, reset]);
 
   return <AssistantContext.Provider value={value}>{children}</AssistantContext.Provider>;
 }

@@ -6,29 +6,54 @@ import axios from 'axios';
 import { saveSubmission, useHardwareSubmissions } from '../services/hardwareStorage';
 import { createSubmissionKey, isExperimentId } from '../services/experimentUtils';
 import AIChatPanel from '../components/AIChatPanel';
+import BackendComparison from '../components/BackendComparison';
 import CircuitDiagram from '../components/CircuitDiagram';
 import ErrorMessage from '../components/ErrorMessage';
 import MeasurementHistogram from '../components/MeasurementHistogram';
 import ProbabilityComparison from '../components/ProbabilityComparison';
+import StateEvolutionViewer from '../components/StateEvolutionViewer';
 import { useAssistant } from '../context/AssistantContext';
 import { useExperimentJob } from '../hooks/useExperimentJob';
 import {
   fetchExperiments,
+  fetchExperimentEvolution,
   fetchPublicConfig,
   fetchHardwareStatus,
   simulateExperiment,
   submitHardwareExperiment,
 } from '../services/api';
 import type { ExperimentId, ExperimentResult } from '../types/api';
+import { completeChallenge, getLearningProgress } from '../services/learningProgress';
+import { evaluateChallenge, getChallenge } from '../services/challenges';
+
+const NOISE_PROFILES = ['ideal', 'low', 'medium', 'high'] as const;
+type NoiseProfile = typeof NOISE_PROFILES[number];
+
+function isNoiseProfile(value: string | null): value is NoiseProfile {
+  return NOISE_PROFILES.includes(value as NoiseProfile);
+}
 
 export default function Playground() {
   const [searchParams, setSearchParams] = useSearchParams();
   const requestedId = searchParams.get('experiment');
+  const challengeId = searchParams.get('challenge');
+  const activeChallenge = getChallenge(challengeId);
+  const requestedNoise = searchParams.get('noise');
   const experimentId: ExperimentId = isExperimentId(requestedId) ? requestedId : 'superposition';
   const currentExperiment = useRef(experimentId);
   currentExperiment.current = experimentId;
-  const [shotsOverride, setShots] = useState<number | null>(null);
+  const [shotsOverride, setShots] = useState<number | null>(() => {
+    const requested = Number(searchParams.get('shots'));
+    return Number.isInteger(requested) && requested > 0 ? requested : null;
+  });
+  const [noiseProfile, setNoiseProfile] = useState<NoiseProfile>(() =>
+    isNoiseProfile(requestedNoise) ? requestedNoise : 'ideal',
+  );
   const [simulatorResult, setSimulatorResult] = useState<ExperimentResult | null>(null);
+  const [shareUrl, setShareUrl] = useState('');
+  const [shareNotice, setShareNotice] = useState('');
+  const [challengeNotice, setChallengeNotice] = useState('');
+  const [challengeProgress, setChallengeProgress] = useState(getLearningProgress);
   const [resultSource, setResultSource] = useState<'simulator' | 'hardware'>('hardware');
   const submissions = useHardwareSubmissions();
   const saved = submissions[experimentId];
@@ -38,14 +63,26 @@ export default function Playground() {
   const config = useQuery({ queryKey: ['public-config'], queryFn: fetchPublicConfig });
   const shots = saved && !saved.trackingId ? saved.shots : shotsOverride ?? config.data?.default_shots ?? 1024;
   const experimentsQuery = useQuery({ queryKey: ['experiments'], queryFn: fetchExperiments });
+  const evolutionQuery = useQuery({
+    queryKey: ['experiment-evolution', experimentId],
+    queryFn: () => fetchExperimentEvolution(experimentId),
+  });
   const hardwareStatusQuery = useQuery({
     queryKey: ['hardware-status'], queryFn: fetchHardwareStatus, refetchInterval: 15000,
   });
   const simulation = useMutation({
-    mutationFn: (input: { experimentId: ExperimentId; shots: number }) =>
-      simulateExperiment(input.experimentId, input.shots),
+    mutationFn: (input: { experimentId: ExperimentId; shots: number; noiseProfile: NoiseProfile }) =>
+      simulateExperiment(input.experimentId, input.shots, input.noiseProfile),
     onSuccess: (result) => {
       setSimulatorResult(result);
+      if (challengeId) {
+        if (evaluateChallenge(challengeId, result)) {
+          setChallengeProgress(completeChallenge(challengeId));
+          setChallengeNotice('Challenge complete! Your progress is saved in this browser.');
+        } else {
+          setChallengeNotice('Not quite yet. Check the challenge goal, shot count, and noise setting, then try again.');
+        }
+      }
       if (result.experiment_id === currentExperiment.current) setResultSource('simulator');
     },
   });
@@ -90,12 +127,49 @@ export default function Playground() {
     saveSubmission(experimentId, { idempotencyKey, shots: submittedShots, trackingId: null });
     hardware.mutate({ experimentId, shots: submittedShots, idempotencyKey });
   }
+
+  async function shareSetup() {
+    const url = new URL(window.location.href);
+    url.searchParams.set('experiment', experimentId);
+    url.searchParams.set('shots', String(shots));
+    url.searchParams.set('noise', noiseProfile);
+    setShareUrl(url.toString());
+    try {
+      await navigator.clipboard.writeText(url.toString());
+      setShareNotice('Experiment link copied.');
+    } catch {
+      setShareNotice('Copy the link from the field below.');
+    }
+  }
+
+  function downloadResultCsv(result: ExperimentResult) {
+    const outcomes = [...new Set([
+      ...Object.keys(result.counts),
+      ...Object.keys(result.ideal_probabilities),
+    ])].sort();
+    const rows = [
+      ['outcome', 'count', 'observed_probability', 'ideal_probability'],
+      ...outcomes.map((outcome) => [
+        outcome,
+        String(result.counts[outcome] ?? 0),
+        String(result.observed_probabilities[outcome] ?? 0),
+        String(result.ideal_probabilities[outcome] ?? 0),
+      ]),
+    ];
+    const csv = rows.map((row) => row.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `${result.experiment_id}-results.csv`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+  }
   const maxShots = config.data?.max_simulator_shots ?? 0;
   const shotOptions = [...new Set([128, 512, 1024, 2048, 4096, maxShots, config.data?.max_hardware_shots ?? 0, config.data?.default_shots ?? 0, shots])]
     .filter((value) => value >= 1 && value <= Math.max(maxShots, config.data?.max_hardware_shots ?? 0)).sort((a, b) => a - b);
 
   function chooseExperiment(id: ExperimentId) {
-    setSearchParams({ experiment: id });
+    setSearchParams({ experiment: id, ...(challengeId ? { challenge: challengeId } : {}) });
     setSimulatorResult(null);
     setResultSource(submissions[id]?.trackingId ? 'hardware' : 'simulator');
     simulation.reset();
@@ -109,6 +183,18 @@ export default function Playground() {
         Move from foundational gates to phase kickback, GHZ states, quantum algorithms, and error correction.
         Inspect every gate, simulate the circuit, and connect amplitudes and phases to measured results.
       </p>
+      <Link to="/builder" className="btn-secondary mt-4 inline-flex text-sm">Create a custom circuit</Link>
+      {activeChallenge && <section className="glass mt-5 p-4" aria-label="Active challenge">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest text-cyan-300">Active challenge</p>
+            <h2 className="mt-1 font-semibold">{activeChallenge.title}</h2>
+            <p className="mt-1 text-sm text-slate-300">{activeChallenge.objective}</p>
+          </div>
+          <span className="text-sm text-emerald-200">{challengeProgress.completedChallenges.includes(activeChallenge.id) ? 'Completed' : `Minimum ${activeChallenge.minimumShots} shots`}</span>
+        </div>
+        {challengeNotice && <p role="status" className="mt-3 text-sm text-cyan-100">{challengeNotice}</p>}
+      </section>}
 
       <div className="mt-8 grid gap-6 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
         <div className="min-w-0 space-y-6">
@@ -145,6 +231,7 @@ export default function Playground() {
           {(experimentsQuery.isError || config.isError) && <ErrorMessage message="Experiment settings could not be loaded. Please refresh to retry." />}
           {experiment && <>
             <CircuitDiagram experiment={experiment} />
+            {evolutionQuery.data && <StateEvolutionViewer steps={evolutionQuery.data.steps} />}
             <section className="glass p-5">
               <h2 className="font-semibold">Understand this experiment</h2>
               <p className="mt-3 text-sm leading-relaxed text-slate-300">{experiment.interpretation}</p>
@@ -182,10 +269,23 @@ export default function Playground() {
                 </select>
               </label>
 
+              <label className="text-sm">
+                Simulator noise
+                <select className="input mt-2" value={noiseProfile}
+                  onChange={(event) => {
+                    if (isNoiseProfile(event.target.value)) setNoiseProfile(event.target.value);
+                  }}>
+                  <option value="ideal">Ideal (no added noise)</option>
+                  <option value="low">Low noise</option>
+                  <option value="medium">Medium noise</option>
+                  <option value="high">High noise</option>
+                </select>
+              </label>
+
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <button
                   className="btn-primary min-w-0 px-3 text-sm sm:text-base"
-                  onClick={() => simulation.mutate({ experimentId, shots })}
+                  onClick={() => simulation.mutate({ experimentId, shots, noiseProfile })}
                   disabled={pending || !config.data || shots > maxShots || experimentsQuery.isError}
                 >
                   {simulation.isPending ? (
@@ -254,6 +354,11 @@ export default function Playground() {
           {activeResult && (
             <section className="glass p-5">
               <h2 className="font-semibold">Measurement Results: {activeResult.backend === 'ibm_quantum' ? 'IBM hardware' : 'Simulator'}</h2>
+              {activeResult.backend === 'aer_simulator' && activeResult.noise_profile && activeResult.noise_profile !== 'ideal' && (
+                <p className="mt-2 text-sm text-amber-200">
+                  {activeResult.noise_profile} noise is applied to gates and readout. Compare the observed distribution with the ideal probabilities below.
+                </p>
+              )}
               {matchingSimulation && hardwareResult && <div className="my-3 flex flex-wrap gap-3">
                 <button className="btn-secondary" onClick={() => setResultSource('simulator')} aria-pressed={resultSource === 'simulator'}>Simulator results</button>
                 <button className="btn-secondary" onClick={() => setResultSource('hardware')} aria-pressed={resultSource === 'hardware'}>Hardware results</button>
@@ -263,6 +368,19 @@ export default function Playground() {
                 observed={activeResult.observed_probabilities}
                 ideal={activeResult.ideal_probabilities}
               />
+              <div className="mt-4 flex flex-wrap gap-3">
+                {activeResult.backend === 'aer_simulator' && <button className="btn-secondary text-sm" onClick={() => void shareSetup()}>
+                  Copy experiment link
+                </button>}
+                <button className="btn-secondary text-sm" onClick={() => downloadResultCsv(activeResult)}>
+                  Download results CSV
+                </button>
+              </div>
+              {shareUrl && <div className="mt-3">
+                <label className="block text-xs text-slate-400" htmlFor="share-experiment-url">Shareable setup link</label>
+                <input id="share-experiment-url" className="input mt-1 text-xs" readOnly value={shareUrl} onFocus={(event) => event.currentTarget.select()} />
+                <p role="status" className="mt-1 text-xs text-slate-400">{shareNotice}</p>
+              </div>}
               {activeResult.amplitudes && <details className="mt-5" open={experiment?.difficulty === 'advanced'}>
                 <summary className="cursor-pointer font-semibold text-cyan-300">Ideal state before measurement: amplitudes and phases</summary>
                 <p className="my-3 text-sm text-slate-300">
@@ -286,6 +404,9 @@ export default function Playground() {
                 highest classical-bit index.
               </p>
             </section>
+          )}
+          {matchingSimulation && hardwareResult && (
+            <BackendComparison simulator={matchingSimulation} hardware={hardwareResult} />
           )}
         </div>
 

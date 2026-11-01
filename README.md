@@ -28,7 +28,12 @@ The project includes a React frontend, a FastAPI backend, and MongoDB persistenc
 - **14 lessons:** A learning path from qubits and gates to quantum algorithms, teleportation, error correction, and variational methods. Lessons include objectives, prerequisites, further reading, search, and difficulty filters.
 - **Lesson practice:** Multiple-choice questions return correctness and explanations. Written questions provide sample answers and key points for self-assessment.
 - **10 guided circuits:** Inspect gate diagrams, explanations, ideal distributions, and equivalent Qiskit code. Execution accepts predefined experiment IDs rather than arbitrary user code.
-- **Local quantum simulation:** Configure the number of shots and run circuits on Qiskit Aer. Inspect counts, observed probabilities, complex amplitudes, and relative phases.
+- **Local quantum simulation:** Configure the number of shots and run circuits on Qiskit Aer. Inspect counts, observed probabilities, complex amplitudes, and relative phases. Step through gates with per-qubit Bloch vectors.
+- **Noise lab:** Compare ideal runs with low, medium, and high preset gate and readout noise profiles.
+- **Circuit builder:** Compose up to 30 allowlisted gates on at most 3 qubits, simulate the circuit, and export Qiskit code. Arbitrary Python and hardware submissions from custom circuits are not supported.
+- **Learning progress and challenges:** Save completed lessons and simulator challenges in local browser storage without creating an account.
+- **Save, share, and export:** Save custom circuits locally, share experiment setups by URL, download Qiskit code, and export measurement results as CSV.
+- **Assistant response styles:** Ask for a direct explanation, a hint, or a one-question-at-a-time quiz.
 - **Result visualization:** Compare measurement histograms and ideal versus observed probabilities.
 - **Optional IBM Quantum execution:** Submit approved circuits, view hardware quotas, and track asynchronous jobs. Submission retries use idempotency keys to avoid duplicate jobs.
 - **Context-aware assistant:** Discuss the selected lesson, circuit, or recorded results through a configurable chat-completions endpoint. Missing credentials and supported provider failures trigger an explicitly labeled workshop-guide response.
@@ -111,8 +116,8 @@ Quantum-Workshop-Lab/
     `-- src/
         |-- App.tsx          # Page routes and layout
         |-- main.tsx         # Application bootstrap and providers
-        |-- pages/           # Home, Learn, Playground, Assistant, About
-        |-- components/      # Circuit diagrams, charts, practice, chat, feedback
+        |-- pages/           # Home, Learn, Playground, Builder, Challenges, Assistant, About
+        |-- components/      # Circuit diagrams, Bloch spheres, charts, practice, chat, feedback
         |-- context/         # Shared assistant and study context
         |-- hooks/           # Hardware job polling
         |-- services/        # API client, experiment helpers, hardware storage
@@ -213,17 +218,21 @@ A healthy response from `/api/health` includes `"status": "ok"` and `"database":
 
 1. Open **Learn** and select a lesson. Use the difficulty filters or search to find a concept, read its objectives, and complete the practice questions.
 2. Follow a related experiment link or open **Playground**. Inspect the circuit gates, expected behavior, and Qiskit code.
-3. Choose a shot count and select **Run Simulator**. One shot represents one circuit execution and measurement.
+3. Step through the gate-by-gate Bloch view. Choose a shot count and noise profile, then select **Run Simulator**. One shot represents one circuit execution and measurement.
 4. Compare observed counts with ideal probabilities. Inspect the statevector amplitudes and phases available from the simulator.
-5. Open **Assistant** or the playground chat to ask about the active lesson, circuit, or result.
-6. If hardware access is enabled and quota is available, submit the circuit to IBM Quantum and monitor its job status.
-7. Open **Workshop Guide** to review the workflow and leave optional feedback.
+5. Open **Circuit Builder** to compose an allowlisted circuit, simulate it, and download Qiskit code.
+6. Try a challenge or mark a lesson complete. Progress is stored in this browser only.
+7. Open **Assistant** or the playground chat to ask for an explanation, hint, or quiz about the selected material.
+8. If hardware access is enabled and quota is available, submit an approved guided circuit to IBM Quantum and monitor its job status.
+9. Open **Workshop Guide** to review the workflow and leave optional feedback.
 
 | Page | Route |
 | --- | --- |
 | Home | `/` |
 | Lessons | `/learn` |
 | Quantum Playground | `/playground` |
+| Circuit Builder | `/builder` |
+| Quantum Challenges | `/challenges` |
 | Assistant | `/assistant` |
 | Workshop Guide and feedback | `/about` |
 
@@ -355,12 +364,16 @@ Use the running backend's `/docs` for interactive request schemas and validation
 | `POST` | `/api/lessons/{lesson_id}/practice/check` | Check a multiple-choice selection or retrieve a written-answer comparison |
 | `GET` | `/api/experiments` | All approved circuit metadata |
 | `GET` | `/api/experiments/{experiment_id}` | One circuit's metadata |
-| `POST` | `/api/experiments/simulate` | Execute an approved circuit on Qiskit Aer |
+| `GET` | `/api/experiments/{experiment_id}/evolution` | Gate-by-gate per-qubit Bloch vectors for a guided circuit |
+| `POST` | `/api/experiments/simulate` | Execute an approved circuit on Qiskit Aer with preset noise |
+| `POST` | `/api/experiments/custom/simulate` | Execute a validated custom gate sequence on Qiskit Aer |
 | `POST` | `/api/experiments/hardware` | Submit an approved circuit to IBM Quantum |
 | `GET` | `/api/experiments/jobs/{tracking_id}` | Refresh job status and return any available results |
 | `GET` | `/api/hardware/status` | Hardware flag, shot cap, daily capacity, and active jobs |
 | `POST` | `/api/assistant/chat` | Ask the assistant with optional lesson, experiment, and result context |
 | `POST` | `/api/feedback` | Save anonymous workshop feedback |
+
+Lesson and challenge completion is stored locally in browser storage, not sent to the backend. Shared guided experiment links preserve the selected experiment, shot count, and noise profile. Custom circuit links store the circuit draft in the URL; CSV exports are generated in the browser.
 
 ### Example: simulation
 
@@ -369,7 +382,8 @@ Send this JSON body to `POST /api/experiments/simulate`:
 ```json
 {
   "experiment_id": "bell_entanglement",
-  "shots": 1024
+  "shots": 1024,
+  "noise_profile": "medium"
 }
 ```
 
@@ -380,7 +394,7 @@ $simulationBody = @{ experiment_id = 'bell_entanglement'; shots = 1024 } | Conve
 Invoke-RestMethod -Uri 'http://127.0.0.1:8000/api/experiments/simulate' -Method Post -ContentType 'application/json' -Body $simulationBody
 ```
 
-The response includes `experiment_id`, `backend`, `backend_name`, `shots`, `counts`, `observed_probabilities`, `ideal_probabilities`, and simulator `amplitudes`. Each amplitude includes its basis outcome, real and imaginary parts, probability, and phase in degrees. Hardware responses expose counts and probabilities rather than a measured statevector.
+The optional `noise_profile` accepts `ideal` (the default), `low`, `medium`, or `high`. The response includes `experiment_id`, `backend`, `backend_name`, `shots`, `noise_profile`, `counts`, `observed_probabilities`, `ideal_probabilities`, and simulator `amplitudes`. Each amplitude includes its basis outcome, real and imaginary parts, probability, and phase in degrees. Hardware responses expose counts and probabilities rather than a measured statevector.
 
 ### Example: assistant
 
@@ -392,11 +406,30 @@ Send this JSON body to `POST /api/assistant/chat`:
     { "role": "user", "content": "Why does this circuit measure only 00 and 11?" }
   ],
   "experiment_id": "bell_entanglement",
-  "lesson_id": "entanglement"
+  "lesson_id": "entanglement",
+  "mode": "hint"
 }
 ```
 
-`result_context` can optionally carry recorded experiment results. Requests accept 1 to 12 messages; user messages are limited to 2,000 characters each.
+`result_context` can optionally carry recorded experiment results. Requests accept 1 to 12 messages; user messages are limited to 2,000 characters each. `mode` may be `explain`, `hint`, or `quiz` and defaults to `explain`.
+
+### Circuit builder limits
+
+The custom simulator accepts 1 to 3 qubits and up to 30 gates from `H`, `X`, `Y`, `Z`, `S`, `T`, `RX`, `RY`, `RZ`, `CX`, `CZ`, and `SWAP`. Rotation angles must be between `-6.283185` and `6.283185` radians. The server validates each gate and qubit index, appends measurement, and accepts the same `ideal`, `low`, `medium`, and `high` noise presets as guided simulations. The offline assistant can ask a quiz question but cannot grade a free-form response.
+
+Example request for `POST /api/experiments/custom/simulate`:
+
+```json
+{
+  "qubits": 2,
+  "gates": [
+    { "name": "H", "qubits": [0] },
+    { "name": "CX", "qubits": [0, 1] }
+  ],
+  "shots": 512,
+  "noise_profile": "medium"
+}
+```
 
 ### Example: feedback
 
@@ -421,6 +454,7 @@ SlowAPI keys limits by the request's remote address. Configured limits are:
 | --- | --- |
 | Default for routes without an explicit override | 120 requests/minute |
 | Simulation | 20 requests/minute |
+| Custom circuit simulation | 20 requests/minute |
 | Hardware submission | 5 requests/minute |
 | Hardware job lookup | 60 requests/minute |
 | Assistant | `LLM_MAX_REQUESTS_PER_MINUTE`, default 10 |
@@ -514,7 +548,7 @@ The Vite proxy configuration applies to development and local preview. For produ
 - **Job tracking:** Job states include `queued`, `running`, `completed`, `failed`, `cancelled`, and `unknown`. A background loop reconciles unfinished jobs; status requests also refresh the requested job.
 - **Retry recovery:** Ambiguous IBM submissions are searched by provider job tags rather than automatically submitted again. An uncertain submission can retain its reservation while reconciliation continues.
 - **Retention:** Terminal hardware jobs receive a MongoDB TTL expiry after quota settlement, using `JOB_RETENTION_DAYS`. MongoDB removes expired records asynchronously. Active and unresolved jobs are retained for reconciliation.
-- **Browser storage:** Hardware submission keys, shot counts, and tracking IDs are stored in local storage when available. Clearing browser data can remove this recovery information. Chat context lives in application memory and resets on a full page reload.
+- **Browser storage:** Hardware submission keys, shot counts, and tracking IDs are stored in local storage when available. Lesson and challenge progress and saved custom circuits are also stored locally and are not tied to an account. Clearing browser data can remove this information. Chat context lives in application memory and resets on a full page reload.
 - **Feedback retention:** Feedback ratings, completion status, optional comments, and creation timestamps are stored in MongoDB. The application does not currently expire feedback records; the deployment operator must define and apply a retention policy. Users should avoid entering personal or sensitive information in comments.
 - **Access model:** The application has no user account or authentication system. Hardware tracking IDs grant access to their job lookup and should be treated as private. Hardware tracking and idempotency keys are stored as hashes in MongoDB; the frontend retains the values needed to resume requests.
 - **External data flow:** Live assistant requests send conversation and selected context to the configured AI provider. IBM submissions send approved circuits and execution settings to IBM Quantum. Guide-based assistant replies require no external AI request.

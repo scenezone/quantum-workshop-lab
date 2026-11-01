@@ -65,6 +65,36 @@ class Experiment(BaseModel):
 class SimulateRequest(BaseModel):
     experiment_id: ExperimentId
     shots: int = Field(default=1024, ge=1)
+    noise_profile: Literal["ideal", "low", "medium", "high"] = "ideal"
+
+
+class CustomGate(BaseModel):
+    name: Literal["H", "X", "Y", "Z", "S", "T", "RX", "RY", "RZ", "CX", "CZ", "SWAP"]
+    qubits: list[int] = Field(min_length=1, max_length=2)
+    angle: float | None = Field(default=None, ge=-6.283185307179586, le=6.283185307179586)
+
+    @model_validator(mode="after")
+    def validate_gate(self):
+        two_qubit = self.name in {"CX", "CZ", "SWAP"}
+        if len(self.qubits) != (2 if two_qubit else 1) or len(set(self.qubits)) != len(self.qubits):
+            raise ValueError("Gate has an invalid number of distinct qubits.")
+        rotating = self.name in {"RX", "RY", "RZ"}
+        if rotating != (self.angle is not None):
+            raise ValueError("Rotation gates require an angle; other gates do not accept one.")
+        return self
+
+
+class CustomCircuitRequest(BaseModel):
+    qubits: int = Field(ge=1, le=3)
+    gates: list[CustomGate] = Field(max_length=30)
+    shots: int = Field(default=1024, ge=1)
+    noise_profile: Literal["ideal", "low", "medium", "high"] = "ideal"
+
+    @model_validator(mode="after")
+    def validate_qubit_indices(self):
+        if any(index < 0 or index >= self.qubits for gate in self.gates for index in gate.qubits):
+            raise ValueError("Gate qubit indices must be inside this circuit.")
+        return self
 
 
 class HardwareRequest(BaseModel):
@@ -93,6 +123,7 @@ class ExperimentResult(BaseModel):
     backend: Literal["aer_simulator", "ibm_quantum"]
     backend_name: str | None = None
     shots: int
+    noise_profile: Literal["ideal", "low", "medium", "high"] | None = None
     counts: dict[str, int]
     observed_probabilities: dict[str, float]
     ideal_probabilities: dict[str, float]
@@ -117,6 +148,7 @@ class AssistantRequest(BaseModel):
     lesson_id: str | None = None
     experiment_id: str | None = None
     result_context: dict[str, Any] | None = None
+    mode: Literal["explain", "hint", "quiz"] = "explain"
 
 
 class AssistantResponse(BaseModel):

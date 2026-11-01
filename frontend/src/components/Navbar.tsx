@@ -1,4 +1,4 @@
-import { Atom, Bot, BookOpen, FlaskConical, Info, Menu, X } from 'lucide-react';
+import { Atom, Bot, BookOpen, CircuitBoard, FlaskConical, Info, Menu, Trophy, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 
@@ -6,6 +6,8 @@ const links = [
   { to: '/', label: 'Home', icon: Atom },
   { to: '/learn', label: 'Learn Quantum', icon: BookOpen },
   { to: '/playground', label: 'Playground', icon: FlaskConical },
+  { to: '/builder', label: 'Build Circuit', icon: CircuitBoard },
+  { to: '/challenges', label: 'Challenges', icon: Trophy },
   { to: '/assistant', label: 'AI Assistant', icon: Bot },
   { to: '/about', label: 'Workshop Guide', icon: Info },
 ];

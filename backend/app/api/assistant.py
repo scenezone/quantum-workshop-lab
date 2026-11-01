@@ -16,4 +16,5 @@ async def chat(request: Request, payload: AssistantRequest) -> dict:
         payload.lesson_id,
         payload.experiment_id,
         payload.result_context,
+        payload.mode,
     )

@@ -8,11 +8,13 @@ import { useAssistant } from '../context/AssistantContext';
 import ErrorMessage from '../components/ErrorMessage';
 import { fetchLessons } from '../services/api';
 import type { Difficulty } from '../types/api';
+import { completeLesson, getLearningProgress } from '../services/learningProgress';
 
 export default function Learn() {
   const [params, setParams] = useSearchParams();
   const [level, setLevel] = useState<Difficulty | 'all'>('all');
   const [search, setSearch] = useState('');
+  const [progress, setProgress] = useState(getLearningProgress);
   const lessonsQuery = useQuery({ queryKey: ['lessons'], queryFn: fetchLessons });
   const { setStudyContext } = useAssistant();
   const lessons = lessonsQuery.data ?? [];
@@ -40,6 +42,17 @@ export default function Learn() {
         Build foundations in qubits and measurement, then work through complex amplitudes, oracle algorithms,
         Fourier transforms, teleportation, error correction, and variational methods.
       </p>
+      <section className="glass mt-5 flex flex-wrap items-center justify-between gap-4 p-4" aria-label="Learning progress">
+        <div className="min-w-48 flex-1">
+          <div className="flex justify-between gap-3 text-sm">
+            <span>Lessons completed</span>
+            <span>{progress.completedLessons.length} / {lessons.length}</span>
+          </div>
+          <progress className="mt-2 h-2 w-full accent-cyan-400" max={Math.max(lessons.length, 1)}
+            value={progress.completedLessons.length} aria-label="Lessons completed" />
+        </div>
+        <Link to="/challenges" className="btn-secondary text-sm">Try a quantum challenge</Link>
+      </section>
       <div className="mt-6 flex flex-wrap items-center gap-3">
         {(['all', 'beginner', 'intermediate', 'advanced'] as const).map((difficulty) => (
           <button key={difficulty} onClick={() => setLevel(difficulty)} aria-pressed={level === difficulty}
@@ -88,6 +101,10 @@ export default function Learn() {
             {selected.related_experiments.map((id) => <Link key={id} to={`/playground?experiment=${encodeURIComponent(id)}`}
               className="btn-secondary text-sm">Try {id.replace(/_/g, ' ')}</Link>)}
             <Link to="/assistant" className="btn-primary text-sm">Discuss this lesson</Link>
+            <button className="btn-secondary text-sm" aria-pressed={progress.completedLessons.includes(selected.lesson_id)}
+              onClick={() => setProgress(completeLesson(selected.lesson_id))}>
+              {progress.completedLessons.includes(selected.lesson_id) ? 'Lesson completed' : 'Mark lesson complete'}
+            </button>
           </div>
           {(selected.references?.length ?? 0) > 0 && <div className="mt-6 border-t border-white/10 pt-4 text-sm">
             <h3 className="mb-2 font-semibold">Further reading</h3>

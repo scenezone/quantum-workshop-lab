@@ -64,6 +64,15 @@ test('learner can open a lesson, check an answer, and run a simulation', async (
       };
     } else if (path === '/api/experiments') {
       body = { experiments: [experiment] };
+    } else if (path === '/api/experiments/superposition/evolution') {
+      body = {
+        experiment_id: 'superposition',
+        qubits: 1,
+        steps: [
+          { step: 0, gate: 'Start', explanation: 'All qubits start in |0>.', qubits: [{ qubit: 0, x: 0, y: 0, z: 1 }] },
+          { step: 1, gate: 'H', explanation: 'Create equal amplitudes.', qubits: [{ qubit: 0, x: 1, y: 0, z: 0 }] },
+        ],
+      };
     } else if (path === '/api/lessons/introduction/practice/check') {
       body = {
         question_id: 'what-is-a-qubit',

@@ -19,8 +19,8 @@ const features = [
   },
   {
     icon: LineChart,
-    title: 'Interactive results',
-    description: 'Compare ideal probabilities with actual measurement counts.',
+    title: 'Visual quantum states',
+    description: 'Step through each gate with Bloch sphere views, noise controls, and measured results.',
   },
   {
     icon: Bot,
@@ -29,8 +29,8 @@ const features = [
   },
   {
     icon: ShieldCheck,
-    title: 'Workshop-ready',
-    description: 'No accounts, conservative public quotas, and secure backend secrets.',
+    title: 'Build and share',
+    description: 'Compose a small safe circuit, export Qiskit code, and share its setup.',
   },
 ];
 
@@ -54,6 +54,7 @@ export default function Home() {
           <div className="mt-8 flex flex-wrap justify-center gap-4">
             <Link to="/learn" className="btn-primary">Start Learning</Link>
             <Link to="/playground" className="btn-secondary">Launch Playground</Link>
+            <Link to="/builder" className="btn-secondary">Build a Circuit</Link>
           </div>
         </div>
       </section>

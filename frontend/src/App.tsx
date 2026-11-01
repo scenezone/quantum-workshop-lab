@@ -9,6 +9,8 @@ const About = lazy(() => import('./pages/About'));
 const Assistant = lazy(() => import('./pages/Assistant'));
 const Learn = lazy(() => import('./pages/Learn'));
 const Playground = lazy(() => import('./pages/Playground'));
+const CircuitBuilder = lazy(() => import('./pages/CircuitBuilder'));
+const Challenges = lazy(() => import('./pages/Challenges'));
 
 export default function App() {
   return (
@@ -20,6 +22,8 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path="/learn" element={<Learn />} />
             <Route path="/playground" element={<Playground />} />
+            <Route path="/builder" element={<CircuitBuilder />} />
+            <Route path="/challenges" element={<Challenges />} />
             <Route path="/assistant" element={<Assistant />} />
             <Route path="/about" element={<About />} />
             <Route

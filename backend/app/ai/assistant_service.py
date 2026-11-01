@@ -14,6 +14,11 @@ logger = logging.getLogger(__name__)
 FALLBACK_NOTICE = (
     "Live AI is currently unavailable. This explanation comes from the workshop guide."
 )
+MODE_GUIDANCE = {
+    "explain": "Explain the concept directly, using the selected lesson and experiment as context.",
+    "hint": "Give one small hint at a time. Do not reveal the full solution unless the learner asks.",
+    "quiz": "Ask one short question at a time. If the learner is answering the previous assistant quiz question, evaluate the answer briefly, correct misconceptions, and then offer one new question.",
+}
 
 
 def guide_reply(
@@ -105,14 +110,51 @@ def fallback(
     lesson_id: str | None,
     experiment_id: str | None,
     result_context: dict | None,
+    mode: str = "explain",
 ) -> dict:
     question = next(
         (message["content"] for message in reversed(messages) if message["role"] == "user"), ""
     )
+    if mode == "quiz":
+        answered_quiz = any(
+            message["role"] == "assistant" and "### Quick check" in message["content"]
+            for message in messages[:-1]
+        )
+        if answered_quiz:
+            reply = "The offline guide can ask practice questions, but it cannot reliably grade free-form answers. Switch to Explain mode to review this topic, or configure live AI for interactive quiz feedback."
+        else:
+            lesson = next((item for item in LESSONS if item["lesson_id"] == lesson_id), None)
+            experiment = EXPERIMENTS.get(experiment_id)
+            topic = (
+                experiment["title"]
+                if experiment
+                else lesson["title"]
+                if lesson
+                else "quantum computing"
+            )
+            reply = f"### Quick check\n\nIn your own words, what is one key idea behind {topic}?"
+    elif mode == "hint":
+        experiment = EXPERIMENTS.get(experiment_id)
+        first_gate = (
+            next((gate for gate in experiment["gates"] if gate["name"] != "Measure"), None)
+            if experiment
+            else None
+        )
+        if first_gate:
+            gate_name = first_gate.get("label") or first_gate["name"]
+            reply = f"### Hint\n\nStart with the first gate, **{gate_name}**. {first_gate['explanation']} Predict the state after that operation before considering the rest of the circuit."
+        else:
+            reply = "### Hint\n\nBreak the problem into one idea at a time. Write down the starting state, apply one gate or concept, and only then compare it with the measurement or example."
+    else:
+        reply = guide_reply(question, lesson_id, experiment_id, result_context)
     return {
-        "reply": guide_reply(question, lesson_id, experiment_id, result_context),
+        "reply": reply,
         "source": "fallback",
-        "notice": FALLBACK_NOTICE,
+        "notice": (
+            "The offline guide can ask a quiz question, but it cannot grade free-form answers."
+            if mode == "quiz"
+            else FALLBACK_NOTICE
+        ),
     }
 
 
@@ -123,11 +165,12 @@ class AssistantService:
         lesson_id: str | None,
         experiment_id: str | None,
         result_context: dict | None,
+        mode: str = "explain",
     ) -> dict:
         settings = get_settings()
         if not settings.llm_api_key.strip():
             logger.warning("Live assistant is not configured: LLM_API_KEY is missing")
-            return fallback(messages, lesson_id, experiment_id, result_context)
+            return fallback(messages, lesson_id, experiment_id, result_context, mode)
 
         # MongoDB uses a synchronous driver; do not block the API event loop.
         question = next(
@@ -138,7 +181,12 @@ class AssistantService:
         )
         payload = {
             "model": settings.llm_model,
-            "messages": [{"role": "system", "content": f"{SYSTEM_PROMPT}\n\nCONTEXT:\n{context}"}]
+            "messages": [
+                {
+                    "role": "system",
+                    "content": f"{SYSTEM_PROMPT}\n\nRESPONSE MODE:\n{MODE_GUIDANCE[mode]}\n\nCONTEXT:\n{context}",
+                }
+            ]
             + [{"role": message["role"], "content": message["content"]} for message in messages],
             "temperature": 0.2,
         }
@@ -176,4 +224,4 @@ class AssistantService:
         except (httpx.RequestError, ValueError, KeyError, IndexError, TypeError):
             logger.warning("LLM request failed or returned an invalid response")
 
-        return fallback(messages, lesson_id, experiment_id, result_context)
+        return fallback(messages, lesson_id, experiment_id, result_context, mode)

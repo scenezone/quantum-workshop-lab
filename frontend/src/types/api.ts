@@ -5,6 +5,20 @@ export const EXPERIMENT_IDS = [
 ] as const;
 export type ExperimentId = typeof EXPERIMENT_IDS[number];
 export type Difficulty = 'beginner' | 'intermediate' | 'advanced';
+export type CircuitGateName = 'H' | 'X' | 'Y' | 'Z' | 'S' | 'T' | 'RX' | 'RY' | 'RZ' | 'CX' | 'CZ' | 'SWAP';
+
+export interface CustomCircuitGate {
+  name: CircuitGateName;
+  qubits: number[];
+  angle?: number;
+}
+
+export interface CustomCircuitInput {
+  qubits: number;
+  gates: CustomCircuitGate[];
+  shots: number;
+  noise_profile: 'ideal' | 'low' | 'medium' | 'high';
+}
 
 export interface ExperimentGate {
   name: string;
@@ -35,12 +49,33 @@ export interface ExperimentResult {
   backend: 'aer_simulator' | 'ibm_quantum';
   backend_name: string | null;
   shots: number;
+  noise_profile?: 'ideal' | 'low' | 'medium' | 'high';
   counts: Record<string, number>;
   observed_probabilities: Record<string, number>;
   ideal_probabilities: Record<string, number>;
   provider_job_id: string | null;
   tracking_id: string | null;
   amplitudes?: { outcome: string; real: number; imag: number; probability: number; phase_degrees: number }[];
+}
+
+export interface BlochVector {
+  qubit: number;
+  x: number;
+  y: number;
+  z: number;
+}
+
+export interface StateEvolutionStep {
+  step: number;
+  gate: string;
+  explanation: string;
+  qubits: BlochVector[];
+}
+
+export interface ExperimentEvolution {
+  experiment_id: string;
+  qubits: number;
+  steps: StateEvolutionStep[];
 }
 
 export type JobStatus =
@@ -104,6 +139,8 @@ export interface ChatMessage {
   source?: 'llm' | 'fallback';
   notice?: string | null;
 }
+
+export type AssistantMode = 'explain' | 'hint' | 'quiz';
 
 export interface AssistantResponse {
   reply: string;

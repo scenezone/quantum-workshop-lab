@@ -1,13 +1,16 @@
 import axios from 'axios';
 import type {
   ChatMessage,
+  CustomCircuitInput,
   Experiment,
+  ExperimentEvolution,
   ExperimentResult,
   HardwareStatus,
   JobStatusResponse,
   Lesson,
   PublicConfig,
   AssistantResponse,
+  AssistantMode,
   PracticeFeedback,
 } from '../types/api';
 
@@ -40,14 +43,26 @@ export async function fetchExperiments(): Promise<Experiment[]> {
   return data.experiments;
 }
 
+export async function fetchExperimentEvolution(experimentId: string): Promise<ExperimentEvolution> {
+  const { data } = await api.get(`/api/experiments/${encodeURIComponent(experimentId)}/evolution`);
+  return data;
+}
+
 export async function simulateExperiment(
   experimentId: string,
   shots: number,
+  noiseProfile: 'ideal' | 'low' | 'medium' | 'high' = 'ideal',
 ): Promise<ExperimentResult> {
   const { data } = await api.post('/api/experiments/simulate', {
     experiment_id: experimentId,
     shots,
+    noise_profile: noiseProfile,
   });
+  return data;
+}
+
+export async function simulateCustomCircuit(circuit: CustomCircuitInput): Promise<ExperimentResult> {
+  const { data } = await api.post('/api/experiments/custom/simulate', circuit);
   return data;
 }
 
@@ -80,12 +95,14 @@ export async function sendAssistantMessage(
   experimentId?: string,
   resultContext?: Record<string, unknown>,
   signal?: AbortSignal,
+  mode: AssistantMode = 'explain',
 ): Promise<AssistantResponse> {
   const { data } = await api.post('/api/assistant/chat', {
     messages: messages.map(({ role, content }) => ({ role, content })),
     lesson_id: lessonId,
     experiment_id: experimentId,
     result_context: resultContext,
+    mode,
   }, { signal, timeout: 60000 });
   return data;
 }
