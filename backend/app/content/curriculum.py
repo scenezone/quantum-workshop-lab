@@ -4,6 +4,7 @@ from enum import StrEnum
 
 class ExperimentId(StrEnum):
     SUPERPOSITION = 'superposition'
+    QUANTUM_RANDOM_NUMBER = 'quantum_random_number'
     BELL_ENTANGLEMENT = 'bell_entanglement'
     INTERFERENCE = 'interference'
     PHASE_KICKBACK = 'phase_kickback'
@@ -453,6 +454,19 @@ EXPERIMENTS = {'superposition': {'experiment_id': 'superposition',
                    'next_experiment': 'bell_entanglement',
                    'difficulty': 'beginner',
                    'lesson_id': 'superposition'},
+ 'quantum_random_number': {'experiment_id': 'quantum_random_number',
+                           'title': 'Quantum Random Number Generator',
+                           'description': 'Create a random bit by measuring a qubit in an equal superposition.',
+                           'qubits': 1,
+                           'classical_bits': 1,
+                           'gates': [{'name': 'H', 'qubits': [0], 'explanation': 'Prepare equal amplitudes for 0 and 1.'},
+                                     {'name': 'Measure', 'qubits': [0], 'explanation': 'Measurement produces one random bit.', 'classical_bits': [0]}],
+                           'qiskit_code': 'from qiskit import QuantumCircuit\n\nqc = QuantumCircuit(1, 1)\nqc.h(0)\nqc.measure([0], [0])',
+                           'ideal_probabilities': {'0': 0.5, '1': 0.5},
+                           'interpretation': 'Each measurement produces one bit. An ideal device gives 0 and 1 with equal probability; a finite batch can be imbalanced. This is a demonstration of quantum measurement, not a cryptographic randomness certification.',
+                           'next_experiment': 'bell_entanglement',
+                           'difficulty': 'beginner',
+                           'lesson_id': 'superposition'},
  'bell_entanglement': {'experiment_id': 'bell_entanglement',
                        'title': 'Bell-State Entanglement',
                        'description': 'Create an entangled pair whose measurements are perfectly correlated.',

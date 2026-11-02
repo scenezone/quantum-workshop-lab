@@ -28,7 +28,7 @@ export default function BackendComparison({ simulator, hardware }: Props) {
     <section className="glass p-5" aria-labelledby="backend-comparison-title">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 id="backend-comparison-title" className="font-semibold">Simulator vs IBM hardware</h2>
+          <h2 id="backend-comparison-title" className="font-semibold">Simulator vs {hardware.backend === 'ibm_quantum_recorded' ? 'saved IBM hardware results' : 'IBM hardware'}</h2>
           <p className="mt-1 text-sm text-slate-300">Compare the measured outcome probabilities from both runs.</p>
         </div>
         <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-right">
@@ -44,8 +44,8 @@ export default function BackendComparison({ simulator, hardware }: Props) {
             {simulator.noise_profile ? ` · ${simulator.noise_profile} noise` : ''}</p>
         </div>
         <div className="rounded-xl border border-purple-400/20 bg-purple-400/5 p-4">
-          <p className="text-sm font-semibold text-purple-200">IBM hardware · {hardware.backend_name ?? 'Backend name unavailable'}</p>
-          <p className="mt-1 text-sm text-slate-300">{hardware.shots.toLocaleString()} shots</p>
+          <p className="text-sm font-semibold text-purple-200">{hardware.backend === 'ibm_quantum_recorded' ? 'Recorded IBM hardware' : 'IBM hardware'} · {hardware.backend_name ?? 'Backend name unavailable'}</p>
+          <p className="mt-1 text-sm text-slate-300">{hardware.shots.toLocaleString()} shots{hardware.recorded_at ? ` · saved ${new Date(hardware.recorded_at).toLocaleDateString()}` : ''}</p>
         </div>
       </div>
 

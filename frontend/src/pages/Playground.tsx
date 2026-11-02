@@ -19,6 +19,7 @@ import {
   fetchExperimentEvolution,
   fetchPublicConfig,
   fetchHardwareStatus,
+  fetchSavedHardwareResult,
   simulateExperiment,
   submitHardwareExperiment,
 } from '../services/api';
@@ -70,6 +71,10 @@ export default function Playground() {
   const hardwareStatusQuery = useQuery({
     queryKey: ['hardware-status'], queryFn: fetchHardwareStatus, refetchInterval: 15000,
   });
+  const savedHardwareQuery = useQuery({
+    queryKey: ['saved-hardware-result', experimentId],
+    queryFn: () => fetchSavedHardwareResult(experimentId),
+  });
   const simulation = useMutation({
     mutationFn: (input: { experimentId: ExperimentId; shots: number; noiseProfile: NoiseProfile }) =>
       simulateExperiment(input.experimentId, input.shots, input.noiseProfile),
@@ -96,6 +101,9 @@ export default function Playground() {
       if (input.experimentId === currentExperiment.current) setResultSource('hardware');
       void hardwareStatusQuery.refetch();
     },
+    onError: (_error, input) => {
+      if (input.experimentId === currentExperiment.current) setResultSource('hardware');
+    },
   });
   const job = useExperimentJob(trackingId);
   const expiredJob = axios.isAxiosError(job.error) && job.error.response?.status === 404;
@@ -109,8 +117,13 @@ export default function Playground() {
     ideal_probabilities: job.data.ideal_probabilities, provider_job_id: job.data.provider_job_id,
     tracking_id: trackingId,
   } : null;
+  const recordedHardwareResult = savedHardwareQuery.data?.experiment_id === experimentId
+    ? savedHardwareQuery.data
+    : null;
   const matchingSimulation = simulatorResult?.experiment_id === experimentId ? simulatorResult : null;
-  const activeResult = resultSource === 'hardware' ? hardwareResult ?? matchingSimulation : matchingSimulation;
+  const activeResult = resultSource === 'hardware'
+    ? hardwareResult ?? recordedHardwareResult ?? matchingSimulation
+    : matchingSimulation;
   const resultContext = useMemo(() => activeResult ? { ...activeResult } : undefined, [activeResult]);
   // Use primitive dependencies because the hardware result is reconstructed each render.
   const contextKey = JSON.stringify(resultContext);
@@ -318,6 +331,11 @@ export default function Playground() {
                 Real quantum hardware is currently unavailable. You can continue with the simulator.
               </p>
             )}
+            {recordedHardwareResult && !hardwareResult && (
+              <p className="mt-3 text-sm text-amber-200" role="status">
+                Showing the last saved IBM hardware run while a live result is unavailable. This is recorded data, not a new run.
+              </p>
+            )}
 
             {simulation.isError && (
               <ErrorMessage message="The simulator could not complete this experiment." />
@@ -353,15 +371,18 @@ export default function Playground() {
 
           {activeResult && (
             <section className="glass p-5">
-              <h2 className="font-semibold">Measurement Results: {activeResult.backend === 'ibm_quantum' ? 'IBM hardware' : 'Simulator'}</h2>
+              <h2 className="font-semibold">Measurement Results: {activeResult.backend === 'ibm_quantum' ? 'IBM hardware' : activeResult.backend === 'ibm_quantum_recorded' ? 'Recorded IBM hardware' : 'Simulator'}</h2>
+              {activeResult.backend === 'ibm_quantum_recorded' && activeResult.recorded_at && (
+                <p className="mt-2 text-xs text-amber-200">Saved from a completed hardware run on {new Date(activeResult.recorded_at).toLocaleString()}.</p>
+              )}
               {activeResult.backend === 'aer_simulator' && activeResult.noise_profile && activeResult.noise_profile !== 'ideal' && (
                 <p className="mt-2 text-sm text-amber-200">
                   {activeResult.noise_profile} noise is applied to gates and readout. Compare the observed distribution with the ideal probabilities below.
                 </p>
               )}
-              {matchingSimulation && hardwareResult && <div className="my-3 flex flex-wrap gap-3">
+              {matchingSimulation && (hardwareResult || recordedHardwareResult) && <div className="my-3 flex flex-wrap gap-3">
                 <button className="btn-secondary" onClick={() => setResultSource('simulator')} aria-pressed={resultSource === 'simulator'}>Simulator results</button>
-                <button className="btn-secondary" onClick={() => setResultSource('hardware')} aria-pressed={resultSource === 'hardware'}>Hardware results</button>
+                <button className="btn-secondary" onClick={() => setResultSource('hardware')} aria-pressed={resultSource === 'hardware'}>{hardwareResult ? 'Hardware results' : 'Recorded hardware results'}</button>
               </div>}
               <MeasurementHistogram counts={activeResult.counts} />
               <ProbabilityComparison
@@ -405,8 +426,8 @@ export default function Playground() {
               </p>
             </section>
           )}
-          {matchingSimulation && hardwareResult && (
-            <BackendComparison simulator={matchingSimulation} hardware={hardwareResult} />
+          {matchingSimulation && (hardwareResult || recordedHardwareResult) && (
+            <BackendComparison simulator={matchingSimulation} hardware={hardwareResult ?? recordedHardwareResult!} />
           )}
         </div>
 

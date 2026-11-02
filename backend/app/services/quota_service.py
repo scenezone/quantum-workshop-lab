@@ -6,6 +6,7 @@ from pymongo.errors import DuplicateKeyError, PyMongoError
 from app.config import get_settings
 from app.database.mongodb import Mongo, utcnow
 from app.errors import ExternalServiceError, QuotaExceededError
+from app.quantum.ibm_runtime import IBMRuntimeClient
 
 
 class QuotaService:
@@ -118,7 +119,8 @@ class QuotaService:
         today = utcnow().date().isoformat()
         todays_entries = [entry for entry in entries if entry["quota_date"] == today]
         return {
-            "hardware_enabled": settings.ibm_hardware_enabled,
+            "hardware_enabled": settings.ibm_hardware_enabled and IBMRuntimeClient.configured_account_count() > 0,
+            "configured_accounts": IBMRuntimeClient.configured_account_count() if settings.ibm_hardware_enabled else 0,
             "daily_limit": settings.ibm_max_daily_jobs,
             "submitted_today": sum(entry["state"] == "submitted" for entry in todays_entries),
             "remaining_today": max(0, settings.ibm_max_daily_jobs - len(todays_entries)),

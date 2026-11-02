@@ -25,6 +25,8 @@ class Settings(BaseSettings):
     ibm_hardware_enabled: bool = False
     ibm_quantum_api_key: str = ""
     ibm_quantum_instance: str = ""
+    # JSON array of {name, api_key, instance?}; secrets stay in environment config.
+    ibm_quantum_accounts: str = ""
     ibm_max_daily_jobs: int = Field(default=25, ge=0)
     ibm_max_active_jobs: int = Field(default=3, ge=0)
     ibm_max_shots: int = Field(default=4096, ge=1)

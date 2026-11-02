@@ -62,6 +62,7 @@ class JobManager:
             "provider_job_id": None,
             "experiment_type": experiment_id,
             "backend_name": None,
+            "runtime_account": None,
             "shots": shots,
             "status": "queued",
             "submission_state": "preparing",
@@ -95,9 +96,9 @@ class JobManager:
             raise
 
         try:
-            provider_job_id, backend_name, _ = IBMRuntimeClient.submit_job(
-                experiment_id, shots, job_id
-            )
+            submission = IBMRuntimeClient.submit_job(experiment_id, shots, job_id)
+            provider_job_id, backend_name, _, *account = submission
+            runtime_account = account[0] if account else None
         except HardwareUnavailableError:
             JobManager._fail_before_submission(document, "Hardware is currently unavailable.")
             raise
@@ -121,7 +122,7 @@ class JobManager:
             return tracking_token, "unknown"
 
         try:
-            JobManager._record_submission(document, provider_job_id, backend_name)
+            JobManager._record_submission(document, provider_job_id, backend_name, runtime_account)
         except Exception:
             logger.exception("Submission accepted; provider tag will recover database state")
         return tracking_token, "queued"
@@ -153,7 +154,9 @@ class JobManager:
         )
 
     @staticmethod
-    def _record_submission(job: dict, provider_id: str, backend_name: str) -> None:
+    def _record_submission(
+        job: dict, provider_id: str, backend_name: str, runtime_account: str | None = None
+    ) -> None:
         Mongo.db().quantum_jobs.update_one(
             {
                 "internal_job_id": job["internal_job_id"],
@@ -163,6 +166,7 @@ class JobManager:
                 "$set": {
                     "provider_job_id": provider_id,
                     "backend_name": backend_name,
+                    "runtime_account": runtime_account,
                     "submission_state": "submitted",
                     "status": "queued",
                     "error": None,
@@ -206,10 +210,13 @@ class JobManager:
             found = IBMRuntimeClient.find_submission(job_id)
             if not found:
                 return job  # Preserve ambiguous reservations instead of risking duplicate jobs.
-            JobManager._record_submission(job, *found)
+            provider_id, backend_name, *account = found
+            JobManager._record_submission(job, provider_id, backend_name, account[0] if account else None)
             job = collection.find_one({"_id": job["_id"]})
         QuotaService.confirm_submission(job_id)
-        status, counts, error = IBMRuntimeClient.get_status_and_counts(job["provider_job_id"])
+        status, counts, error = IBMRuntimeClient.get_status_and_counts(
+            job["provider_job_id"], job.get("runtime_account")
+        )
         update = {"status": status, "error": error, "updated_at": utcnow()}
         if counts is not None:
             update["result_counts"] = counts
@@ -223,6 +230,21 @@ class JobManager:
             return_document=ReturnDocument.AFTER,
         )
         job = updated or collection.find_one({"_id": job["_id"]})
+        if job["status"] == "completed" and job.get("result_counts"):
+            Mongo.db().hardware_results.update_one(
+                {"experiment_id": job["experiment_type"]},
+                {
+                    "$set": {
+                        "experiment_id": job["experiment_type"],
+                        "backend_name": job.get("backend_name"),
+                        "shots": job["shots"],
+                        "counts": job["result_counts"],
+                        "recorded_at": job.get("updated_at", utcnow()),
+                        "provider_job_id": job.get("provider_job_id"),
+                    }
+                },
+                upsert=True,
+            )
         if job["status"] in TERMINAL:
             return JobManager._refresh(job)
         return job

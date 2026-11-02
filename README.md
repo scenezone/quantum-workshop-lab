@@ -255,6 +255,7 @@ The following expectations describe the bundled ideal circuits. Finite sampling 
 | Experiment ID | Qubits | Level | Ideal measured outcome |
 | --- | --- | --- | --- |
 | `superposition` | 1 | Beginner | `0` and `1`, each with probability 0.5 |
+| `quantum_random_number` | 1 | Beginner | `0` and `1`, each with probability 0.5 |
 | `bell_entanglement` | 2 | Beginner | `00` and `11`, each with probability 0.5 |
 | `interference` | 1 | Beginner | `0` with probability 1 |
 | `phase_kickback` | 2 | Intermediate | `1` with probability 1 |
@@ -295,6 +296,7 @@ The backend loads `backend/.env` using an absolute path derived from `app/config
 | `IBM_HARDWARE_ENABLED` | `false` | Enables new hardware submissions |
 | `IBM_QUANTUM_API_KEY` | Empty | IBM Quantum credential, used only by the backend |
 | `IBM_QUANTUM_INSTANCE` | Empty | Optional runtime instance identifier passed to the IBM service |
+| `IBM_QUANTUM_ACCOUNTS` | Empty | Optional JSON array of named IBM credentials; the backend checks all accounts and selects the eligible backend with the shortest queue |
 | `IBM_MAX_DAILY_JOBS` | `25` | Global daily hardware reservation/submission limit, using UTC dates |
 | `IBM_MAX_ACTIVE_JOBS` | `3` | Global active hardware job limit, including earlier UTC days |
 | `IBM_MAX_SHOTS` | `4096` | Maximum shots per hardware request |
@@ -345,6 +347,8 @@ IBM_MAX_ACTIVE_JOBS=3
 IBM_MAX_SHOTS=4096
 ```
 
+For multiple pre-configured IBM accounts, set `IBM_QUANTUM_ACCOUNTS` to a JSON array instead of the single key, for example `[{"name":"primary","api_key":"...","instance":"..."},{"name":"backup","api_key":"...","instance":"..."}]`. Keep these credentials in the backend secret store and never in frontend variables. Hardware results from completed jobs are saved as the latest recorded result for each experiment; the playground labels this data as recorded when a live result is waiting, unavailable, or failed.
+
 The implementation uses the `ibm_quantum_platform` channel, selects an operational nonsimulator backend with enough qubits and the fewest pending jobs among the returned candidates, transpiles the approved circuit, and submits through `SamplerV2`.
 
 Hardware access depends on account permissions, provider capacity, and configured quotas. The application quotas are global to the deployment. A local simulation does not require IBM access.
@@ -370,6 +374,7 @@ Use the running backend's `/docs` for interactive request schemas and validation
 | `POST` | `/api/experiments/hardware` | Submit an approved circuit to IBM Quantum |
 | `GET` | `/api/experiments/jobs/{tracking_id}` | Refresh job status and return any available results |
 | `GET` | `/api/hardware/status` | Hardware flag, shot cap, daily capacity, and active jobs |
+| `GET` | `/api/hardware/saved/{experiment_id}` | Latest completed IBM result saved for fallback/comparison |
 | `POST` | `/api/assistant/chat` | Ask the assistant with optional lesson, experiment, and result context |
 | `POST` | `/api/feedback` | Save anonymous workshop feedback |
 

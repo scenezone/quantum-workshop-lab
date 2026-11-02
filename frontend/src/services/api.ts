@@ -89,6 +89,11 @@ export async function fetchHardwareStatus(): Promise<HardwareStatus> {
   return data;
 }
 
+export async function fetchSavedHardwareResult(experimentId: string): Promise<ExperimentResult | null> {
+  const { data } = await api.get(`/api/hardware/saved/${encodeURIComponent(experimentId)}`);
+  return data;
+}
+
 export async function sendAssistantMessage(
   messages: ChatMessage[],
   lessonId?: string,

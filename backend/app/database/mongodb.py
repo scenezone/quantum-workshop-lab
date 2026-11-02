@@ -61,6 +61,7 @@ class Mongo:
         db.quantum_jobs.create_index([("status", ASCENDING)])
         db.experiments.create_index([("experiment_id", ASCENDING)], unique=True)
         db.quantum_jobs.create_index([("expires_at", ASCENDING)], expireAfterSeconds=0)
+        db.hardware_results.create_index([("experiment_id", ASCENDING)], unique=True)
 
         db.hardware_quota.create_index([("quota_date", ASCENDING)], unique=True)
         db.feedback.create_index([("created_at", ASCENDING)])

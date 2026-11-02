@@ -1,5 +1,5 @@
 export const EXPERIMENT_IDS = [
-  'superposition', 'bell_entanglement', 'interference', 'phase_kickback',
+  'superposition', 'quantum_random_number', 'bell_entanglement', 'interference', 'phase_kickback',
   'ghz_entanglement', 'deutsch_jozsa', 'grover_search', 'qft_phase',
   'quantum_teleportation', 'bit_flip_correction',
 ] as const;
@@ -46,7 +46,7 @@ export interface Experiment {
 
 export interface ExperimentResult {
   experiment_id: string;
-  backend: 'aer_simulator' | 'ibm_quantum';
+  backend: 'aer_simulator' | 'ibm_quantum' | 'ibm_quantum_recorded';
   backend_name: string | null;
   shots: number;
   noise_profile?: 'ideal' | 'low' | 'medium' | 'high';
@@ -55,6 +55,7 @@ export interface ExperimentResult {
   ideal_probabilities: Record<string, number>;
   provider_job_id: string | null;
   tracking_id: string | null;
+  recorded_at?: string;
   amplitudes?: { outcome: string; real: number; imag: number; probability: number; phase_degrees: number }[];
 }
 
@@ -150,6 +151,7 @@ export interface AssistantResponse {
 
 export interface HardwareStatus {
   hardware_enabled: boolean;
+  configured_accounts?: number;
   daily_limit: number;
   submitted_today: number;
   remaining_today: number;
