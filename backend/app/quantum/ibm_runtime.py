@@ -24,21 +24,27 @@ class IBMRuntimeClient:
                 for index, account in enumerate(configured):
                     if not isinstance(account, dict) or not account.get("api_key"):
                         raise ValueError("Each IBM account requires an api_key")
-                    accounts.append({
-                        "name": str(account.get("name") or f"account-{index + 1}"),
-                        "api_key": str(account["api_key"]),
-                        "instance": str(account.get("instance") or ""),
-                    })
+                    accounts.append(
+                        {
+                            "name": str(account.get("name") or f"account-{index + 1}"),
+                            "api_key": str(account["api_key"]),
+                            "instance": str(account.get("instance") or ""),
+                        }
+                    )
                 if len({item["name"] for item in accounts}) != len(accounts):
                     raise ValueError("IBM account names must be unique")
             except (TypeError, ValueError, json.JSONDecodeError) as exc:
-                raise HardwareUnavailableError("IBM account pool configuration is invalid.") from exc
+                raise HardwareUnavailableError(
+                    "IBM account pool configuration is invalid."
+                ) from exc
         elif settings.ibm_quantum_api_key:
-            accounts.append({
-                "name": "default",
-                "api_key": settings.ibm_quantum_api_key,
-                "instance": settings.ibm_quantum_instance,
-            })
+            accounts.append(
+                {
+                    "name": "default",
+                    "api_key": settings.ibm_quantum_api_key,
+                    "instance": settings.ibm_quantum_instance,
+                }
+            )
         if not accounts:
             raise HardwareUnavailableError("IBM Quantum API key is not configured.")
         return accounts
@@ -53,9 +59,15 @@ class IBMRuntimeClient:
     @classmethod
     def service(cls, account_name: str | None = None):
         accounts = cls.accounts()
-        account = next((item for item in accounts if item["name"] == account_name), None) if account_name else accounts[0]
+        account = (
+            next((item for item in accounts if item["name"] == account_name), None)
+            if account_name
+            else accounts[0]
+        )
         if account is None:
-            raise HardwareUnavailableError("The IBM account used for this job is no longer configured.")
+            raise HardwareUnavailableError(
+                "The IBM account used for this job is no longer configured."
+            )
         if account["name"] not in cls._services:
             from qiskit_ibm_runtime import QiskitRuntimeService
 
@@ -80,7 +92,9 @@ class IBMRuntimeClient:
             except Exception as exc:
                 logger.warning("IBM account %s could not be queried", account["name"], exc_info=exc)
         if not candidates:
-            raise HardwareUnavailableError("No configured IBM account has an available backend with enough qubits.")
+            raise HardwareUnavailableError(
+                "No configured IBM account has an available backend with enough qubits."
+            )
         _, account_name, backend = min(candidates, key=lambda item: item[0])
         return account_name, backend
 
@@ -99,7 +113,9 @@ class IBMRuntimeClient:
         except HardwareUnavailableError:
             raise
         except Exception as exc:
-            raise HardwareUnavailableError("Hardware could not be prepared for this experiment.") from exc
+            raise HardwareUnavailableError(
+                "Hardware could not be prepared for this experiment."
+            ) from exc
 
         job = sampler.run([isa_circuit], shots=shots)
         logger.info("Submitted IBM job %s on backend %s", job.job_id(), backend.name)
@@ -114,7 +130,9 @@ class IBMRuntimeClient:
                     job = jobs[0]
                     return job.job_id(), job.backend().name, account["name"]
             except Exception:
-                logger.exception("Unable to search IBM account %s for a tagged submission", account["name"])
+                logger.exception(
+                    "Unable to search IBM account %s for a tagged submission", account["name"]
+                )
         return None
 
     @classmethod

@@ -211,7 +211,9 @@ class JobManager:
             if not found:
                 return job  # Preserve ambiguous reservations instead of risking duplicate jobs.
             provider_id, backend_name, *account = found
-            JobManager._record_submission(job, provider_id, backend_name, account[0] if account else None)
+            JobManager._record_submission(
+                job, provider_id, backend_name, account[0] if account else None
+            )
             job = collection.find_one({"_id": job["_id"]})
         QuotaService.confirm_submission(job_id)
         status, counts, error = IBMRuntimeClient.get_status_and_counts(

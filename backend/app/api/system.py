@@ -25,7 +25,8 @@ def health() -> JSONResponse:
 def public_config() -> dict:
     settings = get_settings()
     return {
-        "hardware_enabled": settings.ibm_hardware_enabled and IBMRuntimeClient.configured_account_count() > 0,
+        "hardware_enabled": settings.ibm_hardware_enabled
+        and IBMRuntimeClient.configured_account_count() > 0,
         "max_simulator_shots": settings.max_simulator_shots,
         "max_hardware_shots": settings.ibm_max_shots,
         "default_shots": settings.default_shots,
