@@ -161,6 +161,7 @@ export interface HardwareStatus {
 }
 export interface PublicConfig {
   hardware_enabled: boolean;
+  hardware_demo_verified?: boolean;
   max_simulator_shots: number;
   max_hardware_shots: number;
   default_shots: number;

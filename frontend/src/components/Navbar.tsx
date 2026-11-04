@@ -1,11 +1,11 @@
-import { Atom, Bot, BookOpen, CircuitBoard, FlaskConical, Info, Menu, Trophy, X } from 'lucide-react';
+import { Atom, Bot, BookOpen, CircuitBoard, Cpu, Info, Menu, Trophy, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 
 const links = [
   { to: '/', label: 'Home', icon: Atom },
   { to: '/learn', label: 'Learn Quantum', icon: BookOpen },
-  { to: '/playground', label: 'Playground', icon: FlaskConical },
+  { to: '/playground', label: 'Playground', icon: Cpu },
   { to: '/builder', label: 'Build Circuit', icon: CircuitBoard },
   { to: '/challenges', label: 'Challenges', icon: Trophy },
   { to: '/assistant', label: 'AI Assistant', icon: Bot },
@@ -49,9 +49,10 @@ export default function Navbar() {
           </button>
           <div id="navigation-links" className={`${open ? 'flex' : 'hidden'} absolute left-0 right-0 top-full max-h-[calc(100dvh-5rem)] flex-col gap-1 overflow-y-auto border-b border-white/10 bg-navy-950 p-4 lg:static lg:flex lg:max-h-none lg:flex-row lg:overflow-visible lg:border-0 lg:bg-transparent lg:p-0`}>
             {links.map(({ to, label, icon: Icon }) => (
-              <NavLink key={to} to={to} onClick={() => setOpen(false)}
+              <NavLink key={to} to={to} onClick={() => setOpen(false)} title={to === '/playground' ? 'Run guided experiments on IBM quantum hardware' : undefined}
                 className={({ isActive }) => `flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-3 py-3 text-sm lg:py-2 ${isActive ? 'bg-white/10 text-cyan-300' : 'text-slate-300 hover:bg-white/5'}`}>
                 <Icon className="h-4 w-4 shrink-0" />{label}
+                {to === '/playground' && <span aria-hidden="true" className="rounded bg-purple-400/15 px-1.5 py-0.5 text-[0.6rem] font-bold uppercase tracking-wide text-purple-200">IBM</span>}
               </NavLink>
             ))}
           </div>

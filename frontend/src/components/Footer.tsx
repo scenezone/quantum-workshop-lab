@@ -8,7 +8,7 @@ export default function Footer() {
         <p>Quantum Workshop Lab — learn by running real quantum circuits.</p>
         <div className="flex shrink-0 flex-wrap justify-center gap-4">
           <Link to="/learn" className="hover:text-cyan-300">Learn</Link>
-          <Link to="/playground" className="hover:text-cyan-300">Playground</Link>
+          <Link to="/playground" className="hover:text-cyan-300">Hardware Lab</Link>
           <Link to="/about" className="hover:text-cyan-300">Guide</Link>
         </div>
       </div>

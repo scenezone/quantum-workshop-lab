@@ -3,6 +3,7 @@ import { Route, Routes, Link } from 'react-router-dom';
 import Footer from './components/Footer';
 import Navbar from './components/Navbar';
 import LoadingSkeleton from './components/LoadingSkeleton';
+import HardwareLabCallout from './components/HardwareLabCallout';
 import Home from './pages/Home';
 
 const About = lazy(() => import('./pages/About'));
@@ -34,6 +35,9 @@ export default function App() {
                   <h1 className="mt-4 text-3xl font-bold text-slate-100 sm:text-4xl">This page is outside the lab.</h1>
                   <p className="mt-3 max-w-xl text-slate-300">The address may be out of date, or the page may have moved.</p>
                   <Link to="/" className="btn-primary mt-7">Return to the workshop</Link>
+                  <div className="mt-8 w-full text-left">
+                    <HardwareLabCallout compact />
+                  </div>
                 </section>
               }
             />

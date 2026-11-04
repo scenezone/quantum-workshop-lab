@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import ErrorMessage from '../components/ErrorMessage';
 import MeasurementHistogram from '../components/MeasurementHistogram';
 import ProbabilityComparison from '../components/ProbabilityComparison';
+import HardwareLabCallout from '../components/HardwareLabCallout';
 import { fetchPublicConfig, simulateCustomCircuit } from '../services/api';
 import { deleteSavedCircuit, getSavedCircuits, saveCircuit } from '../services/circuitLibrary';
 import type { CircuitGateName, CustomCircuitGate, ExperimentResult } from '../types/api';
@@ -175,6 +176,13 @@ export default function CircuitBuilder() {
           <p className="mt-2 max-w-3xl text-slate-300">Arrange approved gates, simulate safely, and export the resulting Qiskit example.</p>
         </div>
         <Link to="/playground" className="btn-secondary">Open guided experiments</Link>
+      </div>
+      <div className="mt-5">
+        <HardwareLabCallout
+          compact
+          title="Run a guided circuit on IBM hardware"
+          description="Custom circuits in this builder run on the simulator. For a real hardware run, open one of the approved guided experiments."
+        />
       </div>
 
       <div className="mt-8 grid gap-6 xl:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">

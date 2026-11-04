@@ -1,5 +1,6 @@
 import { Atom, Bot, Cpu, FlaskConical, LineChart, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import HardwareLabCallout from '../components/HardwareLabCallout';
 
 const features = [
   {
@@ -10,12 +11,12 @@ const features = [
   {
     icon: FlaskConical,
     title: 'Safe experiments',
-    description: 'Explore 10 guided circuits with no Python setup or arbitrary code execution.',
+    description: 'Explore 11 guided circuits with no Python setup or arbitrary code execution.',
   },
   {
     icon: Cpu,
     title: 'Real IBM hardware',
-    description: 'Submit approved circuits to IBM Quantum when enabled and available.',
+    description: 'Run approved guided circuits on IBM hardware. Simulator mode stays labeled until the live flow is verified.',
   },
   {
     icon: LineChart,
@@ -43,18 +44,22 @@ export default function Home() {
             Quantum Workshop Lab
           </p>
           <h1 className="mx-auto max-w-4xl text-4xl font-black leading-tight sm:text-6xl">
-            Explore Quantum Computing
+            Run Quantum Experiments on Real Hardware
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-lg text-slate-300">
-            Learn quantum computing through guided lessons, simulate circuits in your browser, and
-            compare your results with ideal quantum behavior. Optional IBM Quantum access is available
-            when the workshop is configured for hardware.
+            Start with an approved experiment, send it to an IBM quantum processor, and compare the measurements
+            with the simulator. When live hardware is not verified or available, the page says so clearly.
           </p>
 
           <div className="mt-8 flex flex-wrap justify-center gap-4">
             <Link to="/learn" className="btn-primary">Start Learning</Link>
-            <Link to="/playground" className="btn-secondary">Launch Playground</Link>
             <Link to="/builder" className="btn-secondary">Build a Circuit</Link>
+          </div>
+          <div className="mx-auto mt-10 max-w-4xl text-left">
+            <HardwareLabCallout
+              title="Make a real hardware run the first experiment"
+              description="Choose a guided circuit and run it on IBM hardware when access is available. Until the live flow is verified, Simulator stays the active mode."
+            />
           </div>
         </div>
       </section>

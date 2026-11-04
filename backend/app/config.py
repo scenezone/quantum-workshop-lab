@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     cors_origins: str = "http://localhost:5173"
 
     ibm_hardware_enabled: bool = False
+    ibm_hardware_demo_verified: bool = False
     ibm_quantum_api_key: str = ""
     ibm_quantum_instance: str = ""
     # JSON array of {name, api_key, instance?}; secrets stay in environment config.
