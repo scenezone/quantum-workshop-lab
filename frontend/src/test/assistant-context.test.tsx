@@ -86,9 +86,9 @@ it('automatically introduces the selected lesson once and retains it for follow-
 it('carries the selected circuit and actual simulator results into the standalone assistant', async () => {
   show('/playground?experiment=bell_entanglement');
   const user = userEvent.setup();
-  await waitFor(() => expect(screen.getByRole('button', { name: 'Run Simulator' })).toBeEnabled());
+  await waitFor(() => expect(screen.getByRole('button', { name: /Run Simulator/ })).toBeEnabled());
   expect(api.sendAssistantMessage).not.toHaveBeenCalled();
-  await user.click(screen.getByRole('button', { name: 'Run Simulator' }));
+  await user.click(screen.getByRole('button', { name: /Run Simulator/ }));
   await screen.findByText('Measurement Results: Simulator');
   await user.click(screen.getByRole('link', { name: 'Open assistant page' }));
   await screen.findByText('An overview of your selected topic.');
@@ -107,7 +107,7 @@ it('aborts an old topic request and starts a fresh conversation for the new less
   show();
   const user = userEvent.setup();
   await user.click(await screen.findByRole('link', { name: 'Discuss this lesson' }));
-  await screen.findByRole('status');
+  await screen.findByText('Thinking...');
   const oldSignal = vi.mocked(api.sendAssistantMessage).mock.calls[0][4];
   await user.click(screen.getByRole('link', { name: 'Open learning page' }));
   await user.click(await screen.findByRole('button', { name: /Grover search/ }));
