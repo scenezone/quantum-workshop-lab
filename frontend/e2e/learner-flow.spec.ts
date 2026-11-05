@@ -109,9 +109,9 @@ test('learner can open a lesson, check an answer, and run a simulation', async (
 
   await page.getByRole('radio').first().check();
   await page.getByRole('button', { name: 'Check answer' }).click();
-  await expect(page.getByRole('status').filter({ hasText: 'Correct!' })).toBeVisible();
+  await expect(page.getByRole('status')).toContainText('Correct!');
 
   await page.getByRole('link', { name: 'Try superposition' }).click();
-  await page.getByRole('button', { name: /^Run Simulator/ }).click();
+  await page.getByRole('button', { name: 'Run Simulator' }).click();
   await expect(page.getByRole('heading', { name: 'Measurement Results: Simulator' })).toBeVisible();
 });

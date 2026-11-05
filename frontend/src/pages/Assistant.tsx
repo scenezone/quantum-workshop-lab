@@ -1,5 +1,4 @@
 import AIChatPanel from '../components/AIChatPanel';
-import HardwareLabCallout from '../components/HardwareLabCallout';
 
 export default function Assistant() {
   return (
@@ -8,9 +7,6 @@ export default function Assistant() {
       <p className="mt-2 text-slate-300">
         Continue from your current lesson or experiment, explore its ideas, and understand your results.
       </p>
-      <div className="mt-5">
-        <HardwareLabCallout compact title="Ask about a real hardware run" description="Open the guided lab to submit an IBM run when available, then bring its live or recorded results back here for an explanation." />
-      </div>
       <div className="mt-8">
         <AIChatPanel autoIntroduce />
       </div>

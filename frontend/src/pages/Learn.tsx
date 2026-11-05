@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import Markdown from '../components/Markdown';
 import LessonPractice from '../components/LessonPractice';
-import HardwareLabCallout from '../components/HardwareLabCallout';
 import { useAssistant } from '../context/AssistantContext';
 import ErrorMessage from '../components/ErrorMessage';
 import { fetchLessons } from '../services/api';
@@ -43,14 +42,6 @@ export default function Learn() {
         Build foundations in qubits and measurement, then work through complex amplitudes, oracle algorithms,
         Fourier transforms, teleportation, error correction, and variational methods.
       </p>
-      <div className="mt-5">
-        <HardwareLabCallout
-          compact
-          experimentId={selected?.related_experiments[0]}
-          title="Take a lesson onto IBM hardware"
-          description="Open a related guided experiment to request a real hardware run and compare its measurements with the simulator."
-        />
-      </div>
       <section className="glass mt-5 flex flex-wrap items-center justify-between gap-4 p-4" aria-label="Learning progress">
         <div className="min-w-48 flex-1">
           <div className="flex justify-between gap-3 text-sm">

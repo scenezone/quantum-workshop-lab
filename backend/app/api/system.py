@@ -27,7 +27,6 @@ def public_config() -> dict:
     return {
         "hardware_enabled": settings.ibm_hardware_enabled
         and IBMRuntimeClient.configured_account_count() > 0,
-        "hardware_demo_verified": settings.ibm_hardware_demo_verified,
         "max_simulator_shots": settings.max_simulator_shots,
         "max_hardware_shots": settings.ibm_max_shots,
         "default_shots": settings.default_shots,

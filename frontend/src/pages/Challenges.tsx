@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import { challenges } from '../services/challenges';
 import { getLearningProgress } from '../services/learningProgress';
-import HardwareLabCallout from '../components/HardwareLabCallout';
 
 export default function Challenges() {
   const completed = new Set(getLearningProgress().completedChallenges);
@@ -10,13 +9,6 @@ export default function Challenges() {
       <p className="text-sm font-semibold uppercase tracking-widest text-cyan-300">Practice by experimenting</p>
       <h1 className="mt-2 text-3xl font-bold sm:text-4xl">Quantum Challenges</h1>
       <p className="mt-3 max-w-3xl text-slate-300">Each challenge checks an ideal simulator result. Use at least the requested shots and keep noise set to Ideal.</p>
-      <div className="mt-5">
-        <HardwareLabCallout
-          compact
-          title="Try the challenge experiment on IBM hardware"
-          description="Challenge scoring still uses the simulator. You can also open the guided circuit and submit it to IBM as a separate hardware run."
-        />
-      </div>
       <div className="mt-8 grid gap-5 md:grid-cols-2">
         {challenges.map((challenge) => (
           <article key={challenge.id} className="glass p-5">

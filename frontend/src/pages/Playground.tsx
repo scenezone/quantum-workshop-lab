@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { CircuitBoard, Cpu, Loader2, Play } from 'lucide-react';
+import { CircuitBoard, Cpu, Loader2, Play, Server } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
@@ -120,17 +120,6 @@ export default function Playground() {
   const recordedHardwareResult = savedHardwareQuery.data?.experiment_id === experimentId
     ? savedHardwareQuery.data
     : null;
-  const hardwareDemoVerified = config.data?.hardware_demo_verified === true;
-  const hardwareReady = hardwareDemoVerified && hardwareStatusQuery.data?.hardware_enabled === true;
-  const canRetryHardware = Boolean(saved && !saved.trackingId);
-  const hardwareButtonDisabled = pending || (!canRetryHardware && (
-    Boolean(activeJob) ||
-    !config.data ||
-    shots > config.data.max_hardware_shots ||
-    !hardwareStatusQuery.data?.hardware_enabled ||
-    hardwareStatusQuery.data.remaining_today === 0 ||
-    hardwareStatusQuery.data.active_jobs >= hardwareStatusQuery.data.active_limit
-  ));
   const matchingSimulation = simulatorResult?.experiment_id === experimentId ? simulatorResult : null;
   const activeResult = resultSource === 'hardware'
     ? hardwareResult ?? recordedHardwareResult ?? matchingSimulation
@@ -202,50 +191,11 @@ export default function Playground() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
-      <h1 className="text-3xl font-bold sm:text-4xl">Quantum Hardware Lab</h1>
+      <h1 className="text-3xl font-bold sm:text-4xl">Quantum Playground</h1>
       <p className="mt-2 max-w-3xl text-slate-300">
-        Run workshop experiments on real IBM quantum hardware and compare their measurements with a simulator.
-        Hardware is the goal; the active run mode stays clearly labeled until the live flow is verified.
+        Move from foundational gates to phase kickback, GHZ states, quantum algorithms, and error correction.
+        Inspect every gate, simulate the circuit, and connect amplitudes and phases to measured results.
       </p>
-      <section className="glass quantum-gradient mt-6 overflow-hidden border-cyan-300/20 p-6 sm:p-8" aria-label="Real hardware lab status">
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(16rem,0.8fr)] lg:items-center">
-          <div>
-            <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-cyan-200">
-              <Cpu className="h-4 w-4" /> Real IBM quantum hardware
-            </p>
-            <h2 className="mt-3 max-w-2xl text-2xl font-bold sm:text-3xl">Your experiment, measured on a real quantum processor</h2>
-            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-200">
-              Submit the selected circuit to IBM, follow its queue status, then compare the returned measurements with the simulator.
-            </p>
-          </div>
-          <div className="rounded-2xl border border-white/15 bg-navy-950/60 p-5">
-            <p className="text-xs font-semibold uppercase tracking-widest text-slate-400">Run status</p>
-            {hardwareReady ? (
-              <>
-                <p className="mt-2 inline-flex items-center gap-2 font-semibold text-emerald-200"><span className="h-2 w-2 rounded-full bg-emerald-400" /> IBM hardware flow verified</p>
-                <p className="mt-2 text-sm text-slate-300">Live hardware is the primary run mode. Simulator results remain available for comparison.</p>
-              </>
-            ) : hardwareDemoVerified ? (
-              <>
-                <p className="mt-2 inline-flex items-center gap-2 font-semibold text-amber-200"><span className="h-2 w-2 rounded-full bg-amber-400" /> IBM flow verified · access unavailable</p>
-                <p className="mt-2 text-sm text-slate-300">This lab has completed an end-to-end hardware run before. Simulator mode is active until IBM access returns.</p>
-              </>
-            ) : (
-              <>
-                <p className="mt-2 inline-flex items-center gap-2 font-semibold text-amber-200"><span className="h-2 w-2 rounded-full bg-amber-400" /> Simulator mode active</p>
-                <p className="mt-2 text-sm text-slate-300">
-                  The IBM workflow has not been marked end-to-end verified yet. Simulator results are labeled as simulator runs.
-                </p>
-              </>
-            )}
-            {hardwareStatusQuery.data?.hardware_enabled && (
-              <p className="mt-3 border-t border-white/10 pt-3 text-xs text-slate-400">
-                Lab jobs: {hardwareStatusQuery.data.active_jobs}/{hardwareStatusQuery.data.active_limit} active · {hardwareStatusQuery.data.remaining_today} app submissions left today
-              </p>
-            )}
-          </div>
-        </div>
-      </section>
       <Link to="/builder" className="btn-secondary mt-4 inline-flex text-sm">Create a custom circuit</Link>
       {activeChallenge && <section className="glass mt-5 p-4" aria-label="Active challenge">
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -290,111 +240,6 @@ export default function Playground() {
             )}
           </section>
 
-          <section id="experiment-execution" className={`glass p-5 ${hardwareReady ? 'border-purple-300/30 shadow-lg shadow-purple-950/30' : 'border-cyan-300/20'}`}>
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-purple-200">
-                  <Cpu className="h-4 w-4" /> Run the selected experiment
-                </p>
-                <h2 className="mt-2 text-xl font-semibold">{experiment?.title ?? 'Choose an experiment'}</h2>
-                <p className="mt-1 text-sm text-slate-300">
-                  {hardwareReady
-                    ? 'Send this circuit to IBM hardware, then compare the measured results.'
-                    : hardwareDemoVerified
-                      ? 'IBM hardware was verified previously, but access is unavailable right now. Simulator is active.'
-                      : 'Simulator is the current verified mode. IBM hardware stays clearly identified as a pilot run until end-to-end verification.'}
-                </p>
-              </div>
-              <span className={`rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-wide ${hardwareReady ? 'border-emerald-300/30 bg-emerald-300/10 text-emerald-200' : 'border-amber-300/30 bg-amber-300/10 text-amber-100'}`}>
-                {hardwareReady ? 'Live hardware ready' : hardwareDemoVerified ? 'IBM access unavailable' : 'Simulator mode'}
-              </span>
-            </div>
-
-            <div className="mt-5 grid gap-4 sm:grid-cols-2">
-              <label className="text-sm">
-                Shots
-                <select
-                  className="input mt-2"
-                  value={shots}
-                  disabled={pending || Boolean(saved && !saved.trackingId)}
-                  onChange={(event) => setShots(Number(event.target.value))}
-                >
-                  {shotOptions.map((value) => <option key={value} value={value}>{value}</option>)}
-                </select>
-              </label>
-              <label className="text-sm">
-                Simulator noise
-                <select className="input mt-2" value={noiseProfile}
-                  onChange={(event) => {
-                    if (isNoiseProfile(event.target.value)) setNoiseProfile(event.target.value);
-                  }}>
-                  <option value="ideal">Ideal (no added noise)</option>
-                  <option value="low">Low noise</option>
-                  <option value="medium">Medium noise</option>
-                  <option value="high">High noise</option>
-                </select>
-              </label>
-            </div>
-
-            <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              <button
-                className={`${hardwareReady ? 'btn-primary' : 'btn-secondary'} min-h-12 px-3 text-sm sm:text-base`}
-                onClick={runHardware}
-                disabled={hardwareButtonDisabled}
-              >
-                {hardware.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Cpu className="h-4 w-4" />}
-                {canRetryHardware
-                  ? 'Retry IBM submission'
-                  : hardwareStatusQuery.data?.hardware_enabled
-                    ? hardwareReady ? 'Run on IBM hardware' : 'Try IBM hardware'
-                    : hardwareStatusQuery.isLoading ? 'Checking IBM access' : 'IBM hardware unavailable'}
-              </button>
-              <button
-                className={`${hardwareReady ? 'btn-secondary' : 'btn-primary'} min-h-12 px-3 text-sm sm:text-base`}
-                onClick={() => simulation.mutate({ experimentId, shots, noiseProfile })}
-                disabled={pending || !config.data || shots > maxShots || experimentsQuery.isError}
-              >
-                {simulation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
-                {hardwareReady ? 'Run Simulator' : 'Run Simulator (active mode)'}
-              </button>
-            </div>
-
-            {!hardwareStatusQuery.data?.hardware_enabled && (
-              <p className="mt-3 text-sm text-amber-200">
-                IBM access is unavailable. The current run mode is Simulator; its results will be labeled clearly.
-              </p>
-            )}
-            {hardwareStatusQuery.data?.hardware_enabled && !hardwareDemoVerified && (
-              <p className="mt-3 text-sm text-amber-100">
-                IBM access is configured, but the page stays in Simulator mode until an end-to-end hardware run is verified.
-              </p>
-            )}
-            {recordedHardwareResult && !hardwareResult && (
-              <p className="mt-3 text-sm text-amber-200" role="status">
-                Showing the last saved IBM hardware run while a live result is unavailable. This is recorded data, not a new run.
-              </p>
-            )}
-            {simulation.isError && <div className="mt-3"><ErrorMessage message="The simulator could not complete this experiment." /></div>}
-            {hardware.isError && <div className="mt-3"><ErrorMessage message="Hardware submission failed or is unavailable." /></div>}
-            {expiredJob && <button className="btn-secondary mt-3" onClick={() => saveSubmission(experimentId)}>Clear expired tracking ID</button>}
-            {job.isError && <div className="mt-3"><ErrorMessage message="The hardware job could not be loaded. Your submission is saved; refresh to retry." /></div>}
-            {hardwareStatusQuery.isError && <div className="mt-3"><ErrorMessage message="Hardware availability could not be checked." /></div>}
-            {canRetryHardware && !hardware.isPending && <p className="mt-3 text-sm text-amber-300">Retry to recover this submission before starting another hardware job.</p>}
-            {trackingId && job.data && (
-              <div className="mt-4 rounded-xl border border-white/10 bg-white/5 p-4 text-sm">
-                <p><strong>Status:</strong> {job.data.status}</p>
-                {job.data.backend_name && <p><strong>Backend:</strong> {job.data.backend_name}</p>}
-                {job.data.provider_job_id && <p className="break-all"><strong>IBM job ID:</strong> {job.data.provider_job_id}</p>}
-                {job.data.error && <p className="text-rose-300">{job.data.error}</p>}
-              </div>
-            )}
-            {hardwareStatusQuery.data?.hardware_enabled && (
-              <p className="mt-3 text-xs text-slate-400">
-                {hardwareStatusQuery.data.remaining_today} app submissions remaining today · {hardwareStatusQuery.data.active_jobs}/{hardwareStatusQuery.data.active_limit} active
-              </p>
-            )}
-          </section>
-
           {(experimentsQuery.isLoading || config.isLoading) && <p role="status">Loading experiments...</p>}
           {(experimentsQuery.isError || config.isError) && <ErrorMessage message="Experiment settings could not be loaded. Please refresh to retry." />}
           {experiment && <>
@@ -414,6 +259,115 @@ export default function Playground() {
               </details>
             </section>
           </>}
+
+          <section className="glass p-5">
+            <h2 className="flex items-center gap-2 font-semibold">
+              <Server className="h-5 w-5 text-purple-400" /> Execution
+            </h2>
+
+            <div className="mt-4 grid gap-4">
+              <label className="text-sm">
+                Shots
+                <select
+                  className="input mt-2"
+                  value={shots}
+                  disabled={pending || Boolean(saved && !saved.trackingId)}
+                  onChange={(event) => setShots(Number(event.target.value))}
+                >
+                  {shotOptions.map((value) => (
+                    <option key={value} value={value}>
+                      {value}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="text-sm">
+                Simulator noise
+                <select className="input mt-2" value={noiseProfile}
+                  onChange={(event) => {
+                    if (isNoiseProfile(event.target.value)) setNoiseProfile(event.target.value);
+                  }}>
+                  <option value="ideal">Ideal (no added noise)</option>
+                  <option value="low">Low noise</option>
+                  <option value="medium">Medium noise</option>
+                  <option value="high">High noise</option>
+                </select>
+              </label>
+
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <button
+                  className="btn-primary min-w-0 px-3 text-sm sm:text-base"
+                  onClick={() => simulation.mutate({ experimentId, shots, noiseProfile })}
+                  disabled={pending || !config.data || shots > maxShots || experimentsQuery.isError}
+                >
+                  {simulation.isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Play className="h-4 w-4" />
+                  )}
+                  Run Simulator
+                </button>
+
+                <button
+                  className="btn-secondary min-w-0 px-3 text-sm sm:text-base"
+                  onClick={runHardware}
+                  disabled={
+                    pending || (!(saved && !saved.trackingId) && (Boolean(activeJob) || !config.data ||
+                    shots > config.data.max_hardware_shots ||
+                    !hardwareStatusQuery.data?.hardware_enabled ||
+                    hardwareStatusQuery.data.remaining_today === 0 ||
+                    hardwareStatusQuery.data.active_jobs >= hardwareStatusQuery.data.active_limit))
+                  }
+                >
+                  <Cpu className="h-4 w-4" />
+                  {saved && !saved.trackingId ? 'Retry submission' : 'IBM Hardware'}
+                </button>
+              </div>
+            </div>
+
+            {!hardwareStatusQuery.data?.hardware_enabled && (
+              <p className="mt-3 text-sm text-amber-300">
+                Real quantum hardware is currently unavailable. You can continue with the simulator.
+              </p>
+            )}
+            {recordedHardwareResult && !hardwareResult && (
+              <p className="mt-3 text-sm text-amber-200" role="status">
+                Showing the last saved IBM hardware run while a live result is unavailable. This is recorded data, not a new run.
+              </p>
+            )}
+
+            {simulation.isError && (
+              <ErrorMessage message="The simulator could not complete this experiment." />
+            )}
+            {hardware.isError && (
+              <ErrorMessage message="Hardware submission failed or is unavailable." />
+            )}
+
+            {expiredJob && <button className="btn-secondary mt-3" onClick={() => saveSubmission(experimentId)}>Clear expired tracking ID</button>}
+            {job.isError && <ErrorMessage message="The hardware job could not be loaded. Your submission is saved; refresh to retry." />}
+            {hardwareStatusQuery.isError && <ErrorMessage message="Hardware availability could not be checked." />}
+            {saved && !saved.trackingId && !hardware.isPending && <p className="mt-3 text-sm text-amber-300">Retry to recover this submission before starting another hardware job.</p>}
+            {hardwareStatusQuery.data?.hardware_enabled && <p className="mt-3 text-sm text-slate-300">{hardwareStatusQuery.data.remaining_today} hardware submissions remaining today; {hardwareStatusQuery.data.active_jobs}/{hardwareStatusQuery.data.active_limit} active.</p>}
+            {trackingId && job.data && (
+              <div className="mt-4 rounded-xl border border-white/10 bg-white/5 p-4 text-sm">
+                <p>
+                  <strong>Status:</strong> {job.data.status}
+                </p>
+                {job.data.backend_name && (
+                  <p>
+                    <strong>Backend:</strong> {job.data.backend_name}
+                  </p>
+                )}
+                {job.data.provider_job_id && (
+                  <p className="break-all">
+                    <strong>IBM job ID:</strong> {job.data.provider_job_id}
+                  </p>
+                )}
+                {job.data.error && <p className="text-rose-300">{job.data.error}</p>}
+              </div>
+            )}
+          </section>
 
           {activeResult && (
             <section className="glass p-5">

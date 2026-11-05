@@ -120,8 +120,8 @@ describe('workshop regressions', () => {
     let resolve!: (value: typeof result) => void;
     vi.mocked(api.simulateExperiment).mockImplementation(() => new Promise((done) => { resolve = done; }));
     show(<Playground />);
-    await waitFor(() => expect(screen.getByRole('button', { name: /Run Simulator/ })).toBeEnabled());
-    await user.click(screen.getByRole('button', { name: /Run Simulator/ }));
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Run Simulator' })).toBeEnabled());
+    await user.click(screen.getByRole('button', { name: 'Run Simulator' }));
     expect(screen.getByRole('button', { name: /Bell/ })).toBeDisabled();
     await act(async () => resolve(result));
     expect(await screen.findByLabelText('counts')).toHaveTextContent('512');
@@ -138,7 +138,7 @@ describe('workshop regressions', () => {
     show(<Playground />);
     expect(await screen.findByLabelText('counts')).toHaveTextContent('100');
     const user = userEvent.setup();
-    await user.click(screen.getByRole('button', { name: /Run Simulator/ }));
+    await user.click(screen.getByRole('button', { name: 'Run Simulator' }));
     await waitFor(() => expect(screen.getByLabelText('counts')).toHaveTextContent('512'));
     await waitFor(() => expect(screen.getByLabelText('assistant context')).toHaveTextContent('aer_simulator'));
   });
@@ -156,7 +156,7 @@ describe('workshop regressions', () => {
       ideal_probabilities: {}, error: null,
     });
     show(<Playground />);
-    await userEvent.setup().click(screen.getByRole('button', { name: 'Retry IBM submission' }));
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Retry submission' }));
     expect(api.submitHardwareExperiment).toHaveBeenCalledWith('superposition', 128, 'original-submission-key');
   });
 
@@ -204,8 +204,8 @@ describe('workshop regressions', () => {
       ],
     });
     show(<Playground />, '/playground?experiment=qft_phase');
-    await waitFor(() => expect(screen.getByRole('button', { name: /Run Simulator/ })).toBeEnabled());
-    await userEvent.setup().click(screen.getByRole('button', { name: /Run Simulator/ }));
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Run Simulator' })).toBeEnabled());
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Run Simulator' }));
     expect(await screen.findByText('90.0 deg')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Study the theory' })).toHaveAttribute('href', '/learn?lesson=quantum-fourier-transform');
     expect(screen.getAllByText('25.00%')).toHaveLength(4);

@@ -294,7 +294,6 @@ The backend loads `backend/.env` using an absolute path derived from `app/config
 | `DEFAULT_SHOTS` | `1024` | Default shot count exposed to the frontend |
 | `MAX_SIMULATOR_SHOTS` | `10000` | Maximum shots per simulator request |
 | `IBM_HARDWARE_ENABLED` | `false` | Enables new hardware submissions |
-| `IBM_HARDWARE_DEMO_VERIFIED` | `false` | Promotes IBM hardware to the primary lab run mode after an end-to-end hardware run has been verified |
 | `IBM_QUANTUM_API_KEY` | Empty | IBM Quantum credential, used only by the backend |
 | `IBM_QUANTUM_INSTANCE` | Empty | Optional runtime instance identifier passed to the IBM service |
 | `IBM_QUANTUM_ACCOUNTS` | Empty | Optional JSON array of named IBM credentials; the backend checks all accounts and selects the eligible backend with the shortest queue |
@@ -350,7 +349,7 @@ IBM_MAX_SHOTS=4096
 
 For multiple pre-configured IBM accounts, set `IBM_QUANTUM_ACCOUNTS` to a JSON array instead of the single key, for example `[{"name":"primary","api_key":"...","instance":"..."},{"name":"backup","api_key":"...","instance":"..."}]`. Keep these credentials in the backend secret store and never in frontend variables. Hardware results from completed jobs are saved as the latest recorded result for each experiment; the playground labels this data as recorded when a live result is waiting, unavailable, or failed.
 
-The implementation uses the `ibm_quantum_platform` channel, selects an operational nonsimulator backend with enough qubits and the fewest pending jobs among the returned candidates, transpiles the approved circuit, and submits through `SamplerV2`. Set `IBM_HARDWARE_DEMO_VERIFIED=true` only after an IBM job has completed and its counts have loaded in the app. The playground then promotes IBM hardware to the primary run action; until then, it clearly labels Simulator as the active mode and labels IBM as a pilot run.
+The implementation uses the `ibm_quantum_platform` channel, selects an operational nonsimulator backend with enough qubits and the fewest pending jobs among the returned candidates, transpiles the approved circuit, and submits through `SamplerV2`.
 
 Hardware access depends on account permissions, provider capacity, and configured quotas. The application quotas are global to the deployment. A local simulation does not require IBM access.
 
