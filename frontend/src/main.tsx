@@ -4,6 +4,8 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import { AssistantProvider } from './context/AssistantContext';
+import I18nProvider from './i18n/I18nProvider';
+import { registerServiceWorker } from './serviceWorker';
 import './index.css';
 
 const queryClient = new QueryClient({
@@ -17,12 +19,16 @@ const queryClient = new QueryClient({
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <AssistantProvider>
-          <App />
-        </AssistantProvider>
-      </BrowserRouter>
-    </QueryClientProvider>
+    <I18nProvider>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <AssistantProvider>
+            <App />
+          </AssistantProvider>
+        </BrowserRouter>
+      </QueryClientProvider>
+    </I18nProvider>
   </React.StrictMode>,
 );
+
+registerServiceWorker();

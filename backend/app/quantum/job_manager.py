@@ -97,8 +97,9 @@ class JobManager:
 
         try:
             submission = IBMRuntimeClient.submit_job(experiment_id, shots, job_id)
-            provider_job_id, backend_name, _, *account = submission
-            runtime_account = account[0] if account else None
+            provider_job_id, backend_name, _, *extra = submission
+            runtime_account = extra[0] if extra else None
+            metrics = extra[1] if len(extra) > 1 and isinstance(extra[1], dict) else {}
         except HardwareUnavailableError:
             JobManager._fail_before_submission(document, "Hardware is currently unavailable.")
             raise
@@ -122,7 +123,9 @@ class JobManager:
             return tracking_token, "unknown"
 
         try:
-            JobManager._record_submission(document, provider_job_id, backend_name, runtime_account)
+            JobManager._record_submission(
+                document, provider_job_id, backend_name, runtime_account, metrics
+            )
         except Exception:
             logger.exception("Submission accepted; provider tag will recover database state")
         return tracking_token, "queued"
@@ -155,7 +158,11 @@ class JobManager:
 
     @staticmethod
     def _record_submission(
-        job: dict, provider_id: str, backend_name: str, runtime_account: str | None = None
+        job: dict,
+        provider_id: str,
+        backend_name: str,
+        runtime_account: str | None = None,
+        metrics: dict | None = None,
     ) -> None:
         Mongo.db().quantum_jobs.update_one(
             {
@@ -167,6 +174,11 @@ class JobManager:
                     "provider_job_id": provider_id,
                     "backend_name": backend_name,
                     "runtime_account": runtime_account,
+                    **{
+                        key: (metrics or {}).get(key)
+                        for key in ("transpiled_depth", "two_qubit_gate_count")
+                        if (metrics or {}).get(key) is not None
+                    },
                     "submission_state": "submitted",
                     "status": "queued",
                     "error": None,
@@ -292,6 +304,8 @@ class JobManager:
             else None,
             "ideal_probabilities": get_metadata(job["experiment_type"])["ideal_probabilities"],
             "error": job.get("error"),
+            "transpiled_depth": job.get("transpiled_depth"),
+            "two_qubit_gate_count": job.get("two_qubit_gate_count"),
             "created_at": job.get("created_at"),
             "updated_at": job.get("updated_at"),
         }

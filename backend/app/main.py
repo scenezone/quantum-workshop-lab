@@ -3,13 +3,24 @@ import logging
 import secrets
 from contextlib import asynccontextmanager, suppress
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 
-from app.api import assistant, experiments, feedback, hardware, lessons, system
+from app.api import (
+    admin,
+    assistant,
+    challenges,
+    experiments,
+    feedback,
+    hardware,
+    labs,
+    lessons,
+    sessions,
+    system,
+)
 from app.config import get_settings
 from app.database.mongodb import Mongo
 from app.database.seed import seed_database
@@ -66,8 +77,9 @@ async def lifespan(app: FastAPI):
     await asyncio.to_thread(Mongo.connect)
     task = None
     try:
-        await asyncio.to_thread(seed_database)
-        task = asyncio.create_task(reconcile_jobs())
+        if Mongo.available():
+            await asyncio.to_thread(seed_database)
+            task = asyncio.create_task(reconcile_jobs())
         yield
     finally:
         if task:
@@ -90,22 +102,34 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=get_settings().cors_origin_list,
     allow_credentials=False,
-    allow_methods=["GET", "POST"],
+    allow_methods=["GET", "POST", "PUT"],
     allow_headers=["Authorization", "Content-Type"],
 )
 
 app.add_exception_handler(AppError, app_error_handler)
 app.add_exception_handler(Exception, unhandled_error_handler)
-app.add_exception_handler(
-    RateLimitExceeded,
-    lambda request, exc: JSONResponse(
+
+
+def rate_limit_handler(request: Request, exc: RateLimitExceeded) -> JSONResponse:
+    try:
+        retry_after = int(exc.limit.limit.get_expiry())
+    except (AttributeError, TypeError, ValueError):
+        retry_after = 60
+    return JSONResponse(
         status_code=429,
         content={"detail": "Too many requests. Please wait a moment."},
-    ),
-)
+        headers={"Retry-After": str(retry_after)},
+    )
+
+
+app.add_exception_handler(RateLimitExceeded, rate_limit_handler)
 app.include_router(system.router)
 app.include_router(lessons.router)
 app.include_router(experiments.router)
 app.include_router(hardware.router)
 app.include_router(assistant.router)
 app.include_router(feedback.router)
+app.include_router(challenges.router)
+app.include_router(labs.router)
+app.include_router(sessions.router)
+app.include_router(admin.router)

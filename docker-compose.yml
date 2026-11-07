@@ -3,7 +3,7 @@ services:
     image: mongo:7
     restart: unless-stopped
     networks:
-      - workshop
+      - data
     volumes:
       - mongo-data:/data/db
     healthcheck:
@@ -24,13 +24,16 @@ services:
       MONGODB_DATABASE: quantum_workshop
       CORS_ORIGINS: http://localhost:8080
       RATE_LIMIT_STORAGE_URI: memory://
-      FORWARDED_ALLOW_IPS: 172.30.0.3
+      # Only the Nginx proxy network may set forwarded client addresses.
+      FORWARDED_ALLOW_IPS: 172.30.0.0/24
+    security_opt:
+      - no-new-privileges:true
     depends_on:
       mongo:
         condition: service_healthy
     networks:
-      workshop:
-        ipv4_address: 172.30.0.2
+      - proxy
+      - data
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=4)"]
       interval: 20s
@@ -44,18 +47,22 @@ services:
     restart: unless-stopped
     ports:
       - "127.0.0.1:8080:80"
+    security_opt:
+      - no-new-privileges:true
     depends_on:
       api:
         condition: service_healthy
     networks:
-      workshop:
-        ipv4_address: 172.30.0.3
+      - proxy
 
 volumes:
   mongo-data:
 
 networks:
-  workshop:
+  proxy:
     ipam:
       config:
         - subnet: 172.30.0.0/24
+  # The database is reachable only from the API.
+  data:
+    internal: true

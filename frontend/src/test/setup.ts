@@ -14,4 +14,8 @@ class ResizeObserverMock implements ResizeObserver {
 
 globalThis.ResizeObserver = ResizeObserverMock;
 
-afterEach(() => cleanup());
+afterEach(() => {
+  cleanup();
+  // The assistant keeps its conversation in session storage between page loads.
+  sessionStorage.clear();
+});

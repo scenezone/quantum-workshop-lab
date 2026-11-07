@@ -112,15 +112,34 @@ class QuotaService:
         )
 
     @staticmethod
+    def hardware_available() -> bool:
+        """Hardware needs credentials, the feature flag, and the job database."""
+        return (
+            get_settings().ibm_hardware_enabled
+            and Mongo.available()
+            and IBMRuntimeClient.configured_account_count() > 0
+        )
+
+    @staticmethod
     def status() -> dict:
         settings = get_settings()
+        if not Mongo.available():
+            return {
+                "hardware_enabled": False,
+                "configured_accounts": 0,
+                "daily_limit": settings.ibm_max_daily_jobs,
+                "submitted_today": 0,
+                "remaining_today": 0,
+                "active_jobs": 0,
+                "active_limit": settings.ibm_max_active_jobs,
+                "max_shots": settings.ibm_max_shots,
+            }
         document = Mongo.db().hardware_quota.find_one({"_id": QuotaService.LEDGER_ID}) or {}
         entries = document.get("entries", [])
         today = utcnow().date().isoformat()
         todays_entries = [entry for entry in entries if entry["quota_date"] == today]
         return {
-            "hardware_enabled": settings.ibm_hardware_enabled
-            and IBMRuntimeClient.configured_account_count() > 0,
+            "hardware_enabled": QuotaService.hardware_available(),
             "configured_accounts": IBMRuntimeClient.configured_account_count()
             if settings.ibm_hardware_enabled
             else 0,

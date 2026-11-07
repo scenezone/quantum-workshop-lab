@@ -40,9 +40,28 @@ interface AssistantContextValue {
 
 const AssistantContext = createContext<AssistantContextValue | null>(null);
 const PAGE_CONTEXT_PREFERENCE_KEY = 'quantum-workshop-assistant-page-context-v1';
+const CHAT_KEY = 'quantum-workshop-assistant-chat-v1';
+
+interface StoredChat { topic?: string; messages: ChatMessage[] }
+
+/** The conversation survives a page reload within this tab, but not a new tab. */
+function readChat(): StoredChat {
+  try {
+    const value = JSON.parse(sessionStorage.getItem(CHAT_KEY) || 'null') as StoredChat | null;
+    if (!value || !Array.isArray(value.messages)) return { messages: [] };
+    return {
+      topic: typeof value.topic === 'string' ? value.topic : undefined,
+      messages: value.messages.filter((message) => (message.role === 'user' || message.role === 'assistant')
+        && typeof message.content === 'string').slice(-30),
+    };
+  } catch {
+    return { messages: [] };
+  }
+}
 
 export function AssistantProvider({ children }: { children: ReactNode }) {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [stored] = useState(readChat);
+  const [messages, setMessages] = useState<ChatMessage[]>(stored.messages);
   const [pageStudyContext, updateStudyContext] = useState<StudyContext>();
   const [includePageContext, updateIncludePageContext] = useState(() => {
     try {
@@ -60,10 +79,18 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const requestRef = useRef<AbortController | null>(null);
   const pendingRef = useRef<PendingRequest | null>(null);
-  const selectedTopicRef = useRef<string>();
-  const introducedTopicRef = useRef<string>();
+  const selectedTopicRef = useRef<string | undefined>(stored.topic);
+  const introducedTopicRef = useRef<string | undefined>(stored.messages.length ? stored.topic : undefined);
 
   useEffect(() => () => requestRef.current?.abort(), []);
+  useEffect(() => {
+    try {
+      const finished = messages.filter((message) => !message.streaming);
+      sessionStorage.setItem(CHAT_KEY, JSON.stringify({ topic: selectedTopicRef.current, messages: finished }));
+    } catch {
+      // The conversation still works when session storage is unavailable.
+    }
+  }, [messages]);
   const addMessage = useCallback((message: ChatMessage) => {
     setMessages((current) => [...current, message]);
   }, []);
@@ -76,16 +103,29 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     setError(null);
     try {
+      let streaming = false;
       const response = await sendAssistantMessage(
         request.messages, request.lessonId, request.experimentId, request.resultContext, controller.signal, request.mode,
+        {
+          // Show the reply as it arrives; the final message replaces this partial one.
+          onDelta: (text) => {
+            if (requestRef.current !== controller) return;
+            const partial: ChatMessage = { role: 'assistant', content: text, streaming: true };
+            setMessages((current) => streaming ? [...current.slice(0, -1), partial] : [...current, partial]);
+            streaming = true;
+          },
+        },
       );
       if (requestRef.current !== controller) return;
       if (typeof response.reply !== 'string' || !response.reply.trim()) throw new Error('Empty assistant response');
-      setMessages((current) => [...current, {
+      const final: ChatMessage = {
         role: 'assistant', content: response.reply, source: response.source, notice: response.notice,
-      }]);
+      };
+      setMessages((current) => current[current.length - 1]?.streaming
+        ? [...current.slice(0, -1), final] : [...current, final]);
       pendingRef.current = null;
     } catch (cause) {
+      setMessages((current) => current.filter((message) => !message.streaming));
       if (requestRef.current !== controller || axios.isCancel(cause)) return;
       const limited = axios.isAxiosError(cause) && cause.response?.status === 429;
       setError(limited

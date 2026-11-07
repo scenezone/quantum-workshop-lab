@@ -1,61 +1,72 @@
-import { Atom, Bot, Cpu, FlaskConical, LineChart, ShieldCheck } from 'lucide-react';
+import { Atom, Bot, Cpu, FlaskConical, LineChart, Microscope, ShieldCheck, Trophy, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useI18n } from '../i18n/context';
 
 const features = [
   {
     icon: Atom,
     title: 'Beginner to advanced',
-    description: 'Learn amplitudes, quantum algorithms, teleportation, and error correction.',
+    description: '14 lessons from qubits to amplitudes, quantum algorithms, teleportation, error correction, and variational methods.',
   },
   {
     icon: FlaskConical,
     title: 'Safe experiments',
-    description: 'Explore 10 guided circuits with no Python setup or arbitrary code execution.',
+    description: 'Explore 11 guided circuits, measure them in the X, Y, or Z basis, and compare ideal and noisy runs.',
+  },
+  {
+    icon: ShieldCheck,
+    title: 'Visual circuit builder',
+    description: 'Place gates on up to 5 qubits, watch every qubit on a Bloch sphere, and export Qiskit or OpenQASM.',
+  },
+  {
+    icon: Trophy,
+    title: 'Challenges and badges',
+    description: 'Build target states such as Bell and GHZ states, graded on the server, and track your progress.',
+  },
+  {
+    icon: Microscope,
+    title: 'Bell test and VQE labs',
+    description: 'Violate the CHSH inequality and watch a variational optimizer find a molecule’s ground energy.',
+  },
+  {
+    icon: LineChart,
+    title: 'Real-device noise',
+    description: 'Simulate with calibration snapshots of IBM processors and see whether differences exceed sampling noise.',
   },
   {
     icon: Cpu,
     title: 'Real IBM hardware',
-    description: 'Submit approved circuits to IBM Quantum when enabled and available.',
-  },
-  {
-    icon: LineChart,
-    title: 'Visual quantum states',
-    description: 'Step through each gate with Bloch sphere views, noise controls, and measured results.',
+    description: 'Submit approved circuits to IBM Quantum when enabled, and compare device metrics across your jobs.',
   },
   {
     icon: Bot,
     title: 'Workshop assistant',
-    description: 'Ask context-aware questions. Live AI is optional; the built-in guide works without credentials.',
+    description: 'Ask context-aware questions with streaming answers. The built-in guide works without credentials.',
   },
   {
-    icon: ShieldCheck,
-    title: 'Build and share',
-    description: 'Compose a small safe circuit, export Qiskit code, and share its setup.',
+    icon: Users,
+    title: 'Run a workshop',
+    description: 'Facilitators create a session code and watch participants’ progress and feedback live.',
   },
 ];
 
 export default function Home() {
+  const { t } = useI18n();
   return (
     <div>
       <section className="quantum-gradient border-b border-white/10">
         <div className="mx-auto max-w-7xl px-4 py-20 text-center sm:px-6">
           <p className="mx-auto mb-4 w-fit rounded-full border border-white/10 bg-white/5 px-4 py-1 text-xs uppercase tracking-widest text-cyan-300">
-            Quantum Workshop Lab
+            {t('home.eyebrow')}
           </p>
-          <h1 className="mx-auto max-w-4xl text-4xl font-black leading-tight sm:text-6xl">
-            Explore Quantum Computing
-          </h1>
-          <p className="mx-auto mt-5 max-w-2xl text-lg text-slate-300">
-            Learn quantum computing through guided lessons, simulate circuits in your browser, and
-            compare your results with ideal quantum behavior. Optional IBM Quantum access is available
-            when the workshop is configured for hardware.
-          </p>
-
+          <h1 className="mx-auto max-w-4xl text-4xl font-black leading-tight sm:text-6xl">{t('home.title')}</h1>
+          <p className="mx-auto mt-5 max-w-2xl text-lg text-slate-300">{t('home.body')}</p>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
-            <Link to="/learn" className="btn-primary">Start Learning</Link>
-            <Link to="/playground" className="btn-secondary">Launch Playground</Link>
-            <Link to="/builder" className="btn-secondary">Build a Circuit</Link>
+            <Link to="/learn" className="btn-primary">{t('home.start')}</Link>
+            <Link to="/playground" className="btn-secondary">{t('home.playground')}</Link>
+            <Link to="/builder" className="btn-secondary">{t('home.builder')}</Link>
           </div>
+          <Link to="/progress" className="mt-6 inline-block text-sm text-cyan-200 underline">{t('home.join')}</Link>
         </div>
       </section>
 

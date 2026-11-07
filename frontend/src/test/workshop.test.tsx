@@ -103,7 +103,8 @@ describe('workshop regressions', () => {
       difficulty: 'beginner', learning_objectives: [], related_experiments: ['bell_entanglement'], order: 1,
     }]);
     show(<Learn />, '/learn');
-    expect(await screen.findByRole('link', { name: 'Try bell entanglement' }))
+    // Links use the experiment title once experiments load.
+    expect(await screen.findByRole('link', { name: 'Try Bell' }))
       .toHaveAttribute('href', '/playground?experiment=bell_entanglement');
     await waitFor(() => expect(screen.getByLabelText('assistant context')).toHaveTextContent('"lessonId":"entanglement"'));
   });

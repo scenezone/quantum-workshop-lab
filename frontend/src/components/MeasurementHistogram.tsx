@@ -7,7 +7,7 @@ interface Props {
 const colors = ['#22d3ee', '#a855f7', '#38bdf8', '#c084fc'];
 
 export default function MeasurementHistogram({ counts }: Props) {
-  const data = Object.entries(counts).map(([outcome, count]) => ({
+  const data = Object.entries(counts).sort(([a], [b]) => a.localeCompare(b)).map(([outcome, count]) => ({
     outcome,
     count,
   }));

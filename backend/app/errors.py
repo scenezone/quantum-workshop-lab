@@ -11,6 +11,20 @@ class AppError(Exception):
         super().__init__(self.detail)
 
 
+class InvalidInputError(AppError):
+    status_code = 422  # Unprocessable content; the constant name differs across Starlette versions.
+
+
+class UnauthorizedError(AppError):
+    status_code = status.HTTP_401_UNAUTHORIZED
+    detail = "A valid facilitator token is required."
+
+
+class FeatureDisabledError(AppError):
+    status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+    detail = "This feature is not enabled on this workshop server."
+
+
 class ConflictError(AppError):
     status_code = status.HTTP_409_CONFLICT
 

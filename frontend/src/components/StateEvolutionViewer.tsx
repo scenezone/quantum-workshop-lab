@@ -6,7 +6,9 @@ function BlochSphere({ vector }: { vector: BlochVector }) {
   const radius = 62;
   const x = center + (vector.x - vector.y) * radius * 0.52;
   const y = center - vector.z * radius * 0.78 + (vector.x + vector.y) * radius * 0.18;
-  const description = `Qubit ${vector.qubit}: x ${vector.x.toFixed(2)}, y ${vector.y.toFixed(2)}, z ${vector.z.toFixed(2)}`;
+  const length = vector.length ?? undefined;
+  const description = `Qubit ${vector.qubit}: x ${vector.x.toFixed(2)}, y ${vector.y.toFixed(2)}, z ${vector.z.toFixed(2)}`
+    + (length !== undefined && length < 0.99 ? ', shorter than 1 because it is entangled with other qubits' : '');
 
   return (
     <figure className="rounded-xl border border-white/10 bg-navy-950/40 p-3">
@@ -26,6 +28,9 @@ function BlochSphere({ vector }: { vector: BlochVector }) {
       <p className="mt-1 text-center font-mono text-xs text-slate-400">
         x {vector.x.toFixed(2)} · y {vector.y.toFixed(2)} · z {vector.z.toFixed(2)}
       </p>
+      {length !== undefined && <p className={`mt-1 text-center text-xs ${length < 0.99 ? 'text-purple-200' : 'text-slate-400'}`}>
+        |r| = {length.toFixed(2)}{length < 0.99 ? ' · entangled or mixed' : ' · pure'}
+      </p>}
     </figure>
   );
 }

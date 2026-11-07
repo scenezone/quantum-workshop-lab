@@ -1,7 +1,9 @@
 // frontend/src/components/FeedbackForm.tsx
 import { Star } from 'lucide-react';
 import { useState } from 'react';
+import axios from 'axios';
 import { submitFeedback } from '../services/api';
+import { useSessionMembership } from '../services/session';
 
 export default function FeedbackForm() {
   const [rating, setRating] = useState(5);
@@ -11,6 +13,7 @@ export default function FeedbackForm() {
   const [submitted, setSubmitted] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { membership } = useSessionMembership();
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
@@ -23,10 +26,13 @@ export default function FeedbackForm() {
       clarity_rating: clarity,
       completed_workshop: completed,
       comments: comments || undefined,
+      session_code: membership?.code,
     });
       setSubmitted(true);
-    } catch {
-      setError('Feedback could not be submitted. Please try again.');
+    } catch (cause) {
+      setError(axios.isAxiosError(cause) && cause.response?.status === 503
+        ? 'Feedback collection is not enabled on this workshop server.'
+        : 'Feedback could not be submitted. Please try again.');
     } finally {
       setPending(false);
     }
@@ -39,6 +45,7 @@ export default function FeedbackForm() {
   return (
     <form onSubmit={submit} className="glass space-y-4 p-5">
       <h2 className="font-semibold">Anonymous feedback</h2>
+      {membership && <p className="text-xs text-slate-400">Your feedback is grouped with session {membership.code} for your facilitator, without your nickname.</p>}
       <label className="block text-sm">
         Overall rating
         <select className="input mt-2" value={rating} onChange={(e) => setRating(Number(e.target.value))}>

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { checkPracticeAnswer } from '../services/api';
+import { recordPracticeAttempt, recordWrittenAnswer } from '../services/learningProgress';
 import type { PracticeFeedback, PracticeQuestion } from '../types/api';
 import Markdown from './Markdown';
 
@@ -40,6 +41,8 @@ function QuestionCard({ lessonId, question, number, onResult }: {
       if (controller.signal.aborted) return;
       setFeedback(result);
       onResult(question.question_id, result);
+      if (result.kind === 'multiple_choice') recordPracticeAttempt(question.question_id, result.correct);
+      else recordWrittenAnswer(question.question_id);
     } catch (cause) {
       if (controller.signal.aborted || axios.isCancel(cause)) return;
       setError('Your answer could not be checked. Please try again.');
@@ -102,7 +105,14 @@ function QuestionCard({ lessonId, question, number, onResult }: {
           <ul className="list-disc space-y-2 pl-5 text-slate-300">
             {feedback.key_points.map(point => <li key={point}>{point}</li>)}
           </ul>
-          <p className="mt-3 text-xs text-slate-400">Compare the ideas with your own words. Written answers are for self-review and are not automatically graded.</p>
+          {feedback.ai_feedback ? <div className="mt-4 rounded-lg border border-purple-400/30 bg-purple-400/5 p-3">
+            <h5 className="mb-2 font-semibold text-purple-200">AI feedback on your answer</h5>
+            <Markdown>{feedback.ai_feedback.feedback}</Markdown>
+            {feedback.ai_feedback.covered_points.length > 0 && <p className="mt-2 text-emerald-200">Covered: {feedback.ai_feedback.covered_points.join('; ')}</p>}
+            {feedback.ai_feedback.missing_points.length > 0 && <p className="mt-1 text-amber-200">To add: {feedback.ai_feedback.missing_points.join('; ')}</p>}
+            <p className="mt-2 text-xs text-slate-400">AI feedback can be wrong. Use it together with the sample answer.</p>
+          </div>
+            : <p className="mt-3 text-xs text-slate-400">Compare the ideas with your own words. Written answers are for self-review and are not automatically graded.</p>}
         </>}
       </div>}
     </form>

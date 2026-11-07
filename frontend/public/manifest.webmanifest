@@ -1,0 +1,13 @@
+{
+  "name": "Quantum Workshop Lab",
+  "short_name": "Quantum Lab",
+  "description": "Learn quantum computing through guided lessons, circuit simulations, and measurement experiments.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#080d1c",
+  "theme_color": "#080d1c",
+  "icons": [
+    { "src": "/quantum-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

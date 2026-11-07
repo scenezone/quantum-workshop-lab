@@ -48,5 +48,6 @@ export function evaluateChallenge(id: string, result: ExperimentResult): boolean
   const challenge = getChallenge(id);
   return Boolean(challenge && result.experiment_id === challenge.experimentId
     && result.noise_profile === 'ideal'
+    && !(result.measurement_bases ?? []).some((basis) => basis !== 'Z')
     && result.shots >= challenge.minimumShots && challenge.check(result));
 }

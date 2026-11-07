@@ -1,8 +1,6 @@
 """Topic practice. Answer keys stay on the server until a learner checks an attempt."""
 
-from fastapi import HTTPException
-
-from app.errors import NotFoundError
+from app.errors import InvalidInputError, NotFoundError
 
 # MCQ tuples: prompt, four options, correct option index, explanation.
 # Written tuples: prompt, sample answer, self-review points.
@@ -200,15 +198,16 @@ def check_answer(lesson_id: str, question_id: str, option_id: str | None, answer
         raise NotFoundError("Practice question not found for this lesson.")
     if question["kind"] == "multiple_choice":
         if answer is not None or option_id not in {item["option_id"] for item in question["options"]}:
-            raise HTTPException(status_code=422, detail="Select one of this question's options.")
+            raise InvalidInputError("Select one of this question's options.")
         multiple_choice = [item for item in questions if item["kind"] == "multiple_choice"]
         index = next(i for i, item in enumerate(multiple_choice) if item["question_id"] == question_id)
         _prompt, _options, correct, explanation = PRACTICE[lesson_id]["mcq"][index]
         return {"question_id": question_id, "kind": "multiple_choice", "correct": option_id == chr(97 + correct),
                 "correct_option_id": chr(97 + correct), "explanation": explanation}
     if option_id is not None or not answer or not answer.strip():
-        raise HTTPException(status_code=422, detail="Write an answer before comparing it with the sample.")
+        raise InvalidInputError("Write an answer before comparing it with the sample.")
     written = [item for item in questions if item["kind"] == "short_answer"]
     index = next(i for i, item in enumerate(written) if item["question_id"] == question_id)
     _prompt, sample, points = PRACTICE[lesson_id]["written"][index]
-    return {"question_id": question_id, "kind": "short_answer", "sample_answer": sample, "key_points": points}
+    return {"question_id": question_id, "kind": "short_answer", "sample_answer": sample, "key_points": points,
+            "prompt": question["prompt"]}

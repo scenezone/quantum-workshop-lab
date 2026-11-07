@@ -43,11 +43,32 @@ class Settings(BaseSettings):
     max_simulator_shots: int = Field(default=10000, ge=1)
     default_shots: int = Field(default=1024, ge=1)
 
+    # Facilitator dashboard and feedback export. Empty disables these endpoints.
+    admin_token: str = ""
+    # 0 keeps feedback until an operator removes it.
+    feedback_retention_days: int = Field(default=0, ge=0)
+    session_retention_hours: int = Field(default=72, ge=1, le=24 * 30)
+
     @model_validator(mode="after")
     def validate_shots(self):
         if self.default_shots > self.max_simulator_shots:
             raise ValueError("DEFAULT_SHOTS must not exceed MAX_SIMULATOR_SHOTS")
+        if self.admin_token and len(self.admin_token.strip()) < 16:
+            raise ValueError("ADMIN_TOKEN must contain at least 16 characters")
         return self
+
+    @property
+    def database_enabled(self) -> bool:
+        """An empty MONGODB_URI runs a simulator-only workshop without MongoDB."""
+        return bool(self.mongodb_uri.strip())
+
+    @property
+    def admin_enabled(self) -> bool:
+        return bool(self.admin_token.strip())
+
+    @property
+    def llm_enabled(self) -> bool:
+        return bool(self.llm_api_key.strip())
 
     @property
     def cors_origin_list(self):

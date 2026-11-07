@@ -71,7 +71,7 @@ def test_public_lesson_list_and_detail_do_not_reveal_answer_keys(client):
     )
 
 
-def test_legacy_answer_marked_database_content_is_hidden(client, database):
+def test_stale_database_lesson_copies_are_never_served(client, database):
     database.lessons.update_one(
         {"lesson_id": "superposition"},
         {
@@ -81,7 +81,8 @@ def test_legacy_answer_marked_database_content_is_hidden(client, database):
         },
     )
     detail = client.get("/api/lessons/superposition").json()
-    assert detail["content"] == "Lesson body."
+    assert "Knowledge check" not in detail["content"]
+    assert "Hadamard" in detail["content"]
     assert len(detail["practice_questions"]) == 6
 
 

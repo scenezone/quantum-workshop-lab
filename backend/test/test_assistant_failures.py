@@ -84,7 +84,8 @@ async def test_reasoning_model_request_uses_supported_groq_parameters(monkeypatc
 
 
 def test_lesson_context_survives_a_database_outage():
-    with patch("app.ai.knowledge_base.Mongo.db", side_effect=ExternalServiceError()):
+    # Lesson context comes from the bundled curriculum, never from the database.
+    with patch("app.database.mongodb.Mongo.db", side_effect=ExternalServiceError()):
         context = build_context("superposition", None, None)
     assert "LESSON:" in context
     assert "Hadamard" in context

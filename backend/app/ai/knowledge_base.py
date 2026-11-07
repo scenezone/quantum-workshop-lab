@@ -1,15 +1,9 @@
 import json
-import logging
 import re
 
-from pymongo.errors import PyMongoError
-
 from app.content.curriculum import EXPERIMENTS, LESSONS
-from app.database.mongodb import Mongo
-from app.errors import ExternalServiceError, NotFoundError
+from app.errors import NotFoundError
 from app.quantum.circuits import get_metadata
-
-logger = logging.getLogger(__name__)
 
 WORKSHOP_OVERVIEW = (
     "WORKSHOP BASICS: A qubit has basis states |0> and |1> and can be in a normalized "
@@ -70,13 +64,7 @@ def build_context(
     lesson_id = lesson_id or EXPERIMENTS.get(experiment_id, {}).get("lesson_id") or related_id
 
     if lesson_id:
-        try:
-            lesson = Mongo.db().lessons.find_one({"lesson_id": lesson_id})
-        except (PyMongoError, ExternalServiceError):
-            logger.warning("Using bundled lesson context while the database is unavailable")
-            lesson = None
-        if not lesson:
-            lesson = next((item for item in LESSONS if item["lesson_id"] == lesson_id), None)
+        lesson = next((item for item in LESSONS if item["lesson_id"] == lesson_id), None)
         if lesson:
             sections.append(
                 f"LESSON: {lesson['title']}\nDifficulty: {lesson.get('difficulty', 'beginner')}\n"

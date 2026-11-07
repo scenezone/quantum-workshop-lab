@@ -10,7 +10,8 @@ Check that a non-engineering audience can follow the three-minute story: the sim
 - Configure the IBM account pool in the backend and confirm the public hardware status says hardware is enabled.
 - Run each target experiment once on the simulator and hardware: `quantum_random_number`, `bell_entanglement`, and `grover_search`.
 - Confirm simulator and hardware results can be displayed together. A completed IBM result is saved for that experiment and labeled as recorded if used as a fallback.
-- Keep a simulator-only version ready in case the IBM queue is long. Do not describe saved results as live.
+- Keep a simulator-only version ready in case the IBM queue is long. The **IBM Manila snapshot** noise profile shows realistic hardware-like errors without the queue; call it a simulation of a calibrated device, not a hardware run. Do not describe saved results as live.
+- Optional: create a session code on `/facilitator` so participants' progress and feedback appear on one dashboard.
 
 ## Walk-through (about 12 minutes)
 

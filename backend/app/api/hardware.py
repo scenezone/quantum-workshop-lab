@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 
+from app.database.models import ExperimentResult, HardwareStatus
 from app.database.mongodb import Mongo
 from app.quantum.circuits import get_metadata
 from app.services.quota_service import QuotaService
@@ -7,19 +8,22 @@ from app.services.quota_service import QuotaService
 router = APIRouter(prefix="/api/hardware", tags=["hardware"])
 
 
-@router.get("/status")
+@router.get("/status", response_model=HardwareStatus)
 def hardware_status() -> dict:
     return QuotaService.status()
 
 
-@router.get("/saved/{experiment_id}")
+@router.get("/saved/{experiment_id}", response_model=ExperimentResult | None)
 def saved_hardware_result(experiment_id: str) -> dict | None:
     metadata = get_metadata(experiment_id)
+    if not Mongo.available():
+        return None
     record = Mongo.db().hardware_results.find_one({"experiment_id": experiment_id})
     if not record:
         return None
     counts = record.get("counts") or {}
     total = sum(counts.values()) or 1
+    recorded_at = record.get("recorded_at")
     return {
         "experiment_id": experiment_id,
         "backend": "ibm_quantum_recorded",
@@ -30,5 +34,5 @@ def saved_hardware_result(experiment_id: str) -> dict | None:
         "ideal_probabilities": metadata["ideal_probabilities"],
         "provider_job_id": None,
         "tracking_id": None,
-        "recorded_at": record.get("recorded_at").isoformat() if record.get("recorded_at") else None,
+        "recorded_at": recorded_at.isoformat() if recorded_at else None,
     }

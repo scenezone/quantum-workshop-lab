@@ -9,9 +9,18 @@ __pycache__/
 *.egg-info/
 .venv/
 venv/
+.tox/
+.nox/
+.Python
+.eggs/
+build/
+site/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+pip-wheel-metadata/
+*.py,cover
+*.cover
 
 # Qiskit / IBM local credentials
 ibm_quantum_credentials.json
@@ -20,22 +29,52 @@ qiskit_settings.json
 # Node / Vite
 node_modules/
 dist/
+.next/
+.nuxt/
+.output/
+.parcel-cache/
+.turbo/
+.eslintcache
+.stylelintcache
 .vite/
 coverage/
 playwright-report/
 test-results/
+blob-report/
+playwright/.cache/
 
 # Logs
 *.log
 logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
 # OS files
 .DS_Store
 Thumbs.db
+Desktop.ini
+.AppleDouble
+.LSOverride
 
 # IDE
 .vscode/
 .idea/
+.fleet/
+.history/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.temp
 # Tool caches
 .npm-cache/
 *.tsbuildinfo
+
+# Test coverage data
+.coverage
+coverage.xml
+htmlcov/

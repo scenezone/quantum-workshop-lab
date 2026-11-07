@@ -9,6 +9,18 @@ from app.errors import HardwareUnavailableError
 logger = logging.getLogger(__name__)
 
 
+def circuit_metrics(circuit) -> dict:
+    """Depth and two-qubit gate count of the device-ready (transpiled) circuit."""
+    return {
+        "transpiled_depth": int(circuit.depth()),
+        "two_qubit_gate_count": sum(
+            1
+            for instruction in circuit.data
+            if instruction.operation.num_qubits == 2 and instruction.operation.name != "barrier"
+        ),
+    }
+
+
 class IBMRuntimeClient:
     _services: dict[str, object] = {}
 
@@ -99,7 +111,9 @@ class IBMRuntimeClient:
         return account_name, backend
 
     @classmethod
-    def submit_job(cls, experiment_id: str, shots: int, job_tag: str) -> tuple[str, str, str, str]:
+    def submit_job(
+        cls, experiment_id: str, shots: int, job_tag: str
+    ) -> tuple[str, str, str, str, dict]:
         from qiskit_ibm_runtime import SamplerV2 as Sampler
 
         from app.quantum.circuits import build_circuit
@@ -119,7 +133,13 @@ class IBMRuntimeClient:
 
         job = sampler.run([isa_circuit], shots=shots)
         logger.info("Submitted IBM job %s on backend %s", job.job_id(), backend.name)
-        return job.job_id(), backend.name, isa_circuit.name, account_name
+        return (
+            job.job_id(),
+            backend.name,
+            isa_circuit.name,
+            account_name,
+            circuit_metrics(isa_circuit),
+        )
 
     @classmethod
     def find_submission(cls, job_tag: str) -> tuple[str, str, str] | None:

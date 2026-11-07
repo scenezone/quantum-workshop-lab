@@ -123,7 +123,7 @@ export default function AIChatPanel({ compact = false, autoIntroduce = false }: 
           Ask about qubits, gates, circuits, measurement results, or quantum noise.
         </div>}
         {messages.map((message, index) => (
-          <div key={index} ref={index === messages.length - 1 ? lastMessage : undefined}
+          <div key={index} ref={index === messages.length - 1 ? lastMessage : undefined} aria-busy={message.streaming || undefined}
             className={`min-w-0 rounded-2xl p-4 sm:p-5 ${message.role === 'user'
               ? 'ml-auto max-w-[90%] bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-sm sm:max-w-[80%]'
               : 'w-full bg-white/5 text-[0.9375rem] sm:text-base'}`}>
@@ -134,7 +134,7 @@ export default function AIChatPanel({ compact = false, autoIntroduce = false }: 
             <Markdown>{message.content}</Markdown>
           </div>
         ))}
-        {loading && <div role="status" className="flex items-center gap-2 text-sm text-slate-400">
+        {loading && !messages[messages.length - 1]?.streaming && <div role="status" className="flex items-center gap-2 text-sm text-slate-400">
           <Loader2 className="h-4 w-4 animate-spin" /> Thinking...
         </div>}
         {error && <div role="alert" className="text-sm text-rose-300">
