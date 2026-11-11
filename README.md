@@ -568,6 +568,8 @@ The preview server also proxies `/api` using `API_PROXY_TARGET`. It is intended 
 
 ## Deployment
 
+For the Vercel migration, frontend connection, team upgrade, and Hostinger DNS setup, follow [the Vercel deployment guide](docs/vercel-deployment.md).
+
 For a reproducible local deployment, copy `backend/.env.example` to `backend/.env` only if it does not already exist, then run:
 
 ```bash

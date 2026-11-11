@@ -56,3 +56,19 @@ def test_reconciliation_lease_has_a_single_owner(database):
 
     Mongo.release_lease("hardware-job-reconciliation", "worker-a")
     assert Mongo.acquire_lease("hardware-job-reconciliation", "worker-b")
+
+
+def test_function_hosting_can_skip_polling_without_disabling_database(database, monkeypatch):
+    monkeypatch.setattr(get_settings(), "job_reconciliation_enabled", False)
+    with (
+        patch("app.database.mongodb.Mongo.connect"),
+        patch("app.database.mongodb.Mongo.close"),
+        patch("app.main.reconcile_jobs") as reconcile,
+        patch("app.main.seed_database") as seed,
+        TestClient(app) as client,
+    ):
+        response = client.get("/api/health")
+        assert response.status_code == 200
+        assert response.json()["database"] == "connected"
+        seed.assert_called_once()
+        reconcile.assert_not_called()

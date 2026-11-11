@@ -79,7 +79,8 @@ async def lifespan(app: FastAPI):
     try:
         if Mongo.available():
             await asyncio.to_thread(seed_database)
-            task = asyncio.create_task(reconcile_jobs())
+            if get_settings().job_reconciliation_enabled:
+                task = asyncio.create_task(reconcile_jobs())
         yield
     finally:
         if task:

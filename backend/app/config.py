@@ -32,6 +32,8 @@ class Settings(BaseSettings):
     ibm_max_shots: int = Field(default=4096, ge=1)
     job_poll_seconds: int = Field(default=15, ge=1)
     job_retention_days: int = Field(default=7, ge=1)
+    # Disable continuous polling in request-scoped hosting such as Vercel Functions.
+    job_reconciliation_enabled: bool = True
 
     llm_api_key: str = ""
     llm_base_url: str = "https://api.groq.com/openai/v1"
