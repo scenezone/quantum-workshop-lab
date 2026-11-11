@@ -8,6 +8,8 @@ python-dotenv==1.2.3
 qiskit==1.4.2
 qiskit-aer==0.17.2
 qiskit-ibm-runtime==0.40.1
+# Pin a wheel release; older IBM source builds import removed pkg_resources.
+ibm-platform-services==0.77.2
 httpx==0.28.1
 slowapi==0.1.9
 redis==5.2.1

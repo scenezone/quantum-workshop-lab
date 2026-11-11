@@ -56,6 +56,8 @@ Vercel must build and load the complete Linux Qiskit dependency bundle before co
 
 If runtime logs report `ModuleNotFoundError: No module named 'fastapi'`, confirm the deployed commit includes `requirements.txt` and the Ruff configuration migration from `pyproject.toml` to `ruff.toml`. Keep the backend project's Root Directory set to `backend`, with framework build/install overrides disabled. Redeploy the new commit without reusing the previous build cache, and check Build Logs for installation of the packages in `requirements.txt` before testing `/api/health` again.
 
+If dependency installation fails while building `ibm-platform-services==0.55.2` with `No module named 'pkg_resources'`, deploy the current `requirements.txt`, which explicitly pins `ibm-platform-services==0.77.2`. That version has a Python 3.12-compatible prebuilt wheel and satisfies Qiskit Runtime's declared IBM SDK requirement, avoiding the older source build. Do not reintroduce a tool-only `pyproject.toml` or add a package named `pkg_resources`. After pushing the dependency pin, rebuild without the previous build cache and verify the IBM version in Build Logs. If the builder still selects `0.55.2`, check the deployed commit, any custom dependency constraints, and the project dependency/lock files shown in those logs.
+
 Keep real IBM hardware disabled in this first migration. Its durable periodic reconciliation must move to authenticated scheduled requests, a queue, or a worker before it is re-enabled. Do not simply turn the infinite startup loop back on in Vercel Functions. Lessons, simulations, AI, feedback, and sessions can be validated in the initial migration; database features require MongoDB.
 
 ## 3. Connect the existing frontend
