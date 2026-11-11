@@ -4,7 +4,7 @@ Use two Vercel projects in the same team: the existing Vite frontend and a new F
 
 ## 1. Push the deployment changes
 
-The backend includes `vercel.json` for the FastAPI preset, a 300-second function limit, runtime bundle exclusions, and `.python-version` for Python 3.12. `.vercelignore` keeps local environment files and development files out of CLI uploads. Runtime dependencies remain in `requirements.txt`; `pyproject.toml` retains the existing Ruff settings.
+The backend includes `vercel.json` for the FastAPI preset, a 300-second function limit, runtime bundle exclusions, and `.python-version` for Python 3.12. `.vercelignore` keeps local environment files and development files out of CLI uploads. Runtime dependencies remain in `requirements.txt`; `ruff.toml` contains the existing Ruff settings. Keep those tool settings out of a dependency-free `pyproject.toml`: Vercel can prioritize that file over `requirements.txt` and produce a function without FastAPI or the other runtime dependencies.
 
 The application now supports `JOB_RECONCILIATION_ENABLED=false`, which skips its continuous polling loop while retaining MongoDB initialization, curriculum seeding, and API routes. This flag defaults to true for existing local and Render deployments. Disabling it does not replace polling with a scheduled job.
 
@@ -53,6 +53,8 @@ https://YOUR-BACKEND.vercel.app/api/lessons
 Confirm health reports `status: ok` and `database: connected`, lessons return JSON, and the browser can access the production API without a Vercel sign-in challenge. A missing `/` route can return 404 even when `/api/health` works.
 
 Vercel must build and load the complete Linux Qiskit dependency bundle before compatibility is confirmed. If deployment reports an oversized function, review its dependency sizes and Vercel Large Functions eligibility; paying for Pro alone does not remove the normal bundle-size limit. Check function logs for missing native libraries or import failures. Do not switch frontend traffic until the backend works.
+
+If runtime logs report `ModuleNotFoundError: No module named 'fastapi'`, confirm the deployed commit includes `requirements.txt` and the Ruff configuration migration from `pyproject.toml` to `ruff.toml`. Keep the backend project's Root Directory set to `backend`, with framework build/install overrides disabled. Redeploy the new commit without reusing the previous build cache, and check Build Logs for installation of the packages in `requirements.txt` before testing `/api/health` again.
 
 Keep real IBM hardware disabled in this first migration. Its durable periodic reconciliation must move to authenticated scheduled requests, a queue, or a worker before it is re-enabled. Do not simply turn the infinite startup loop back on in Vercel Functions. Lessons, simulations, AI, feedback, and sessions can be validated in the initial migration; database features require MongoDB.
 
