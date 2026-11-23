@@ -1,0 +1,50 @@
+{
+ "run_id": "20261123-112504_hardware-dryrun",
+ "kind": "hardware-dryrun",
+ "created": "2026-11-23T11:25:04",
+ "command": "python.exe hardware.py",
+ "method": [
+  "Four jobs, one per method: none (SamplerV2), recipe (SamplerV2: readout calibration + native folding 1/3/5, analyzed with recipe.py), IBM EstimatorV2 resilience_level 1, IBM EstimatorV2 resilience_level 2.",
+  "Compilation: level 2, best of 20 transpiler seeds (fewest two-qubit gates, then depth).",
+  "none and recipe get the same estimated quantum seconds per circuit; IBM levels get the same shots per circuit as none (precision 1/sqrt(shots)) and add their own overhead. Measured quantum_seconds are read from each job.",
+  "RMSE vs exact noise-free values; spread = bootstrap std (Sampler: multinomial resampling of counts; Estimator: normal draws from the reported std)."
+ ],
+ "config": {
+  "backend": "FakeKingston",
+  "submit": false,
+  "budget_qs_per_circuit": 3.0,
+  "circuits": [
+   "Bell",
+   "GHZ-5",
+   "Ising-4",
+   "Mirror-4",
+   "Grover-4-3it",
+   "QFT-6",
+   "QAOA-5-p2",
+   "QAOA-6"
+  ],
+  "recipe_version": "v1",
+  "estimated_quantum_seconds": {
+   "none": 23.998823356000003,
+   "recipe": 23.99619039200001,
+   "ibm_rl1": 24.525909760000005,
+   "ibm_rl2": 66.88884480000002
+  },
+  "bootstrap": 500
+ },
+ "environment": {
+  "python": "3.12.10",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "packages": {
+   "qiskit": "2.6.2",
+   "qiskit-aer": "0.18.4",
+   "qiskit-ibm-runtime": "0.52.1",
+   "mitiq": "1.1.0",
+   "numpy": "2.2.6",
+   "scipy": "1.17.1"
+  },
+  "git_commit": "46d53488b6924b4efd66379585fd139e9d1e2b1e",
+  "git_research_dirty": true
+ },
+ "preregistration_sha256": "15bb2568d7fe804d9cf7ad11e92bb2294225ff488fae2255fbc84f208da03a15"
+}

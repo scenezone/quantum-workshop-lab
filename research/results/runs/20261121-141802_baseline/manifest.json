@@ -1,0 +1,80 @@
+{
+ "run_id": "20261121-141802_baseline",
+ "kind": "baseline",
+ "created": "2026-11-21T14:18:02",
+ "command": "python.exe baseline.py",
+ "method": [
+  "No error mitigation.",
+  "Each circuit is transpiled with every transpiler seed at each optimization level; the seed with the fewest two-qubit gates (then lowest depth) is kept. Selection uses compile metrics only.",
+  "The kept circuit is simulated on Qiskit Aer with the fake backend's noise model, `repeats` times with simulator seeds simulator_seed_base + i.",
+  "Exact distributions come from the noise-free statevector. Metrics: TVD and Hellinger fidelity (counts circuits), approximation ratio (QAOA)."
+ ],
+ "config": {
+  "backends": [
+   "FakeSherbrooke",
+   "FakeKingston"
+  ],
+  "shots": 4000,
+  "transpiler_seeds": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   15,
+   16,
+   17,
+   18,
+   19,
+   20
+  ],
+  "seed_selection": "gates: fewest two-qubit gates, then depth, then seed",
+  "repeats": 10,
+  "simulator_seed_base": 1234,
+  "optimization_levels": [
+   0,
+   1,
+   2,
+   3
+  ],
+  "circuits": [
+   "Bell",
+   "GHZ-3",
+   "GHZ-5",
+   "Grover-2",
+   "Grover-3",
+   "QFT-3",
+   "QFT-4",
+   "BV-4",
+   "QAOA-3",
+   "QAOA-4",
+   "GHZ-7",
+   "Grover-4",
+   "QFT-5",
+   "QAOA-4-p2"
+  ]
+ },
+ "environment": {
+  "python": "3.12.10",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "packages": {
+   "qiskit": "2.6.2",
+   "qiskit-aer": "0.18.4",
+   "qiskit-ibm-runtime": "0.52.1",
+   "mitiq": "1.1.0",
+   "numpy": "2.2.6",
+   "scipy": "1.17.1"
+  },
+  "git_commit": "46d53488b6924b4efd66379585fd139e9d1e2b1e",
+  "git_research_dirty": true
+ }
+}

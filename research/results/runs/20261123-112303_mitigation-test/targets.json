@@ -1,0 +1,32 @@
+{
+ "reference": "readout_zne_linear",
+ "deep_circuits": [
+  "Ising-4",
+  "Grover-4-3it",
+  "QFT-6",
+  "QAOA-5-p2",
+  "QAOA-6"
+ ],
+ "targets": [
+  {
+   "id": "T1 worst case",
+   "passed": true,
+   "detail": "recipe worst 0.0231 vs 0.80 x F worst 0.1201 = 0.0961"
+  },
+  {
+   "id": "T2 deep circuits",
+   "passed": true,
+   "detail": "mean over 5 deep: recipe 0.0163 vs 0.85 x F 0.0367 = 0.0312"
+  },
+  {
+   "id": "T3 no harm",
+   "passed": true,
+   "detail": "recipe clearly worse than F on 0 circuit(s): none"
+  },
+  {
+   "id": "O1 old (median -10%)",
+   "passed": false,
+   "detail": "median change vs F -3.7%"
+  }
+ ]
+}

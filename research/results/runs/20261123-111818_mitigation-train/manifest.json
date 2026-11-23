@@ -1,0 +1,1497 @@
+{
+ "run_id": "20261123-111818_mitigation-train",
+ "kind": "mitigation-train",
+ "created": "2026-11-23T11:18:18",
+ "command": "python.exe mitigation.py --set train",
+ "method": [
+  "Our own implementations on Qiskit Aer with the fake backend's noise model; NOT Qiskit Runtime resilience levels (those have no effect on fake backends).",
+  "Compilation: optimization level 2, best of 20 transpiler seeds under the chosen selection strategy (compile-time information only, never measured error).",
+  "Budget: every method gets the same estimated quantum seconds per circuit, including calibration and all ZNE scale factors. Estimated QPU time = sum of shots x (circuit duration from backend gate durations + default repetition delay). Shots per circuit are derived from the budget.",
+  "readout: per-qubit (tensored) confusion matrices from all-0 and all-1 calibration circuits on the circuit's physical qubits (20% of the method's shots). Not clipped.",
+  "zne: native unitary folding of the transpiled circuit (G -> G (G^-1 G)^k, no re-optimization) at scale factors [1, 3, 5]; two-qubit count verified to scale exactly. Equal shots per scale factor. Extrapolation with mitiq 1.1.0: Richardson, linear least squares, exponential with a known asymptote (the observable's value on the fully mixed state), or guarded exponential (expg): exponential, falling back to linear when the result is outside the observable's physical range.",
+  "readout_zne: calibration as in readout; every folded circuit's distribution is readout-corrected, then extrapolated as in zne.",
+  "Repeats: every distinct circuit is simulated once with all shots it needs (memory=True); the shot record is split into disjoint chunks, one per repeat and method, in a fixed order.",
+  "Metric: RMSE of fixed observables vs exact values from the noise-free statevector, per repeat; mean +- std over repeats."
+ ],
+ "config": {
+  "set": "train",
+  "backend": "FakeKingston",
+  "budget_estimated_quantum_seconds_per_method": 3.0,
+  "repeats": 10,
+  "seed_selection": "gates",
+  "optimization_level": 2,
+  "transpiler_seeds": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   15,
+   16,
+   17,
+   18,
+   19,
+   20
+  ],
+  "scale_factors": [
+   1,
+   3,
+   5
+  ],
+  "calibration_fraction_of_shots": 0.2,
+  "simulator_seed_base": 10000,
+  "rep_delay_s": 0.00025,
+  "deep_min_two_qubit_gates": 13,
+  "reference_method": "readout_zne_linear"
+ },
+ "environment": {
+  "python": "3.12.10",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "packages": {
+   "qiskit": "2.6.2",
+   "qiskit-aer": "0.18.4",
+   "qiskit-ibm-runtime": "0.52.1",
+   "mitiq": "1.1.0",
+   "numpy": "2.2.6",
+   "scipy": "1.17.1"
+  },
+  "git_commit": "46d53488b6924b4efd66379585fd139e9d1e2b1e",
+  "git_research_dirty": true
+ },
+ "preregistration_sha256": "042725112296bf1b863795e1771d82448c1026eb8f3f929b08feeb0ee65b1906",
+ "tasks": {
+  "Bell": {
+   "group": "core",
+   "note": "<ZZ>",
+   "bases": [
+    "Z"
+   ],
+   "observables": [
+    {
+     "label": "ZZ",
+     "basis": "Z",
+     "exact": 0.9999999999999998,
+     "asymptote": 0.0,
+     "low": -1.0,
+     "high": 1.0
+    }
+   ],
+   "shots_per_repeat": {
+    "none": {
+     "Z": {
+      "s1": 11885
+     }
+    },
+    "readout": {
+     "Z": {
+      "s1": 9509,
+      "cal0": 1188,
+      "cal1": 1188
+     }
+    },
+    "zne": {
+     "Z": {
+      "s1": 3957,
+      "s3": 3957,
+      "s5": 3957
+     }
+    },
+    "readout_zne": {
+     "Z": {
+      "s1": 3167,
+      "s3": 3167,
+      "s5": 3167,
+      "cal0": 1187,
+      "cal1": 1187
+     }
+    }
+   },
+   "circuits": {
+    "Z": {
+     "qpy_index": 0,
+     "best_seed": 1,
+     "esp": 0.9880009696978669,
+     "physical_qubits": [
+      21,
+      20
+     ],
+     "two_qubit_gates": {
+      "s1": 1,
+      "s3": 3,
+      "s5": 5
+     },
+     "duration_s": {
+      "s1": 2.4120000000000004e-06,
+      "s3": 2.6760000000000003e-06,
+      "s5": 2.9400000000000002e-06,
+      "cal0": 2.28e-06,
+      "cal1": 2.312e-06
+     },
+     "simulator_seeds": {
+      "s1": 10001,
+      "s3": 10002,
+      "s5": 10003,
+      "cal0": 10004,
+      "cal1": 10005
+     }
+    }
+   }
+  },
+  "GHZ-3": {
+   "group": "core",
+   "note": "X-parity <X^3>",
+   "bases": [
+    "X"
+   ],
+   "observables": [
+    {
+     "label": "XXX",
+     "basis": "X",
+     "exact": 0.9999999999999993,
+     "asymptote": 0.0,
+     "low": -1.0,
+     "high": 1.0
+    }
+   ],
+   "shots_per_repeat": {
+    "none": {
+     "X": {
+      "s1": 11880
+     }
+    },
+    "readout": {
+     "X": {
+      "s1": 9506,
+      "cal0": 1188,
+      "cal1": 1188
+     }
+    },
+    "zne": {
+     "X": {
+      "s1": 3952,
+      "s3": 3952,
+      "s5": 3952
+     }
+    },
+    "readout_zne": {
+     "X": {
+      "s1": 3164,
+      "s3": 3164,
+      "s5": 3164,
+      "cal0": 1186,
+      "cal1": 1186
+     }
+    }
+   },
+   "circuits": {
+    "X": {
+     "qpy_index": 1,
+     "best_seed": 1,
+     "esp": 0.973371963546497,
+     "physical_qubits": [
+      110,
+      109,
+      108
+     ],
+     "two_qubit_gates": {
+      "s1": 2,
+      "s3": 6,
+      "s5": 10
+     },
+     "duration_s": {
+      "s1": 2.5120000000000003e-06,
+      "s3": 2.976e-06,
+      "s5": 3.4400000000000005e-06,
+      "cal0": 2.28e-06,
+      "cal1": 2.312e-06
+     },
+     "simulator_seeds": {
+      "s1": 10006,
+      "s3": 10007,
+      "s5": 10008,
+      "cal0": 10009,
+      "cal1": 10010
+     }
+    }
+   }
+  },
+  "GHZ-5": {
+   "group": "core",
+   "note": "X-parity <X^5>",
+   "bases": [
+    "X"
+   ],
+   "observables": [
+    {
+     "label": "XXXXX",
+     "basis": "X",
+     "exact": 0.9999999999999996,
+     "asymptote": 0.0,
+     "low": -1.0,
+     "high": 1.0
+    }
+   ],
+   "shots_per_repeat": {
+    "none": {
+     "X": {
+      "s1": 11871
+     }
+    },
+    "readout": {
+     "X": {
+      "s1": 9500,
+      "cal0": 1187,
+      "cal1": 1187
+     }
+    },
+    "zne": {
+     "X": {
+      "s1": 3943,
+      "s3": 3943,
+      "s5": 3943
+     }
+    },
+    "readout_zne": {
+     "X": {
+      "s1": 3158,
+      "s3": 3158,
+      "s5": 3158,
+      "cal0": 1184,
+      "cal1": 1184
+     }
+    }
+   },
+   "circuits": {
+    "X": {
+     "qpy_index": 2,
+     "best_seed": 1,
+     "esp": 0.9607246020564565,
+     "physical_qubits": [
+      148,
+      149,
+      150,
+      151,
+      152
+     ],
+     "two_qubit_gates": {
+      "s1": 4,
+      "s3": 12,
+      "s5": 20
+     },
+     "duration_s": {
+      "s1": 2.712e-06,
+      "s3": 3.5760000000000006e-06,
+      "s5": 4.44e-06,
+      "cal0": 2.28e-06,
+      "cal1": 2.312e-06
+     },
+     "simulator_seeds": {
+      "s1": 10011,
+      "s3": 10012,
+      "s5": 10013,
+      "cal0": 10014,
+      "cal1": 10015
+     }
+    }
+   }
+  },
+  "GHZ-7": {
+   "group": "deep",
+   "note": "X-parity <X^7>",
+   "bases": [
+    "X"
+   ],
+   "observables": [
+    {
+     "label": "XXXXXXX",
+     "basis": "X",
+     "exact": 0.9999999999999996,
+     "asymptote": 0.0,
+     "low": -1.0,
+     "high": 1.0
+    }
+   ],
+   "shots_per_repeat": {
+    "none": {
+     "X": {
+      "s1": 11861
+     }
+    },
+    "readout": {
+     "X": {
+      "s1": 9494,
+      "cal0": 1186,
+      "cal1": 1186
+     }
+    },
+    "zne": {
+     "X": {
+      "s1": 3934,
+      "s3": 3934,
+      "s5": 3934
+     }
+    },
+    "readout_zne": {
+     "X": {
+      "s1": 3152,
+      "s3": 3152,
+      "s5": 3152,
+      "cal0": 1182,
+      "cal1": 1182
+     }
+    }
+   },
+   "circuits": {
+    "X": {
+     "qpy_index": 3,
+     "best_seed": 1,
+     "esp": 0.938909059935624,
+     "physical_qubits": [
+      137,
+      147,
+      148,
+      149,
+      150,
+      151,
+      152
+     ],
+     "two_qubit_gates": {
+      "s1": 6,
+      "s3": 18,
+      "s5": 30
+     },
+     "duration_s": {
+      "s1": 2.9120000000000002e-06,
+      "s3": 4.176000000000001e-06,
+      "s5": 5.439999999999999e-06,
+      "cal0": 2.28e-06,
+      "cal1": 2.312e-06
+     },
+     "simulator_seeds": {
+      "s1": 10016,
+      "s3": 10017,
+      "s5": 10018,
+      "cal0": 10019,
+      "cal1": 10020
+     }
+    }
+   }
+  },
+  "Grover-2": {
+   "group": "core",
+   "note": "P(11), 1 iteration(s)",
+   "bases": [
+    "Z"
+   ],
+   "observables": [
+    {
+     "label": "P(11)",
+     "basis": "Z",
+     "exact": 0.9999999999999982,
+     "asymptote": 0.25,
+     "low": 0.0,
+     "high": 1.0
+    }
+   ],
+   "shots_per_repeat": {
+    "none": {
+     "Z": {
+      "s1": 11880
+     }
+    },
+    "readout": {
+     "Z": {
+      "s1": 9506,
+      "cal0": 1188,
+      "cal1": 1188
+     }
+    },
+    "zne": {
+     "Z": {
+      "s1": 3952,
+      "s3": 3952,
+      "s5": 3952
+     }
+    },
+    "readout_zne": {
+     "Z": {
+      "s1": 3164,
+      "s3": 3164,
+      "s5": 3164,
+      "cal0": 1186,
+      "cal1": 1186
+     }
+    }
+   },
+   "circuits": {
+    "Z": {
+     "qpy_index": 4,
+     "best_seed": 1,
+     "esp": 0.985723552667849,
+     "physical_qubits": [
+      21,
+      20
+     ],
+     "two_qubit_gates": {
+      "s1": 2,
+      "s3": 6,
+      "s5": 10
+     },
+     "duration_s": {
+      "s1": 2.5120000000000003e-06,
+      "s3": 2.976e-06,
+      "s5": 3.4400000000000005e-06,
+      "cal0": 2.28e-06,
+      "cal1": 2.312e-06
+     },
+     "simulator_seeds": {
+      "s1": 10021,
+      "s3": 10022,
+      "s5": 10023,
+      "cal0": 10024,
+      "cal1": 10025
+     }
+    }
+   }
+  },
+  "Grover-3": {
+   "group": "core",
+   "note": "P(101), 2 iteration(s)",
+   "bases": [
+    "Z"
+   ],
+   "observables": [
+    {
+     "label": "P(101)",
+     "basis": "Z",
+     "exact": 0.9453124999999962,
+     "asymptote": 0.125,
+     "low": 0.0,
+     "high": 1.0
+    }
+   ],
+   "shots_per_repeat": {
+    "none": {
+     "Z": {
+      "s1": 11699
+     }
+    },
+    "readout": {
+     "Z": {
+      "s1": 9389,
+      "cal0": 1173,
+      "cal1": 1173
+     }
+    },
+    "zne": {
+     "Z": {
+      "s1": 3777,
+      "s3": 3777,
+      "s5": 3777
+     }
+    },
+    "readout_zne": {
+     "Z": {
+      "s1": 3050,
+      "s3": 3050,
+      "s5": 3050,
+      "cal0": 1143,
+      "cal1": 1143
+     }
+    }
+   },
+   "circuits": {
+    "Z": {
+     "qpy_index": 5,
+     "best_seed": 1,
+     "esp": 0.9070229326444572,
+     "physical_qubits": [
+      21,
+      20,
+      36
+     ],
+     "two_qubit_gates": {
+      "s1": 37,
+      "s3": 111,
+      "s5": 185
+     },
+     "duration_s": {
+      "s1": 6.4279999999999984e-06,
+      "s3": 1.4724000000000037e-05,
+      "s5": 2.3019999999999986e-05,
+      "cal0": 2.28e-06,
+      "cal1": 2.312e-06
+     },
+     "simulator_seeds": {
+      "s1": 10026,
+      "s3": 10027,
+      "s5": 10028,
+      "cal0": 10029,
+      "cal1": 10030
+     }
+    }
+   }
+  },
+  "Grover-4": {
+   "group": "deep",
+   "note": "P(1011), 2 iteration(s)",
+   "bases": [
+    "Z"
+   ],
+   "observables": [
+    {
+     "label": "P(1011)",
+     "basis": "Z",
+     "exact": 0.9084472656249937,
+     "asymptote": 0.0625,
+     "low": 0.0,
+     "high": 1.0
+    }
+   ],
+   "shots_per_repeat": {
+    "none": {
+     "Z": {
+      "s1": 11475
+     }
+    },
+    "readout": {
+     "Z": {
+      "s1": 9244,
+      "cal0": 1155,
+      "cal1": 1155
+     }
+    },
+    "zne": {
+     "Z": {
+      "s1": 3574,
+      "s3": 3574,
+      "s5": 3574
+     }
+    },
+    "readout_zne": {
+     "Z": {
+      "s1": 2916,
+      "s3": 2916,
+      "s5": 2916,
+      "cal0": 1093,
+      "cal1": 1093
+     }
+    }
+   },
+   "circuits": {
+    "Z": {
+     "qpy_index": 6,
+     "best_seed": 3,
+     "esp": 0.8394306500829353,
+     "physical_qubits": [
+      138,
+      150,
+      152,
+      151
+     ],
+     "two_qubit_gates": {
+      "s1": 73,
+      "s3": 219,
+      "s5": 365
+     },
+     "duration_s": {
+      "s1": 1.1436000000000007e-05,
+      "s3": 2.9747999999999865e-05,
+      "s5": 4.806000000000029e-05,
+      "cal0": 2.28e-06,
+      "cal1": 2.312e-06
+     },
+     "simulator_seeds": {
+      "s1": 10031,
+      "s3": 10032,
+      "s5": 10033,
+      "cal0": 10034,
+      "cal1": 10035
+     }
+    }
+   }
+  },
+  "QFT-3": {
+   "group": "core",
+   "note": "input |5> = |101>, <X_j> and <Y_j> on every qubit",
+   "bases": [
+    "X",
+    "Y"
+   ],
+   "observables": [
+    {
+     "label": "X0",
+     "basis": "X",
+     "exact": -0.7071067811865472,
+     "asymptote": 0.0,
+     "low": -1.0,
+     "high": 1.0
+    },
+    {
+     "label": "X1",
+     "basis": "X",
+     "exact": 1.4988010832439613e-15,
+     "asymptote": 0.0,
+     "low": -1.0,
+     "high": 1.0
+    },
+    {
+     "label": "X2",
+     "basis": "X",
+     "exact": -0.9999999999999996,
+     "asymptote": 0.0,
+     "low": -1.0,
+     "high": 1.0
+    },
+    {
+     "label": "Y0",
+     "basis": "Y",
+     "exact": -0.707106781186547,
+     "asymptote": 0.0,
+     "low": -1.0,
+     "high": 1.0
+    },
+    {
+     "label": "Y1",
+     "basis": "Y",
+     "exact": 0.9999999999999993,
+     "asymptote": 0.0,
+     "low": -1.0,
+     "high": 1.0
+    },
+    {
+     "label": "Y2",
+     "basis": "Y",
+     "exact": 8.881784197001249e-16,
+     "asymptote": 0.0,
+     "low": -1.0,
+     "high": 1.0
+    }
+   ],
+   "shots_per_repeat": {
+    "none": {
+     "X": {
+      "s1": 5921
+     },
+     "Y": {
+      "s1": 5921
+     }
+    },
+    "readout": {
+     "X": {
+      "s1": 4740,
+      "cal0": 592,
+      "cal1": 592
+     },
+     "Y": {
+      "s1": 4740,
+      "cal0": 592,
+      "cal1": 592
+     }
+    },
+    "zne": {
+     "X": {
+      "s1": 1957,
+      "s3": 1957,
+      "s5": 1957
+     },
+     "Y": {
+      "s1": 1957,
+      "s3": 1957,
+      "s5": 1957
+     }
+    },
+    "readout_zne": {
+     "X": {
+      "s1": 1570,
+      "s3": 1570,
+      "s5": 1570,
+      "cal0": 588,
+      "cal1": 588
+     },
+     "Y": {
+      "s1": 1570,
+      "s3": 1570,
+      "s5": 1570,
+      "cal0": 588,
+      "cal1": 588
+     }
+    }
+   },
+   "circuits": {
+    "X": {
+     "qpy_index": 7,
+     "best_seed": 1,
+     "esp": 0.9648728380433876,
+     "physical_qubits": [
+      152,
+      151,
+      138
+     ],
+     "two_qubit_gates": {
+      "s1": 9,
+      "s3": 27,
+      "s5": 45
+     },
+     "duration_s": {
+      "s1": 3.3240000000000003e-06,
+      "s3": 5.412e-06,
+      "s5": 7.499999999999998e-06,
+      "cal0": 2.28e-06,
+      "cal1": 2.312e-06
+     },
+     "simulator_seeds": {
+      "s1": 10036,
+      "s3": 10037,
+      "s5": 10038,
+      "cal0": 10039,
+      "cal1": 10040
+     }
+    },
+    "Y": {
+     "qpy_index": 8,
+     "best_seed": 1,
+     "esp": 0.9576907937313545,
+     "physical_qubits": [
+      36,
+      21,
+      20
+     ],
+     "two_qubit_gates": {
+      "s1": 9,
+      "s3": 27,
+      "s5": 45
+     },
+     "duration_s": {
+      "s1": 3.3080000000000003e-06,
+      "s3": 5.364e-06,
+      "s5": 7.419999999999997e-06,
+      "cal0": 2.28e-06,
+      "cal1": 2.312e-06
+     },
+     "simulator_seeds": {
+      "s1": 10041,
+      "s3": 10042,
+      "s5": 10043,
+      "cal0": 10044,
+      "cal1": 10045
+     }
+    }
+   }
+  },
+  "QFT-4": {
+   "group": "core",
+   "note": "input |11> = |1011>, <X_j> and <Y_j> on every qubit",
+   "bases": [
+    "X",
+    "Y"
+   ],
+   "observables": [
+    {
+     "label": "X0",
+     "basis": "X",
+     "exact": -0.3826834323650895,
+     "asymptote": 0.0,
+     "low": -1.0,
+     "high": 1.0
+    },
+    {
+     "label": "X1",
+     "basis": "X",
+     "exact": -0.7071067811865468,
+     "asymptote": 0.0,
+     "low": -1.0,
+     "high": 1.0
+    },
+    {
+     "label": "X2",
+     "basis": "X",
+     "exact": -1.4988010832439613e-15,
+     "asymptote": 0.0,
+     "low": -1.0,
+     "high": 1.0
+    },
+    {
+     "label": "X3",
+     "basis": "X",
+     "exact": -0.9999999999999994,
+     "asymptote": 0.0,
+     "low": -1.0,
+     "high": 1.0
+    },
+    {
+     "label": "Y0",
+     "basis": "Y",
+     "exact": -0.9238795325112862,
+     "asymptote": 0.0,
+     "low": -1.0,
+     "high": 1.0
+    },
+    {
+     "label": "Y1",
+     "basis": "Y",
+     "exact": 0.7071067811865476,
+     "asymptote": 0.0,
+     "low": -1.0,
+     "high": 1.0
+    },
+    {
+     "label": "Y2",
+     "basis": "Y",
+     "exact": -0.9999999999999994,
+     "asymptote": 0.0,
+     "low": -1.0,
+     "high": 1.0
+    },
+    {
+     "label": "Y3",
+     "basis": "Y",
+     "exact": 1.0547118733938987e-15,
+     "asymptote": 0.0,
+     "low": -1.0,
+     "high": 1.0
+    }
+   ],
+   "shots_per_repeat": {
+    "none": {
+     "X": {
+      "s1": 5904
+     },
+     "Y": {
+      "s1": 5904
+     }
+    },
+    "readout": {
+     "X": {
+      "s1": 4729,
+      "cal0": 591,
+      "cal1": 591
+     },
+     "Y": {
+      "s1": 4729,
+      "cal0": 591,
+      "cal1": 591
+     }
+    },
+    "zne": {
+     "X": {
+      "s1": 1941,
+      "s3": 1941,
+      "s5": 1941
+     },
+     "Y": {
+      "s1": 1941,
+      "s3": 1941,
+      "s5": 1941
+     }
+    },
+    "readout_zne": {
+     "X": {
+      "s1": 1559,
+      "s3": 1559,
+      "s5": 1559,
+      "cal0": 584,
+      "cal1": 584
+     },
+     "Y": {
+      "s1": 1559,
+      "s3": 1559,
+      "s5": 1559,
+      "cal0": 584,
+      "cal1": 584
+     }
+    }
+   },
+   "circuits": {
+    "X": {
+     "qpy_index": 9,
+     "best_seed": 2,
+     "esp": 0.9386718865156184,
+     "physical_qubits": [
+      91,
+      88,
+      90,
+      89
+     ],
+     "two_qubit_gates": {
+      "s1": 17,
+      "s3": 51,
+      "s5": 85
+     },
+     "duration_s": {
+      "s1": 4.036000000000001e-06,
+      "s3": 7.547999999999995e-06,
+      "s5": 1.1060000000000003e-05,
+      "cal0": 2.28e-06,
+      "cal1": 2.312e-06
+     },
+     "simulator_seeds": {
+      "s1": 10046,
+      "s3": 10047,
+      "s5": 10048,
+      "cal0": 10049,
+      "cal1": 10050
+     }
+    },
+    "Y": {
+     "qpy_index": 10,
+     "best_seed": 2,
+     "esp": 0.9360104367841809,
+     "physical_qubits": [
+      149,
+      152,
+      150,
+      151
+     ],
+     "two_qubit_gates": {
+      "s1": 17,
+      "s3": 51,
+      "s5": 85
+     },
+     "duration_s": {
+      "s1": 4.068000000000001e-06,
+      "s3": 7.643999999999995e-06,
+      "s5": 1.1220000000000006e-05,
+      "cal0": 2.28e-06,
+      "cal1": 2.312e-06
+     },
+     "simulator_seeds": {
+      "s1": 10051,
+      "s3": 10052,
+      "s5": 10053,
+      "cal0": 10054,
+      "cal1": 10055
+     }
+    }
+   }
+  },
+  "QFT-5": {
+   "group": "deep",
+   "note": "input |21> = |10101>, <X_j> and <Y_j> on every qubit",
+   "bases": [
+    "X",
+    "Y"
+   ],
+   "observables": [
+    {
+     "label": "X0",
+     "basis": "X",
+     "exact": -0.5555702330196045,
+     "asymptote": 0.0,
+     "low": -1.0,
+     "high": 1.0
+    },
+    {
+     "label": "X1",
+     "basis": "X",
+     "exact": -0.3826834323650896,
+     "asymptote": 0.0,
+     "low": -1.0,
+     "high": 1.0
+    },
+    {
+     "label": "X2",
+     "basis": "X",
+     "exact": -0.7071067811865467,
+     "asymptote": 0.0,
+     "low": -1.0,
+     "high": 1.0
+    },
+    {
+     "label": "X3",
+     "basis": "X",
+     "exact": -4.440892098500626e-16,
+     "asymptote": 0.0,
+     "low": -1.0,
+     "high": 1.0
+    },
+    {
+     "label": "X4",
+     "basis": "X",
+     "exact": -0.9999999999999991,
+     "asymptote": 0.0,
+     "low": -1.0,
+     "high": 1.0
+    },
+    {
+     "label": "Y0",
+     "basis": "Y",
+     "exact": -0.8314696123025426,
+     "asymptote": 0.0,
+     "low": -1.0,
+     "high": 1.0
+    },
+    {
+     "label": "Y1",
+     "basis": "Y",
+     "exact": 0.923879532511286,
+     "asymptote": 0.0,
+     "low": -1.0,
+     "high": 1.0
+    },
+    {
+     "label": "Y2",
+     "basis": "Y",
+     "exact": -0.7071067811865469,
+     "asymptote": 0.0,
+     "low": -1.0,
+     "high": 1.0
+    },
+    {
+     "label": "Y3",
+     "basis": "Y",
+     "exact": 0.999999999999999,
+     "asymptote": 0.0,
+     "low": -1.0,
+     "high": 1.0
+    },
+    {
+     "label": "Y4",
+     "basis": "Y",
+     "exact": 2.5032059758345326e-15,
+     "asymptote": 0.0,
+     "low": -1.0,
+     "high": 1.0
+    }
+   ],
+   "shots_per_repeat": {
+    "none": {
+     "X": {
+      "s1": 5880
+     },
+     "Y": {
+      "s1": 5880
+     }
+    },
+    "readout": {
+     "X": {
+      "s1": 4714,
+      "cal0": 589,
+      "cal1": 589
+     },
+     "Y": {
+      "s1": 4714,
+      "cal0": 589,
+      "cal1": 589
+     }
+    },
+    "zne": {
+     "X": {
+      "s1": 1918,
+      "s3": 1918,
+      "s5": 1918
+     },
+     "Y": {
+      "s1": 1918,
+      "s3": 1918,
+      "s5": 1918
+     }
+    },
+    "readout_zne": {
+     "X": {
+      "s1": 1544,
+      "s3": 1544,
+      "s5": 1544,
+      "cal0": 579,
+      "cal1": 579
+     },
+     "Y": {
+      "s1": 1544,
+      "s3": 1544,
+      "s5": 1544,
+      "cal0": 579,
+      "cal1": 579
+     }
+    }
+   },
+   "circuits": {
+    "X": {
+     "qpy_index": 11,
+     "best_seed": 4,
+     "esp": 0.908802660468547,
+     "physical_qubits": [
+      149,
+      138,
+      150,
+      152,
+      151
+     ],
+     "two_qubit_gates": {
+      "s1": 28,
+      "s3": 84,
+      "s5": 140
+     },
+     "duration_s": {
+      "s1": 5.056e-06,
+      "s3": 1.0608000000000002e-05,
+      "s5": 1.6160000000000035e-05,
+      "cal0": 2.28e-06,
+      "cal1": 2.312e-06
+     },
+     "simulator_seeds": {
+      "s1": 10056,
+      "s3": 10057,
+      "s5": 10058,
+      "cal0": 10059,
+      "cal1": 10060
+     }
+    },
+    "Y": {
+     "qpy_index": 12,
+     "best_seed": 4,
+     "esp": 0.9086500833774755,
+     "physical_qubits": [
+      149,
+      138,
+      150,
+      152,
+      151
+     ],
+     "two_qubit_gates": {
+      "s1": 28,
+      "s3": 84,
+      "s5": 140
+     },
+     "duration_s": {
+      "s1": 5.087999999999999e-06,
+      "s3": 1.0704000000000005e-05,
+      "s5": 1.632000000000004e-05,
+      "cal0": 2.28e-06,
+      "cal1": 2.312e-06
+     },
+     "simulator_seeds": {
+      "s1": 10061,
+      "s3": 10062,
+      "s5": 10063,
+      "cal0": 10064,
+      "cal1": 10065
+     }
+    }
+   }
+  },
+  "BV-4": {
+   "group": "core",
+   "note": "P(1011)",
+   "bases": [
+    "Z"
+   ],
+   "observables": [
+    {
+     "label": "P(1011)",
+     "basis": "Z",
+     "exact": 0.9999999999999986,
+     "asymptote": 0.0625,
+     "low": 0.0,
+     "high": 1.0
+    }
+   ],
+   "shots_per_repeat": {
+    "none": {
+     "Z": {
+      "s1": 11878
+     }
+    },
+    "readout": {
+     "Z": {
+      "s1": 9505,
+      "cal0": 1188,
+      "cal1": 1188
+     }
+    },
+    "zne": {
+     "Z": {
+      "s1": 3951,
+      "s3": 3951,
+      "s5": 3951
+     }
+    },
+    "readout_zne": {
+     "Z": {
+      "s1": 3162,
+      "s3": 3162,
+      "s5": 3162,
+      "cal0": 1186,
+      "cal1": 1186
+     }
+    }
+   },
+   "circuits": {
+    "Z": {
+     "qpy_index": 13,
+     "best_seed": 1,
+     "esp": 0.9705839236055029,
+     "physical_qubits": [
+      108,
+      110,
+      148,
+      118
+     ],
+     "two_qubit_gates": {
+      "s1": 3,
+      "s3": 9,
+      "s5": 15
+     },
+     "duration_s": {
+      "s1": 2.548e-06,
+      "s3": 3.0840000000000005e-06,
+      "s5": 3.620000000000001e-06,
+      "cal0": 2.28e-06,
+      "cal1": 2.312e-06
+     },
+     "simulator_seeds": {
+      "s1": 10066,
+      "s3": 10067,
+      "s5": 10068,
+      "cal0": 10069,
+      "cal1": 10070
+     }
+    }
+   }
+  },
+  "QAOA-3": {
+   "group": "core",
+   "note": "expected cut (triangle, p=1)",
+   "bases": [
+    "Z"
+   ],
+   "observables": [
+    {
+     "label": "<cut>",
+     "basis": "Z",
+     "exact": 1.9884157987600772,
+     "asymptote": 1.5,
+     "low": 0.0,
+     "high": 3.0
+    }
+   ],
+   "shots_per_repeat": {
+    "none": {
+     "Z": {
+      "s1": 11849
+     }
+    },
+    "readout": {
+     "Z": {
+      "s1": 9486,
+      "cal0": 1185,
+      "cal1": 1185
+     }
+    },
+    "zne": {
+     "Z": {
+      "s1": 3922,
+      "s3": 3922,
+      "s5": 3922
+     }
+    },
+    "readout_zne": {
+     "Z": {
+      "s1": 3144,
+      "s3": 3144,
+      "s5": 3144,
+      "cal0": 1179,
+      "cal1": 1179
+     }
+    }
+   },
+   "circuits": {
+    "Z": {
+     "qpy_index": 14,
+     "best_seed": 4,
+     "esp": 0.970237717447419,
+     "physical_qubits": [
+      117,
+      104,
+      105
+     ],
+     "two_qubit_gates": {
+      "s1": 7,
+      "s3": 21,
+      "s5": 35
+     },
+     "duration_s": {
+      "s1": 3.1720000000000003e-06,
+      "s3": 4.956e-06,
+      "s5": 6.7399999999999965e-06,
+      "cal0": 2.28e-06,
+      "cal1": 2.312e-06
+     },
+     "simulator_seeds": {
+      "s1": 10071,
+      "s3": 10072,
+      "s5": 10073,
+      "cal0": 10074,
+      "cal1": 10075
+     }
+    }
+   }
+  },
+  "QAOA-4": {
+   "group": "core",
+   "note": "expected cut (4-ring, p=1)",
+   "bases": [
+    "Z"
+   ],
+   "observables": [
+    {
+     "label": "<cut>",
+     "basis": "Z",
+     "exact": 2.999999999999998,
+     "asymptote": 2.0,
+     "low": 0.0,
+     "high": 4.0
+    }
+   ],
+   "shots_per_repeat": {
+    "none": {
+     "Z": {
+      "s1": 11829
+     }
+    },
+    "readout": {
+     "Z": {
+      "s1": 9473,
+      "cal0": 1184,
+      "cal1": 1184
+     }
+    },
+    "zne": {
+     "Z": {
+      "s1": 3902,
+      "s3": 3902,
+      "s5": 3902
+     }
+    },
+    "readout_zne": {
+     "Z": {
+      "s1": 3131,
+      "s3": 3131,
+      "s5": 3131,
+      "cal0": 1174,
+      "cal1": 1174
+     }
+    }
+   },
+   "circuits": {
+    "Z": {
+     "qpy_index": 15,
+     "best_seed": 2,
+     "esp": 0.9465844781555288,
+     "physical_qubits": [
+      108,
+      118,
+      110,
+      109
+     ],
+     "two_qubit_gates": {
+      "s1": 11,
+      "s3": 33,
+      "s5": 55
+     },
+     "duration_s": {
+      "s1": 3.6040000000000006e-06,
+      "s3": 6.251999999999999e-06,
+      "s5": 8.899999999999993e-06,
+      "cal0": 2.28e-06,
+      "cal1": 2.312e-06
+     },
+     "simulator_seeds": {
+      "s1": 10076,
+      "s3": 10077,
+      "s5": 10078,
+      "cal0": 10079,
+      "cal1": 10080
+     }
+    }
+   }
+  },
+  "QAOA-4-p2": {
+   "group": "deep",
+   "note": "expected cut (4-ring, p=2)",
+   "bases": [
+    "Z"
+   ],
+   "observables": [
+    {
+     "label": "<cut>",
+     "basis": "Z",
+     "exact": 3.99999993274851,
+     "asymptote": 2.0,
+     "low": 0.0,
+     "high": 4.0
+    }
+   ],
+   "shots_per_repeat": {
+    "none": {
+     "Z": {
+      "s1": 11760
+     }
+    },
+    "readout": {
+     "Z": {
+      "s1": 9428,
+      "cal0": 1178,
+      "cal1": 1178
+     }
+    },
+    "zne": {
+     "Z": {
+      "s1": 3835,
+      "s3": 3835,
+      "s5": 3835
+     }
+    },
+    "readout_zne": {
+     "Z": {
+      "s1": 3088,
+      "s3": 3088,
+      "s5": 3088,
+      "cal0": 1158,
+      "cal1": 1158
+     }
+    }
+   },
+   "circuits": {
+    "Z": {
+     "qpy_index": 16,
+     "best_seed": 2,
+     "esp": 0.9206212431683627,
+     "physical_qubits": [
+      104,
+      106,
+      117,
+      105
+     ],
+     "two_qubit_gates": {
+      "s1": 25,
+      "s3": 75,
+      "s5": 125
+     },
+     "duration_s": {
+      "s1": 5.0999999999999995e-06,
+      "s3": 1.0740000000000002e-05,
+      "s5": 1.6380000000000057e-05,
+      "cal0": 2.28e-06,
+      "cal1": 2.312e-06
+     },
+     "simulator_seeds": {
+      "s1": 10081,
+      "s3": 10082,
+      "s5": 10083,
+      "cal0": 10084,
+      "cal1": 10085
+     }
+    }
+   }
+  }
+ }
+}

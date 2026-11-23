@@ -1,0 +1,60 @@
+{
+ "run_id": "20261121-141701_selection",
+ "kind": "selection",
+ "created": "2026-11-21T14:17:01",
+ "command": "python.exe selection_compare.py",
+ "method": [
+  "No error mitigation.",
+  "For each circuit and level, compile once per transpiler seed. Strategy A picks the fewest two-qubit gates (then depth, then seed); strategy B picks the highest ESP (then fewer 2q gates, depth, seed). ESP = product of (1 - calibrated error) over all gates and measurements.",
+  "Each distinct pick is simulated once with shots x repeats shots (memory=True); the shot record is split into `repeats` disjoint chunks. Metric per chunk: TVD vs the exact distribution, or approximation ratio for QAOA.",
+  "Caveat: the fake backend's noise model comes from the same calibration data as ESP, so agreement between ESP and measured error is partly circular; hardware runs are needed to test prediction."
+ ],
+ "config": {
+  "backends": [
+   "FakeKingston"
+  ],
+  "levels": [
+   2
+  ],
+  "seeds": 20,
+  "shots": 4000,
+  "repeats": 10,
+  "transpiler_seeds": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   15,
+   16,
+   17,
+   18,
+   19,
+   20
+  ],
+  "simulator_seed_base": 20000
+ },
+ "environment": {
+  "python": "3.12.10",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "packages": {
+   "qiskit": "2.6.2",
+   "qiskit-aer": "0.18.4",
+   "qiskit-ibm-runtime": "0.52.1",
+   "mitiq": "1.1.0",
+   "numpy": "2.2.6",
+   "scipy": "1.17.1"
+  },
+  "git_commit": "46d53488b6924b4efd66379585fd139e9d1e2b1e",
+  "git_research_dirty": true
+ }
+}

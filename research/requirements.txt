@@ -1,0 +1,14 @@
+# Research environment only. The app keeps its own pins in backend/requirements.txt.
+# Needs Python 3.11 or 3.12: every usable mitiq release requires Python < 3.13.
+# Newer Qiskit than the app because FakeKingston (Heron r2) first ships in later runtime releases.
+qiskit==2.6.2
+qiskit-aer==0.18.4
+qiskit-ibm-runtime==0.52.1
+# mitiq 1.1.0 caps numpy < 2.3 and scipy <= 1.17.1.
+numpy==2.2.6
+scipy==1.17.1
+mitiq==1.1.0
+cirq-core==1.6.1
+# Needed by mitiq's Qiskit converter. Installed directly instead of the mitiq[qiskit] extra,
+# which would pin qiskit-aer ~=0.17 and qiskit-ibm-runtime ~=0.41 (no FakeKingston).
+ply==3.11

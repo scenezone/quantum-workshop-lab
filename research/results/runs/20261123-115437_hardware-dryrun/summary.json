@@ -1,0 +1,129 @@
+{
+ "rows": [
+  {
+   "circuit": "Bell",
+   "two_qubit_gates": 1,
+   "none": 0.021101093420295203,
+   "none_std": 0.0018599604439070543,
+   "recipe": 0.0011683444195265125,
+   "recipe_std": 0.00403545905420409,
+   "ibm_rl1": NaN,
+   "ibm_rl1_std": NaN,
+   "ibm_rl2": NaN,
+   "ibm_rl2_std": NaN
+  },
+  {
+   "circuit": "GHZ-5",
+   "two_qubit_gates": 4,
+   "none": 0.06771532706694783,
+   "none_std": 0.00370121935781287,
+   "recipe": 0.014980961571022355,
+   "recipe_std": 0.010093399102387953,
+   "ibm_rl1": NaN,
+   "ibm_rl1_std": NaN,
+   "ibm_rl2": NaN,
+   "ibm_rl2_std": NaN
+  },
+  {
+   "circuit": "Ising-4",
+   "two_qubit_gates": 36,
+   "none": 0.01002125669812303,
+   "none_std": 0.005930751151111455,
+   "recipe": 0.009315954687643815,
+   "recipe_std": 0.010962126029170044,
+   "ibm_rl1": NaN,
+   "ibm_rl1_std": NaN,
+   "ibm_rl2": NaN,
+   "ibm_rl2_std": NaN
+  },
+  {
+   "circuit": "Mirror-4",
+   "two_qubit_gates": 12,
+   "none": 0.06445424899290231,
+   "none_std": 0.0024384104424141125,
+   "recipe": 0.011244080612573759,
+   "recipe_std": 0.007043103237305842,
+   "ibm_rl1": NaN,
+   "ibm_rl1_std": NaN,
+   "ibm_rl2": NaN,
+   "ibm_rl2_std": NaN
+  },
+  {
+   "circuit": "Grover-4-3it",
+   "two_qubit_gates": 111,
+   "none": 0.22978242646931146,
+   "none_std": 0.004545438622050268,
+   "recipe": 0.0019214609106091851,
+   "recipe_std": 0.013605065336592198,
+   "ibm_rl1": NaN,
+   "ibm_rl1_std": NaN,
+   "ibm_rl2": NaN,
+   "ibm_rl2_std": NaN
+  },
+  {
+   "circuit": "QFT-6",
+   "two_qubit_gates": 88,
+   "none": 0.04594113829534523,
+   "none_std": 0.00172930678550112,
+   "recipe": 0.01856329190984141,
+   "recipe_std": 0.0054059750293569036,
+   "ibm_rl1": NaN,
+   "ibm_rl1_std": NaN,
+   "ibm_rl2": NaN,
+   "ibm_rl2_std": NaN
+  },
+  {
+   "circuit": "QAOA-5-p2",
+   "two_qubit_gates": 34,
+   "none": 0.11759061527829706,
+   "none_std": 0.004564722876633624,
+   "recipe": 0.010240469984111655,
+   "recipe_std": 0.010320347903147195,
+   "ibm_rl1": NaN,
+   "ibm_rl1_std": NaN,
+   "ibm_rl2": NaN,
+   "ibm_rl2_std": NaN
+  },
+  {
+   "circuit": "QAOA-6",
+   "two_qubit_gates": 31,
+   "none": 0.10627316978646562,
+   "none_std": 0.010657874210265539,
+   "recipe": 0.013669365477710471,
+   "recipe_std": 0.020624887311734483,
+   "ibm_rl1": NaN,
+   "ibm_rl1_std": NaN,
+   "ibm_rl2": NaN,
+   "ibm_rl2_std": NaN
+  }
+ ],
+ "targets": [
+  {
+   "id": "H1 vs IBM level 2",
+   "passed": false,
+   "detail": "recipe lower RMSE on 0/8; quantum s recipe 24.0 vs level 2 63.4"
+  },
+  {
+   "id": "H2 vs IBM level 1 (deep)",
+   "passed": false,
+   "detail": "mean over 5 deep: recipe 0.0107 vs 0.85 x level 1 nan"
+  },
+  {
+   "id": "H3 beats no mitigation",
+   "passed": true,
+   "detail": "recipe clearly better than none on 7/8"
+  }
+ ],
+ "qpu_estimated": {
+  "none": 23.999442584,
+  "recipe": 23.997763152000008,
+  "ibm_rl1": 23.2498799104,
+  "ibm_rl2": 63.408763392000004
+ },
+ "qpu_measured": {
+  "none": null,
+  "recipe": null,
+  "ibm_rl1": null,
+  "ibm_rl2": null
+ }
+}
