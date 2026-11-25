@@ -1,0 +1,727 @@
+{
+ "run_id": "20261125-120531_mitigation-v2-train-partial",
+ "kind": "mitigation-v2-train-partial",
+ "created": "2026-11-25T12:05:31",
+ "command": "python.exe mitigation_v2.py --set train --only Bell,GHZ-3,QFT-3 --repeats 3",
+ "method": [
+  "Our own implementations on Qiskit Aer with the fake backend's noise model; NOT Qiskit Runtime resilience levels.",
+  "Compilation: level 2, best of 20 seeds (fewest 2q gates, then depth), identical to mitigation.py.",
+  "Budget: every data group gets the same estimated quantum seconds per circuit (sum of shots x (duration + rep delay)), including 20% calibration shots for readout groups.",
+  "v1 group: all-gate native folding at 1/3/5 (folding.py). v2 groups: two-qubit-only folding at nominal 1/2/3 (secondary: 1/1.5/2) with twirl.fold_2q_series; actual scales used in fits. recipe_v2 and the secondary: every CZ Pauli-twirled, 8 independent instances per scale per repeat, counts pooled over instances. v2 without twirling: the same folds as recipe_v2, untwirled.",
+  "Readout correction (tensored, per-qubit) of every scale before extrapolation; extrapolation with mitiq 1.1.0 (linear; exponential with known asymptote).",
+  "Metric: RMSE vs exact noise-free value per repeat; mean +- std over repeats."
+ ],
+ "config": {
+  "set": "train",
+  "noise_scale": 1.0,
+  "backend": "FakeKingston",
+  "only": "Bell,GHZ-3,QFT-3",
+  "budget_estimated_quantum_seconds_per_method": 3.0,
+  "repeats": 3,
+  "optimization_level": 2,
+  "transpiler_seeds": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   15,
+   16,
+   17,
+   18,
+   19,
+   20
+  ],
+  "seed_selection": "gates",
+  "v1_scale_factors": [
+   1,
+   3,
+   5
+  ],
+  "v2_nominal_scales": [
+   1.0,
+   2.0,
+   3.0
+  ],
+  "secondary_nominal_scales": [
+   1.0,
+   1.5,
+   2.0
+  ],
+  "twirls": 8,
+  "calibration_fraction": 0.2,
+  "simulator_seed_base": 50000,
+  "rep_delay_s": 0.00025,
+  "recipe_v1": "v1",
+  "recipe_v2": "v2",
+  "recipe_v2_frozen": true,
+  "deep_min_two_qubit_gates": 13
+ },
+ "environment": {
+  "python": "3.12.10",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "packages": {
+   "qiskit": "2.6.2",
+   "qiskit-aer": "0.18.4",
+   "qiskit-ibm-runtime": "0.52.1",
+   "mitiq": "1.1.0",
+   "numpy": "2.2.6",
+   "scipy": "1.17.1"
+  },
+  "git_commit": "d92ee5d5f75839ce645a4503ba33672984d5156c",
+  "git_research_dirty": true
+ },
+ "preregistration_sha256": "8b1b6812f12014ee89d96621f21850342c97cf46b6dcba9c8b236df04083ba0f",
+ "tasks": {
+  "Bell": {
+   "group": "core",
+   "note": "<ZZ>",
+   "bases": [
+    "Z"
+   ],
+   "observables": [
+    {
+     "label": "ZZ",
+     "basis": "Z",
+     "exact": 0.9999999999999998,
+     "asymptote": 0.0,
+     "low": -1.0,
+     "high": 1.0
+    }
+   ],
+   "shots_per_repeat": {
+    "none": {
+     "Z": {
+      "s1": 11885
+     }
+    },
+    "v1": {
+     "Z": {
+      "s1": 3167,
+      "s3": 3167,
+      "s5": 3167,
+      "cal0": 1187,
+      "cal1": 1187
+     }
+    },
+    "v2nt": {
+     "Z": {
+      "q1": 3168,
+      "q2": 3168,
+      "q3": 3168,
+      "cal0": 1188,
+      "cal1": 1188
+     }
+    },
+    "v2": {
+     "Z": {
+      "q1": 3167,
+      "q2": 3167,
+      "q3": 3167,
+      "cal0": 1187,
+      "cal1": 1187
+     }
+    },
+    "sec": {
+     "Z": {
+      "q1": 3167,
+      "q15": 3167,
+      "q2": 3167,
+      "cal0": 1187,
+      "cal1": 1187
+     }
+    }
+   },
+   "circuits": {
+    "Z": {
+     "best_seed": 1,
+     "esp": 0.9880009696978669,
+     "physical_qubits": [
+      21,
+      20
+     ],
+     "two_qubit_gates": 1,
+     "actual_v2_scales": {
+      "q1": 1.0,
+      "q2": 3.0,
+      "q3": 5.0
+     },
+     "actual_secondary_scales": {
+      "q1": 1.0,
+      "q15": 3.0,
+      "q2": 5.0
+     },
+     "duration_s": {
+      "s1": 2.4120000000000004e-06,
+      "s3": 2.6760000000000003e-06,
+      "s5": 2.9400000000000002e-06,
+      "q2": 2.548e-06,
+      "q3": 2.684e-06,
+      "cal0": 2.28e-06,
+      "cal1": 2.312e-06,
+      "q1": 2.4120000000000004e-06
+     },
+     "twirled_mean_duration_s": {
+      "v2": {
+       "q1": 2.4200000000000005e-06,
+       "q2": 2.5960000000000002e-06,
+       "q3": 2.7720000000000003e-06
+      },
+      "sec": {
+       "q1": 2.4200000000000005e-06,
+       "q15": 2.612e-06,
+       "q2": 2.7880000000000002e-06
+      }
+     },
+     "per_shot_s": {
+      "none": {
+       "s1": 0.000252412
+      },
+      "v1": {
+       "s1": 0.000252412,
+       "s3": 0.000252676,
+       "s5": 0.00025294,
+       "cal0": 0.00025228,
+       "cal1": 0.000252312
+      },
+      "v2nt": {
+       "q1": 0.000252412,
+       "q2": 0.000252548,
+       "q3": 0.000252684,
+       "cal0": 0.00025228,
+       "cal1": 0.000252312
+      },
+      "v2": {
+       "q1": 0.00025242,
+       "q2": 0.000252596,
+       "q3": 0.000252772,
+       "cal0": 0.00025228,
+       "cal1": 0.000252312
+      },
+      "sec": {
+       "q1": 0.00025242,
+       "q15": 0.000252612,
+       "q2": 0.000252788,
+       "cal0": 0.00025228,
+       "cal1": 0.000252312
+      }
+     },
+     "simulator_seeds_shared": {
+      "s1": 50001,
+      "s3": 50002,
+      "s5": 50003,
+      "q2": 50004,
+      "q3": 50005,
+      "cal0": 50006,
+      "cal1": 50007
+     },
+     "twirled_shots_per_instance": {
+      "v2": {
+       "q1": 395,
+       "q2": 395,
+       "q3": 395
+      },
+      "sec": {
+       "q1": 395,
+       "q15": 395,
+       "q2": 395
+      }
+     }
+    }
+   }
+  },
+  "GHZ-3": {
+   "group": "core",
+   "note": "X-parity <X^3>",
+   "bases": [
+    "X"
+   ],
+   "observables": [
+    {
+     "label": "XXX",
+     "basis": "X",
+     "exact": 0.9999999999999993,
+     "asymptote": 0.0,
+     "low": -1.0,
+     "high": 1.0
+    }
+   ],
+   "shots_per_repeat": {
+    "none": {
+     "X": {
+      "s1": 11880
+     }
+    },
+    "v1": {
+     "X": {
+      "s1": 3164,
+      "s3": 3164,
+      "s5": 3164,
+      "cal0": 1186,
+      "cal1": 1186
+     }
+    },
+    "v2nt": {
+     "X": {
+      "q1": 3167,
+      "q2": 3167,
+      "q3": 3167,
+      "cal0": 1187,
+      "cal1": 1187
+     }
+    },
+    "v2": {
+     "X": {
+      "q1": 3166,
+      "q2": 3166,
+      "q3": 3166,
+      "cal0": 1187,
+      "cal1": 1187
+     }
+    },
+    "sec": {
+     "X": {
+      "q1": 3166,
+      "q15": 3166,
+      "q2": 3166,
+      "cal0": 1187,
+      "cal1": 1187
+     }
+    }
+   },
+   "circuits": {
+    "X": {
+     "best_seed": 1,
+     "esp": 0.973371963546497,
+     "physical_qubits": [
+      110,
+      109,
+      108
+     ],
+     "two_qubit_gates": 2,
+     "actual_v2_scales": {
+      "q1": 1.0,
+      "q2": 2.0,
+      "q3": 3.0
+     },
+     "actual_secondary_scales": {
+      "q1": 1.0,
+      "q15": 2.0,
+      "q2": 3.0
+     },
+     "duration_s": {
+      "s1": 2.5120000000000003e-06,
+      "s3": 2.976e-06,
+      "s5": 3.4400000000000005e-06,
+      "q2": 2.6480000000000003e-06,
+      "q3": 2.7840000000000004e-06,
+      "cal0": 2.28e-06,
+      "cal1": 2.312e-06,
+      "q1": 2.5120000000000003e-06
+     },
+     "twirled_mean_duration_s": {
+      "v2": {
+       "q1": 2.5360000000000004e-06,
+       "q2": 2.7200000000000002e-06,
+       "q3": 2.8960000000000003e-06
+      },
+      "sec": {
+       "q1": 2.532e-06,
+       "q15": 2.724e-06,
+       "q2": 2.9120000000000002e-06
+      }
+     },
+     "per_shot_s": {
+      "none": {
+       "s1": 0.000252512
+      },
+      "v1": {
+       "s1": 0.000252512,
+       "s3": 0.000252976,
+       "s5": 0.00025344,
+       "cal0": 0.00025228,
+       "cal1": 0.000252312
+      },
+      "v2nt": {
+       "q1": 0.000252512,
+       "q2": 0.000252648,
+       "q3": 0.000252784,
+       "cal0": 0.00025228,
+       "cal1": 0.000252312
+      },
+      "v2": {
+       "q1": 0.000252536,
+       "q2": 0.00025272,
+       "q3": 0.000252896,
+       "cal0": 0.00025228,
+       "cal1": 0.000252312
+      },
+      "sec": {
+       "q1": 0.00025253200000000003,
+       "q15": 0.000252724,
+       "q2": 0.000252912,
+       "cal0": 0.00025228,
+       "cal1": 0.000252312
+      }
+     },
+     "simulator_seeds_shared": {
+      "s1": 50026,
+      "s3": 50027,
+      "s5": 50028,
+      "q2": 50029,
+      "q3": 50030,
+      "cal0": 50031,
+      "cal1": 50032
+     },
+     "twirled_shots_per_instance": {
+      "v2": {
+       "q1": 395,
+       "q2": 395,
+       "q3": 395
+      },
+      "sec": {
+       "q1": 395,
+       "q15": 395,
+       "q2": 395
+      }
+     }
+    }
+   }
+  },
+  "QFT-3": {
+   "group": "core",
+   "note": "input |5> = |101>, <X_j> and <Y_j> on every qubit",
+   "bases": [
+    "X",
+    "Y"
+   ],
+   "observables": [
+    {
+     "label": "X0",
+     "basis": "X",
+     "exact": -0.7071067811865472,
+     "asymptote": 0.0,
+     "low": -1.0,
+     "high": 1.0
+    },
+    {
+     "label": "X1",
+     "basis": "X",
+     "exact": 1.4988010832439613e-15,
+     "asymptote": 0.0,
+     "low": -1.0,
+     "high": 1.0
+    },
+    {
+     "label": "X2",
+     "basis": "X",
+     "exact": -0.9999999999999996,
+     "asymptote": 0.0,
+     "low": -1.0,
+     "high": 1.0
+    },
+    {
+     "label": "Y0",
+     "basis": "Y",
+     "exact": -0.707106781186547,
+     "asymptote": 0.0,
+     "low": -1.0,
+     "high": 1.0
+    },
+    {
+     "label": "Y1",
+     "basis": "Y",
+     "exact": 0.9999999999999993,
+     "asymptote": 0.0,
+     "low": -1.0,
+     "high": 1.0
+    },
+    {
+     "label": "Y2",
+     "basis": "Y",
+     "exact": 8.881784197001249e-16,
+     "asymptote": 0.0,
+     "low": -1.0,
+     "high": 1.0
+    }
+   ],
+   "shots_per_repeat": {
+    "none": {
+     "X": {
+      "s1": 5921
+     },
+     "Y": {
+      "s1": 5921
+     }
+    },
+    "v1": {
+     "X": {
+      "s1": 1570,
+      "s3": 1570,
+      "s5": 1570,
+      "cal0": 588,
+      "cal1": 588
+     },
+     "Y": {
+      "s1": 1570,
+      "s3": 1570,
+      "s5": 1570,
+      "cal0": 588,
+      "cal1": 588
+     }
+    },
+    "v2nt": {
+     "X": {
+      "q1": 1577,
+      "q2": 1577,
+      "q3": 1577,
+      "cal0": 591,
+      "cal1": 591
+     },
+     "Y": {
+      "q1": 1577,
+      "q2": 1577,
+      "q3": 1577,
+      "cal0": 591,
+      "cal1": 591
+     }
+    },
+    "v2": {
+     "X": {
+      "q1": 1575,
+      "q2": 1575,
+      "q3": 1575,
+      "cal0": 590,
+      "cal1": 590
+     },
+     "Y": {
+      "q1": 1575,
+      "q2": 1575,
+      "q3": 1575,
+      "cal0": 590,
+      "cal1": 590
+     }
+    },
+    "sec": {
+     "X": {
+      "q1": 1577,
+      "q15": 1577,
+      "q2": 1577,
+      "cal0": 591,
+      "cal1": 591
+     },
+     "Y": {
+      "q1": 1577,
+      "q15": 1577,
+      "q2": 1577,
+      "cal0": 591,
+      "cal1": 591
+     }
+    }
+   },
+   "circuits": {
+    "X": {
+     "best_seed": 1,
+     "esp": 0.9648728380433876,
+     "physical_qubits": [
+      152,
+      151,
+      138
+     ],
+     "two_qubit_gates": 9,
+     "actual_v2_scales": {
+      "q1": 1.0,
+      "q2": 2.111111111111111,
+      "q3": 3.0
+     },
+     "actual_secondary_scales": {
+      "q1": 1.0,
+      "q15": 1.4444444444444444,
+      "q2": 2.111111111111111
+     },
+     "duration_s": {
+      "s1": 3.3240000000000003e-06,
+      "s3": 5.412e-06,
+      "s5": 7.499999999999998e-06,
+      "q2": 4.076000000000001e-06,
+      "q3": 4.644000000000001e-06,
+      "cal0": 2.28e-06,
+      "cal1": 2.312e-06,
+      "q1": 3.3240000000000003e-06
+     },
+     "twirled_mean_duration_s": {
+      "v2": {
+       "q1": 3.3640000000000003e-06,
+       "q2": 4.3480000000000006e-06,
+       "q3": 5.128000000000001e-06
+      },
+      "sec": {
+       "q1": 3.3760000000000004e-06,
+       "q15": 3.768000000000001e-06,
+       "q2": 4.356e-06
+      }
+     },
+     "per_shot_s": {
+      "none": {
+       "s1": 0.00025332400000000003
+      },
+      "v1": {
+       "s1": 0.00025332400000000003,
+       "s3": 0.000255412,
+       "s5": 0.0002575,
+       "cal0": 0.00025228,
+       "cal1": 0.000252312
+      },
+      "v2nt": {
+       "q1": 0.00025332400000000003,
+       "q2": 0.000254076,
+       "q3": 0.000254644,
+       "cal0": 0.00025228,
+       "cal1": 0.000252312
+      },
+      "v2": {
+       "q1": 0.000253364,
+       "q2": 0.000254348,
+       "q3": 0.00025512800000000003,
+       "cal0": 0.00025228,
+       "cal1": 0.000252312
+      },
+      "sec": {
+       "q1": 0.000253376,
+       "q15": 0.00025376800000000003,
+       "q2": 0.000254356,
+       "cal0": 0.00025228,
+       "cal1": 0.000252312
+      }
+     },
+     "simulator_seeds_shared": {
+      "s1": 50051,
+      "s3": 50052,
+      "s5": 50053,
+      "q2": 50054,
+      "q3": 50055,
+      "cal0": 50056,
+      "cal1": 50057
+     },
+     "twirled_shots_per_instance": {
+      "v2": {
+       "q1": 196,
+       "q2": 196,
+       "q3": 196
+      },
+      "sec": {
+       "q1": 197,
+       "q15": 197,
+       "q2": 197
+      }
+     }
+    },
+    "Y": {
+     "best_seed": 1,
+     "esp": 0.9576907937313545,
+     "physical_qubits": [
+      36,
+      21,
+      20
+     ],
+     "two_qubit_gates": 9,
+     "actual_v2_scales": {
+      "q1": 1.0,
+      "q2": 2.111111111111111,
+      "q3": 3.0
+     },
+     "actual_secondary_scales": {
+      "q1": 1.0,
+      "q15": 1.4444444444444444,
+      "q2": 2.111111111111111
+     },
+     "duration_s": {
+      "s1": 3.3080000000000003e-06,
+      "s3": 5.364e-06,
+      "s5": 7.419999999999997e-06,
+      "q2": 3.988000000000001e-06,
+      "q3": 4.532e-06,
+      "cal0": 2.28e-06,
+      "cal1": 2.312e-06,
+      "q1": 3.3080000000000003e-06
+     },
+     "twirled_mean_duration_s": {
+      "v2": {
+       "q1": 3.3640000000000003e-06,
+       "q2": 4.276000000000001e-06,
+       "q3": 4.98e-06
+      },
+      "sec": {
+       "q1": 3.3600000000000004e-06,
+       "q15": 3.7360000000000007e-06,
+       "q2": 4.264000000000001e-06
+      }
+     },
+     "per_shot_s": {
+      "none": {
+       "s1": 0.000253308
+      },
+      "v1": {
+       "s1": 0.000253308,
+       "s3": 0.000255364,
+       "s5": 0.00025742,
+       "cal0": 0.00025228,
+       "cal1": 0.000252312
+      },
+      "v2nt": {
+       "q1": 0.000253308,
+       "q2": 0.000253988,
+       "q3": 0.000254532,
+       "cal0": 0.00025228,
+       "cal1": 0.000252312
+      },
+      "v2": {
+       "q1": 0.000253364,
+       "q2": 0.000254276,
+       "q3": 0.00025498000000000003,
+       "cal0": 0.00025228,
+       "cal1": 0.000252312
+      },
+      "sec": {
+       "q1": 0.00025336,
+       "q15": 0.000253736,
+       "q2": 0.00025426400000000003,
+       "cal0": 0.00025228,
+       "cal1": 0.000252312
+      }
+     },
+     "simulator_seeds_shared": {
+      "s1": 50076,
+      "s3": 50077,
+      "s5": 50078,
+      "q2": 50079,
+      "q3": 50080,
+      "cal0": 50081,
+      "cal1": 50082
+     },
+     "twirled_shots_per_instance": {
+      "v2": {
+       "q1": 196,
+       "q2": 196,
+       "q3": 196
+      },
+      "sec": {
+       "q1": 197,
+       "q15": 197,
+       "q2": 197
+      }
+     }
+    }
+   }
+  }
+ }
+}

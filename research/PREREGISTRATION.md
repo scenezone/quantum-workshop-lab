@@ -143,6 +143,162 @@ The file before this part had SHA-256 `caceaa4bc588c549599fd7a779196a9f0eb3dec83
 
 ---
 
+## Part F: recipe v2 and its held-out test (written 25 Nov 2026, before any v2 held-out circuit was simulated with noise or run on hardware)
+
+*Revised the same day at the reviewer's request (F4-F7), still before any v2 held-out run; see Part C.*
+
+The file before this part had SHA-256 `8b1b6812f12014ee89d96621f21850342c97cf46b6dcba9c8b236df04083ba0f` (Parts A-E and 5 Part C rows). Parts A-E, their targets and their results are unchanged, and recipe v1 (`recipe.py`) stays frozen. This part adds a second recipe and a new test of it, on circuits that no design step has used.
+
+### F1. Why v2, and what we saw before writing this part
+
+On `ibm_fez` (rounds 1 and 2, 24 Nov) recipe v1 lost to IBM resilience level 2 on deep circuits. On Grover-4-3it the values at scales 1/3/5 were 0.544 / 0.203 / 0.077 (exact 0.961). At scale 5 the signal was gone, and v1 returned 0.625.
+
+Design evidence. All of it is **seen data**, and none of it is evidence that v2 works:
+
+| Evidence (training circuits or saved hardware counts) | Recipe v1 | v1 data + clip | v2 at 1/1.5/2 | v2 at 1/2/3 |
+|---|---|---|---|---|
+| Simulator, 14 training circuits, median RMSE | 0.0112 / 0.0101 | 0.0096 / 0.0076 | 0.0170 | 0.0099 |
+| Simulator, mean RMSE on the 6 deep circuits (≥ 13 CZ) | 0.0169 / 0.0174 | 0.0161 / 0.0168 | 0.0341 | 0.0262 |
+| Simulator, Grover-4 (73 CZ) | 0.0120 / 0.0081 | 0.0120 / 0.0081 | 0.0405 | 0.0287 |
+| Hardware replay of the clip rule, mean error rounds 1 / 2 | 0.0775 / 0.0768 | 0.0407 / 0.0414 | (needs new data) | (needs new data) |
+
+Simulator rows come from two runs, FakeKingston, 3 estimated s per circuit per method, 10 repeats: `20261124-161451_mitigation-v2-train` (1/1.5/2) and `20261125-101929_mitigation-v2-train-scales1-2-3` (1/2/3). Each v1 cell gives one value per run. The replay row comes from `results/v2_design_replay.md`.
+
+- **In the simulator v2 is not better than v1.** At 1/2/3 its median is about the same, but it is worse on deep circuits (0.026 vs 0.017; Grover-4 0.029 vs 0.008). Its RMSE is above 1.25 × v1 on 4 of the 14 circuits.
+  - The fake-backend noise has no coherent part, so the simulator cannot show what twirling is for.
+  - Small scale spacing amplifies shot noise, which is why 1/1.5/2 was worse still.
+  - **The benefit of twirling can only be tested on hardware.**
+- **Coherent-noise check** (`python twirl.py`: a ZZ over-rotation after every CZ). The linear-extrapolation error went from 0.189 untwirled to 0.048 twirled.
+- **Held-out circuits.** Only their exact (noise-free) values and compiled gate counts were looked at (see F3).
+- **Code-path check.** It ran on 3 training circuits only (`20261125-120531_mitigation-v2-train-partial`).
+
+### F2. Recipe v2 (frozen)
+
+`recipe_v2.py` SHA-256 `c98dd89d6d4cb794cdefd9c63277734ca5d2d24417f60dcfe522c1b7a957bfd8`. Building blocks are in `twirl.py`, SHA-256 `3a80e48152259026c71c9b1a4c74417d9451782df6d849e6d1cd44779d015a4a`.
+
+v2 differs from v1 in exactly three ways:
+
+1. **Pauli twirling of every CZ.** There are 8 random instances per scale factor, and their counts are pooled.
+2. **Two-qubit-only folding at nominal scales 1 / 2 / 3.** The actual scales (1 + 2F/n) are used in the fit. The reviewer chose these scales on 25 Nov over the first proposal, 1 / 1.5 / 2, whose close spacing made extrapolation too noisy in the training runs.
+3. **Clipping.** The estimate is clipped to the observable's physical range, instead of falling back to linear.
+
+Everything else is v1: 20% of shots on readout calibration, readout correction before extrapolation, and the same exponential/linear branch rule with DELTA = 0.1.
+
+**Secondary methods (reported, no target):**
+- `v1_clip`: v1's data with v2's rule. It needs no extra job.
+- `v2_s15`: recipe v2 at 1 / 1.5 / 2. It has its own jobs and the same budget, and is submitted last.
+
+Their results cannot change the recipe in this round. Any change to v2 after this part needs new held-out circuits.
+
+### F3. Held-out circuits
+
+These are defined in `heldout_v2.py`, SHA-256 `47cebe4405b52f8ee46d84b121fa9ec39862fa97011a4b210a97c05e2207d3be`.
+
+| Circuit | What | Observable | Exact | CZ after compilation |
+|---|---|---|---|---|
+| Heisenberg-4 | XXZ chain, J = 1, Δ = 0.5, dt = 0.25, 5 Trotter steps from the Néel state | staggered magnetization (1/4) Σ (-1)^j ⟨Z_j⟩, range [-1, 1] | -0.646 | 44 |
+| QPE-4 | phase 11/16, 4 counting qubits | P(1011), range [0, 1] | 1.000 | 26 |
+
+The Heisenberg step count was set to 5 because 4 steps gave an exact value of 0.001. That is the fully mixed value, so it would carry no information. The choice used exact values only.
+
+### F4. Simulator test (`mitigation_v2.py --set test`)
+
+The test uses FakeKingston, 3.0 estimated quantum seconds per circuit per data group, 10 repeats and simulator seed base 70000. Each circuit is judged separately.
+
+- **S1 (gate), per circuit:** recipe v2 is clearly better than no mitigation.
+  - "Clearly better" means the gap in mean RMSE is larger than the combined spread √(σ₁² + σ₂²) of the per-repeat RMSEs.
+  - If S1 fails on either circuit, the hardware round is not run until the reviewer has seen the result.
+- **E1 (expectation, not a target), per circuit:** v2 is **not** expected to beat v1 in the simulator (F1). The v2/v1 RMSE ratio is reported.
+  - No simulator target compares v2 with v1. The earlier proposal (v2 ≤ 1.25 × v1) was never written into this file, and the training runs already broke it on 4 of 14 circuits.
+- Secondary methods are reported, with no target.
+
+### F5. Hardware round (`hardware_v2.py`)
+
+**When:** on **1 or 2 December 2026**. 3-4 December is only a buffer for a queue delay or a failed job. The open-plan trial ends around 4 December.
+
+**Device and jobs:**
+- **Device:** the least busy of `ibm_fez` and `ibm_marrakesh` at submission, recorded. Compilation is level 2, best of 20 seeds, for that device, and the same compiled circuit is used for every method.
+- **Jobs:** 8, sent one at a time, each finished before the next. The order is none → recipe v1 → recipe v2 → IBM level 2 → `v2_s15`. The secondary goes last, so a stop can only cut it.
+- **Twirl seed:** 20261125.
+
+**Budget:**
+- Each method gets 6.0 estimated quantum seconds per circuit, 12 s per method total. The secondary `v2_s15` gets the same budget as recipe v2, so they can be compared.
+- IBM level 2 uses precision 1/√(shots of none).
+- Expected charge is 94.5 s plus 2.5 s per Sampler job (the overhead measured in rounds 1-2) = **112 s ≈ 1.87 RU**:
+
+  | Method | none | v1 | v2 | IBM level 2 | `v2_s15` |
+  |---|---|---|---|---|---|
+  | Expected charge (RU) | 0.24 | 0.28 | 0.28 | 0.78 | 0.28 |
+
+  4.28 RU remained after round 2.
+
+**Run rules:**
+- The round runs only if S1 passed on both circuits and the remaining RUs are at least 1.5 × 1.87 = 2.80.
+- **Reserve: about 1 RU is kept** for resubmitting a failed job. `--max-rus 3.0` stops further submissions, which leaves at least 1.28 RU.
+- Charged seconds (`qpu_charge_time_seconds`) and RUs are recorded for every job.
+- **One round only.** A job that returned data is never rerun.
+- A job that **fails** (an error, or no data) is resubmitted once, unchanged, straight away (`hardware_v2.py` does this), from the reserve. A failure on the second attempt stops the round. The remaining jobs may then be submitted on 3-4 December, in the same order.
+  - If a target job (none, v1, v2, IBM level 2) still has no data, the round is incomplete. No target is evaluated, the failure is logged in Part C, and the reviewer decides what happens next.
+
+### F6. Hardware success criteria (written before the run; each circuit separately)
+
+**Measurement:**
+- Error = |estimate − exact|.
+- σ is the bootstrap std over 500 multinomial resamples of the counts. For the Estimator, it comes from normal draws using the reported std.
+- For methods a and b on one circuit, gap = error_b − error_a, and combined spread = √(σ_a² + σ_b²).
+
+**Verdict for each pair, on each circuit:**
+- **a clearly better than b:** gap > combined spread.
+- **a clearly worse than b:** −gap > combined spread.
+- **no clear difference:** otherwise.
+
+**Targets, each evaluated for Heisenberg-4 and QPE-4 separately (6 circuit results + 1 cost result):**
+
+| Target | Comparison | Pass if |
+|---|---|---|
+| **G1** | v2 vs recipe v1 | v2 is **clearly better** |
+| **G2** | v2 vs IBM level 2 | v2 is **not clearly worse** (clearly better, or no clear difference) |
+| **G3** | v2 vs no mitigation | v2 is **clearly better** |
+| **G2-cost** | round total | v2's RUs ≤ 0.5 × IBM level 2's RUs |
+
+**Secondary comparisons (reported, no target):** `v1_clip` vs v2 and `v2_s15` vs v2, on each circuit, with the same verdicts.
+- This is the only honest held-out test of v1 + clip, which was designed on seen hardware data.
+- **If v1 + clip turns out better than v2, that is what we report.**
+
+**How the results are read:**
+- Results are reported per circuit, for example "on QPE-4 v2 is clearly better than v1; on Heisenberg-4 there is no clear difference". Two circuits are never averaged into one verdict.
+- **Two circuits and one round can show a direction, not a proof.** Even if every target passes, the claim is "v2 improved on v1 on both held-out circuits in one hardware round", not "v2 is better than v1".
+- The frozen recipe v2 stays at 1 / 2 / 3 whatever the secondaries show. Any change to v2 needs new held-out circuits.
+- After this round, Heisenberg-4 and QPE-4 are seen data.
+
+### F7. Frozen record (fingerprinted before any v2 held-out run)
+
+The circuits, the exact values, the recipe and the scale decision are fixed by the files below. The criteria are fixed by this file, whose SHA-256 every run records in its manifest. `python fingerprint.py` checks that each file still has the hash listed here.
+
+| File | Fixes | SHA-256 |
+|---|---|---|
+| `recipe_v2.py` | recipe v2: scales 1/2/3, secondary 1/1.5/2, 8 twirls, DELTA, clip rule | `c98dd89d6d4cb794cdefd9c63277734ca5d2d24417f60dcfe522c1b7a957bfd8` |
+| `twirl.py` | two-qubit folding and Pauli twirling | `3a80e48152259026c71c9b1a4c74417d9451782df6d849e6d1cd44779d015a4a` |
+| `heldout_v2.py` | the two held-out circuits (Heisenberg-4, QPE-4) | `47cebe4405b52f8ee46d84b121fa9ec39862fa97011a4b210a97c05e2207d3be` |
+| `mitigation_v2.py` | simulator test, observables and exact values, S1/E1 | `0de8e15281a132a858f6b491411185b1945000369b9b7afae78087cf1485b183` |
+| `hardware_v2.py` | hardware plan, shots, job order, retry, G1-G3 evaluation | `a24f2acd3b55bd0a08528cbebbd2290a3d9b05ac28ce4332d1e49213d639c1d5` |
+| `recipe.py` | recipe v1 (frozen 23 Nov) | `0b08bb7e96d9046e3be34ada9917c09859d2dba9895d1894d647ad26f1a67428` |
+| `mitigation.py` | readout correction, extrapolation, compilation settings | `4b8036fee7d8228aae51fa9a8aa9877e294254447281eb6b14341dafbd82c4a3` |
+| `folding.py` | v1 all-gate folding | `2309126cb3bc1c6128af01a9fb3b471e52a1673b9a2f25d6765ff46378d8450a` |
+| `baseline.py` | compilation (best of 20 seeds) | `3c216afa124ae8b3e4d340c3dc74958c1eda1e14df702fec8d29b6841940d094` |
+| `hardware.py` | job submission and usage records | `0fcc586b83a42b7ce1b5fdecbe2df597d994883c1b7c8537a84a431e74f06b9d` |
+
+**Exact values** (noise-free, Statevector):
+
+| Circuit | Exact | Fully mixed value |
+|---|---|---|
+| Heisenberg-4 | −0.6462202415 | 0.0 |
+| QPE-4 | 1.0000000000 | 0.0625 |
+
+`hardware_v2.py` checks that the IBM Estimator's Pauli form of each observable gives the same exact value.
+
+---
+
 ## Part C: deviations log
 
 | Date | What | Why | Effect on targets |
@@ -152,3 +308,5 @@ The file before this part had SHA-256 `caceaa4bc588c549599fd7a779196a9f0eb3dec83
 | 24 Nov 2026, 10:45, after the smoke job, before round 1 | **Log (not a change):** (1) Smoke job `20261124-104212_hardware-smoke` on `ibm_fez`: Sampler, Bell, 1,000 shots = 0.0327 RU; Estimator level 1, 1,000 shots = 0.0382 RU, against an estimate of about 0.25 s each. So each job carries about 1.7-2 s of fixed overhead. `usage()` seconds are rounded (0 for the Sampler job), so RUs are the reliable unit, and `--max-usage` now counts RUs × 60. (2) Round 1 check: 135 s + 5 jobs × ~2 s ≈ 145 s ≈ 2.4 RU; × 1.5 = 3.6 RU ≤ 60% of 9.83 RU remaining. **Round 1 is allowed.** (3) `ibm_kingston` was listed as operational at 10:41. Part E's device rule (least busy of `ibm_fez`/`ibm_marrakesh`) is followed anyway, so the device is not chosen after seeing anything. | Part E's rules applied as written. | None. |
 | 24 Nov 2026, after round 1, before round 2 | **Log:** Round 1 (`20261124-104424_hardware-round1`, `ibm_fez`) used 2.78 RU (none 0.439, recipe 0.469, IBM level 1 0.496, IBM level 2 1.373); 7.05 RU remain. Round 2 check: 7.05 ≥ 1.5 × 2.78 = 4.17, so **round 2 is allowed**. Round 2 runs on **`ibm_fez`, the same device as round 1**, because its purpose is a drift check on the same device. Part E's "shorter queue" rule is read as applying to the first hardware round. | Part E applied; it did not say which device round 2 uses. | None. Round 1's H1-H3 results are final as recorded. |
 | 24 Nov 2026, after round 2 | **Log (measurement correction):** (1) `job.usage()` under-reports seconds. It returned 0 s for the smoke Sampler job and for the recipe's readout-calibration job in both rounds; IBM's job metrics (`qpu_charge_time_seconds`) show 2 s and 7 s charged, and their RUs were non-zero. Charged seconds per round are: none 27, **recipe 29 (not 22 as first reported)**, IBM level 1 30, IBM level 2 83. Every job is listed in `results/hardware_usage.md`, generated from the saved results without changing the run folders. `hardware.py` now reads the charged seconds first. (2) The "10:45" in the smoke log row above is approximate. The round 1 manifest (created 10:44:24) already records the hash of the file containing that row, so the row was written before round 1 was submitted. | `usage()` is a rounded summary; the metrics record is what IBM bills. | None. H1 is decided in RUs (19:58 entry), which were complete. In seconds the recipe is still about a third of level 2 (29 vs 83). |
+| 25 Nov 2026, before any v2 held-out run | **Log: recipe v2's scale factors (1 / 2 / 3) were selected on training data only, before any held-out result was seen.** The evidence was the simulator design runs on the 14 training circuits (`20261124-161451_mitigation-v2-train` at 1/1.5/2 and `20261125-101929_mitigation-v2-train-scales1-2-3` at 1/2/3) and the saved hardware counts of rounds 1-2 (clip replay). The reviewer chose 1/2/3 on 25 Nov. At that time, no noisy simulation or hardware run of Heisenberg-4 or QPE-4 existed; only their exact values and compiled gate counts had been computed. 1/1.5/2 is kept only as a secondary with no target. | Reviewer request: record how the scales were chosen. | None. It makes the selection record explicit. |
+| 25 Nov 2026, before any v2 held-out run | **Part F revised (F4-F7).** The first version of Part F had file SHA-256 `f48ec3f53ecb8c9a…`. No run recorded it and nothing was run with it. Changes: (1) every target is evaluated per circuit with the three-way verdict (clearly better / no clear difference / clearly worse; clearly = gap > combined spread). (2) v2 vs v1 (G1) and v2 vs IBM level 2 (G2) are separate targets. G2's earlier "+ 0.05" margin is replaced by "not clearly worse". G1's earlier "lower on both, clearly on one" is replaced by "clearly better" on each circuit. (3) The note that 2 circuits show a direction, not a proof. (4) v1 + clip is reported as a secondary, and it is reported if it beats v2. (5) `v2_s15` runs as a secondary at the same budget: expected 0.28 RU (the reviewer estimated ~0.1 RU). (6) The run is on 1-2 Dec, 3-4 Dec is a buffer, a failed job is resubmitted once, and ~1 RU is kept in reserve. (7) F7, the frozen record. | Reviewer's requests of 25 Nov, made before any v2 held-out result existed. | Targets are fixed in their final form before the simulator test and the hardware round. |

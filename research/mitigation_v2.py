@@ -6,11 +6,16 @@ Methods (our own implementations, not Qiskit Runtime resilience levels):
   F           readout + ZNE at 1/3/5 (all gates folded), linear                    (v1-era reference)
   recipe_v1   recipe.py, frozen 23 Nov, on the same data group as F
   v1_clip     v1 data, v2 rule (exp/linear branch, then clip): isolates the clipping change
-  v2_notwirl  two-qubit folding at 1/1.5/2, no twirling, v2 rule: isolates the scale-factor change
-  recipe_v2   recipe_v2.py: twirled two-qubit folding at 1/1.5/2, readout-corrected, v2 rule
+  v2_notwirl  two-qubit folding at recipe v2's scales (1/2/3), no twirling, v2 rule: isolates twirling
+  recipe_v2   recipe_v2.py: twirled two-qubit folding at 1/2/3, readout-corrected, v2 rule
+  v2_s15      secondary, no target: recipe v2 at SECONDARY_SCALES 1/1.5/2 (the first proposal)
 
 Data groups (each gets the same estimated quantum seconds per circuit): none, v1 (F, recipe_v1, v1_clip),
-v2nt (v2_notwirl), v2 (recipe_v2). Calibration is 20% of the shots of every readout group.
+v2nt (v2_notwirl), v2 (recipe_v2), sec (v2_s15). Calibration is 20% of the shots of every readout group.
+Keys name the nominal scale: s1/s3/s5 (all-gate folding), q1/q2/q3 and q1/q15/q2 (two-qubit folding).
+
+Runs made before the freeze (25 Nov 2026) stored the three v2 scales as q1/q15/q2 whatever their values; they
+are re-analysed with the version of this file from before the freeze (their reports are already saved).
 
 Twirled circuits are drawn independently for every repeat (TWIRLS instances per scale per repeat) and each is
 simulated with its own seed; circuits shared by all repeats (the compiled circuit, folds, calibration) are
@@ -20,7 +25,7 @@ Sets:
   train    the 14 training circuits (design only; seen data)
   test     the 2 v2 held-out circuits (heldout_v2.py); refused until recipe_v2.FROZEN
 
-    .venv/Scripts/python mitigation_v2.py --set train [--noise-scale 2]
+    .venv/Scripts/python mitigation_v2.py --set train [--noise-scale 2] [--only Bell,Grover-4]
     .venv/Scripts/python mitigation_v2.py --set test
     .venv/Scripts/python mitigation_v2.py --analyze results/runs/<id>_mitigation-v2-<set>
 """
@@ -72,18 +77,31 @@ DEFAULT_BUDGET_QS = 3.0
 DEEP_MIN_2Q = 13
 V1_SCALES = (1, 3, 5)
 V1_KEYS = ("s1", "s3", "s5")
-V2_KEYS = ("q1", "q15", "q2")  # nominal 1, 1.5, 2 (two-qubit folding)
+
+
+def scale_keys(scales) -> tuple[str, ...]:
+    """Key per nominal two-qubit-folding scale: 1 -> q1, 1.5 -> q15, 2 -> q2, 3 -> q3."""
+    return tuple("q" + f"{s:g}".replace(".", "") for s in scales)
+
+
+V2_KEYS = scale_keys(recipe_v2.SCALES)  # q1, q2, q3
+SEC_KEYS = scale_keys(recipe_v2.SECONDARY_SCALES)  # q1, q15, q2
+TWIRLED = {"v2": (recipe_v2.SCALES, V2_KEYS), "sec": (recipe_v2.SECONDARY_SCALES, SEC_KEYS)}
 CAL = recipe_v2.CAL_FRACTION
-GROUPS = ("none", "v1", "v2nt", "v2")
-METHODS = ("none", "F", "recipe_v1", "v1_clip", "v2_notwirl", "recipe_v2")
+GROUPS = ("none", "v1", "v2nt", "v2", "sec")
+METHODS = ("none", "F", "recipe_v1", "v1_clip", "v2_notwirl", "recipe_v2", "v2_s15")
+SECONDARY = ("v1_clip", "v2_s15")  # reported, no target (Part F)
 LABEL = {"none": "None", "F": "F: readout+ZNE 1/3/5 linear", "recipe_v1": "Recipe v1", "v1_clip": "v1 data + clip",
-         "v2_notwirl": "1/1.5/2 + clip, no twirl", "recipe_v2": "Recipe v2"}
-FRACTIONS = {
-    "none": {"s1": 1.0},
-    "v1": {**{k: (1 - CAL) / 3 for k in V1_KEYS}, "cal0": CAL / 2, "cal1": CAL / 2},
-    "v2nt": {**{k: (1 - CAL) / 3 for k in V2_KEYS}, "cal0": CAL / 2, "cal1": CAL / 2},
-    "v2": {**{k: (1 - CAL) / 3 for k in V2_KEYS}, "cal0": CAL / 2, "cal1": CAL / 2},
-}
+         "v2_notwirl": "v2 without twirling", "recipe_v2": "Recipe v2 (1/2/3)",
+         "v2_s15": "v2 at 1/1.5/2 (secondary)"}
+
+
+def _readout_group(keys) -> dict[str, float]:
+    return {**{k: (1 - CAL) / 3 for k in keys}, "cal0": CAL / 2, "cal1": CAL / 2}
+
+
+FRACTIONS = {"none": {"s1": 1.0}, "v1": _readout_group(V1_KEYS), "v2nt": _readout_group(V2_KEYS),
+             "v2": _readout_group(V2_KEYS), "sec": _readout_group(SEC_KEYS)}
 
 
 METHOD_TEXT = [
@@ -92,9 +110,11 @@ METHOD_TEXT = [
     "to mitigation.py.",
     "Budget: every data group gets the same estimated quantum seconds per circuit (sum of shots x (duration + rep "
     "delay)), including 20% calibration shots for readout groups.",
-    "v1 group: all-gate native folding at 1/3/5 (folding.py). v2 groups: two-qubit-only folding at nominal 1/1.5/2 "
-    "(twirl.fold_2q_series; actual scales used in fits). recipe_v2: every CZ Pauli-twirled, "
-    f"{recipe_v2.TWIRLS} independent instances per scale per repeat, counts pooled over instances.",
+    "v1 group: all-gate native folding at 1/3/5 (folding.py). v2 groups: two-qubit-only folding at nominal "
+    f"{'/'.join(f'{s:g}' for s in recipe_v2.SCALES)} (secondary: "
+    f"{'/'.join(f'{s:g}' for s in recipe_v2.SECONDARY_SCALES)}) with twirl.fold_2q_series; actual scales used in "
+    f"fits. recipe_v2 and the secondary: every CZ Pauli-twirled, {recipe_v2.TWIRLS} independent instances per scale "
+    "per repeat, counts pooled over instances. v2 without twirling: the same folds as recipe_v2, untwirled.",
     "Readout correction (tensored, per-qubit) of every scale before extrapolation; extrapolation with mitiq 1.1.0 "
     "(linear; exponential with known asymptote).",
     "Metric: RMSE vs exact noise-free value per repeat; mean +- std over repeats.",
@@ -178,7 +198,8 @@ def simulate(args) -> Path:
         config={"set": args.set, "noise_scale": args.noise_scale, "backend": args.backend, "only": args.only,
                 "budget_estimated_quantum_seconds_per_method": args.budget_qs, "repeats": args.repeats,
                 "optimization_level": OPT_LEVEL, "transpiler_seeds": TRANSPILE_SEEDS, "seed_selection": "gates",
-                "v1_scale_factors": V1_SCALES, "v2_nominal_scales": recipe_v2.SCALES, "twirls": recipe_v2.TWIRLS,
+                "v1_scale_factors": V1_SCALES, "v2_nominal_scales": recipe_v2.SCALES,
+                "secondary_nominal_scales": recipe_v2.SECONDARY_SCALES, "twirls": recipe_v2.TWIRLS,
                 "calibration_fraction": CAL, "simulator_seed_base": seed_base, "rep_delay_s": rep_delay,
                 "recipe_v1": recipe.VERSION, "recipe_v2": recipe_v2.VERSION, "recipe_v2_frozen": recipe_v2.FROZEN,
                 "deep_min_two_qubit_gates": DEEP_MIN_2Q},
@@ -199,23 +220,30 @@ def simulate(args) -> Path:
             shared = {k: fold(base, s) for k, s in zip(V1_KEYS, V1_SCALES)}
             assert [two_qubit_count(shared[k]) for k in V1_KEYS] == [s * n2q for s in V1_SCALES], task.name
             actual, folded2q = {}, {}
-            for k, (circuit, a) in zip(V2_KEYS, fold_2q_series(base, recipe_v2.SCALES)):
-                folded2q[k], actual[k] = circuit, a
-                assert two_qubit_count(circuit) == round(a * n2q), (task.name, k)
-            shared["q15"], shared["q2"] = folded2q["q15"], folded2q["q2"]
+            for g, (scales, keys) in TWIRLED.items():
+                actual[g], folded2q[g] = {}, {}
+                for k, (circuit, a) in zip(keys, fold_2q_series(base, scales)):
+                    folded2q[g][k], actual[g][k] = circuit, a
+                    assert two_qubit_count(circuit) == round(a * n2q), (task.name, g, k)
+            for k in V2_KEYS[1:]:
+                shared[k] = folded2q["v2"][k]  # untwirled folds for v2_notwirl (q1 is the compiled circuit s1)
             shared.update(calibration_circuits(backend.num_qubits, physical))
-            rng = np.random.default_rng([seed_base, t_index, b_index])
-            twirled = [{k: [twirl(folded2q[k], rng) for _ in range(recipe_v2.TWIRLS)] for k in V2_KEYS}
-                       for _ in range(args.repeats)]
+            twirled = {}
+            for g_index, (g, (_, keys)) in enumerate(TWIRLED.items()):
+                rng = np.random.default_rng([seed_base, t_index, b_index] + ([g_index] if g_index else []))
+                twirled[g] = [{k: [twirl(folded2q[g][k], rng) for _ in range(recipe_v2.TWIRLS)] for k in keys}
+                              for _ in range(args.repeats)]
             duration = {k: c.estimate_duration(backend.target, unit="s") for k, c in shared.items()}
             duration["q1"] = duration["s1"]
-            tw_duration = {k: statistics.mean(c.estimate_duration(backend.target, unit="s") for c in twirled[0][k])
-                           for k in V2_KEYS}
-            per_shot = {g: {k: (tw_duration[k] if (g == "v2" and k in V2_KEYS) else duration[k]) + rep_delay
-                            for k in FRACTIONS[g]} for g in GROUPS}
+            tw_duration = {g: {k: statistics.mean(c.estimate_duration(backend.target, unit="s")
+                                                  for c in twirled[g][0][k]) for k in keys}
+                           for g, (_, keys) in TWIRLED.items()}
+            per_shot = {g: {k: (tw_duration[g][k] if (g in TWIRLED and k in tw_duration[g]) else duration[k])
+                            + rep_delay for k in FRACTIONS[g]} for g in GROUPS}
             shared_by_basis[basis], twirled_by_basis[basis] = shared, twirled
             info[basis] = {"best_seed": best.seed, "esp": best.esp, "physical_qubits": physical,
-                           "two_qubit_gates": n2q, "actual_v2_scales": actual, "duration_s": duration,
+                           "two_qubit_gates": n2q, "actual_v2_scales": actual["v2"],
+                           "actual_secondary_scales": actual["sec"], "duration_s": duration,
                            "twirled_mean_duration_s": tw_duration, "per_shot_s": per_shot}
         plan = {g: plan_shots({b: info[b]["per_shot_s"][g] for b in info}, FRACTIONS[g], args.budget_qs)
                 for g in GROUPS}
@@ -227,8 +255,8 @@ def simulate(args) -> Path:
                 per_repeat = {}
                 for g in GROUPS:
                     plan_key = "q1" if (g == "v2nt" and key == "s1") else key
-                    if g == "v2" and key not in ("cal0", "cal1"):
-                        continue  # v2 uses its own twirled circuits
+                    if g in TWIRLED and key not in ("cal0", "cal1"):
+                        continue  # twirled groups use their own twirled circuits
                     if plan_key in plan[g][basis]:
                         per_repeat[g] = plan[g][basis][plan_key]
                 if not per_repeat:
@@ -236,22 +264,24 @@ def simulate(args) -> Path:
                 seed += 1
                 seeds_used[key] = seed
                 raw[task.name][basis][key] = _pooled_run(simulator, circuit, per_repeat, args.repeats, seed)
-            per_instance = {k: max(1, plan["v2"][basis][k] // recipe_v2.TWIRLS) for k in V2_KEYS}
-            twirled_counts = []
-            for r in range(args.repeats):
-                rep = {}
-                for k in V2_KEYS:
-                    seed += 1
-                    circuits = twirled_by_basis[basis][r][k]
-                    result = simulator.run(circuits, shots=per_instance[k], seed_simulator=seed).result()
-                    pooled = Counter()
-                    for i in range(len(circuits)):
-                        pooled.update(result.get_counts(i))
-                    rep[k] = dict(pooled)
-                twirled_counts.append(rep)
-            raw[task.name][basis]["twirled"] = twirled_counts
+            per_instance = {}
+            for g, (_, keys) in TWIRLED.items():
+                per_instance[g] = {k: max(1, plan[g][basis][k] // recipe_v2.TWIRLS) for k in keys}
+                twirled_counts = []
+                for r in range(args.repeats):
+                    rep = {}
+                    for k in keys:
+                        seed += 1
+                        circuits = twirled_by_basis[basis][g][r][k]
+                        result = simulator.run(circuits, shots=per_instance[g][k], seed_simulator=seed).result()
+                        pooled = Counter()
+                        for i in range(len(circuits)):
+                            pooled.update(result.get_counts(i))
+                        rep[k] = dict(pooled)
+                    twirled_counts.append(rep)
+                raw[task.name][basis]["twirled" if g == "v2" else f"twirled_{g}"] = twirled_counts
             info[basis]["simulator_seeds_shared"] = seeds_used
-            info[basis]["v2_shots_per_instance"] = per_instance
+            info[basis]["twirled_shots_per_instance"] = per_instance
         task_info[task.name] = {
             "group": task.group, "note": task.note, "bases": list(task.circuits),
             "observables": [{"label": o.label, "basis": o.basis, "exact": o.exact, "asymptote": o.asymptote,
@@ -276,7 +306,7 @@ def corrected(counts: dict, cal0: dict, cal1: dict) -> dict[str, float]:
 def estimates_for_repeat(task: Task, raw_task: dict, info: dict, r: int, features: dict) -> tuple[dict, dict]:
     """Every method's estimate of every observable in repeat r, plus the v2 branches used."""
     est = {m: [] for m in METHODS}
-    branches = {"recipe_v2": [], "v2_notwirl": [], "v1_clip": [], "recipe_v1": []}
+    branches = {"recipe_v1": [], "v1_clip": [], "v2_notwirl": [], "recipe_v2": [], "v2_s15": []}
     for o in task.observables:
         b = o.basis
         d = raw_task[b]
@@ -298,11 +328,14 @@ def estimates_for_repeat(task: Task, raw_task: dict, info: dict, r: int, feature
         v, br = recipe_v2.estimate(o, actual, nt_vals)
         est["v2_notwirl"].append(v)
         branches["v2_notwirl"].append(br)
-        tw = d["twirled"][r]
-        v2_vals = [o.value(corrected(tw[k], ch("cal0", "v2"), ch("cal1", "v2"))) for k in V2_KEYS]
-        v, br = recipe_v2.estimate(o, actual, v2_vals)
-        est["recipe_v2"].append(v)
-        branches["recipe_v2"].append(br)
+        for m, g, keys, tw, scales in (
+                ("recipe_v2", "v2", V2_KEYS, d["twirled"][r], actual),
+                ("v2_s15", "sec", SEC_KEYS, d["twirled_sec"][r],
+                 [info[b]["actual_secondary_scales"][k] for k in SEC_KEYS])):
+            vals = [o.value(corrected(tw[k], ch("cal0", g), ch("cal1", g))) for k in keys]
+            v, br = recipe_v2.estimate(o, scales, vals)
+            est[m].append(v)
+            branches[m].append(br)
     return est, branches
 
 
@@ -314,7 +347,7 @@ def analyze(run_dir: Path, out_dir: Path) -> None:
     repeats = config["repeats"]
     by_name = {t.name: t for t in tasks(which)}
     rows, detail = [], []
-    branch_stats = {m: Counter() for m in ("recipe_v1", "v1_clip", "v2_notwirl", "recipe_v2")}
+    branch_stats = {m: Counter() for m in ("recipe_v1", "v1_clip", "v2_notwirl", "recipe_v2", "v2_s15")}
     for name, info in manifest["tasks"].items():
         task = by_name[name]
         for obs, saved in zip(task.observables, info["observables"]):
@@ -356,6 +389,8 @@ def analyze(run_dir: Path, out_dir: Path) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
     scale = config.get("noise_scale", 1)
     stem = f"mitigation_v2_{config['backend']}_{which}" + ("" if scale == 1 else f"_noise{scale:g}")
+    if config.get("only"):
+        stem += "_partial"
     shutil.copy(report, out_dir / f"{stem}.md")
     shutil.copy(run_dir / "mitigation_v2.csv", out_dir / f"{stem}.csv")
     for r in rows:
@@ -363,7 +398,7 @@ def analyze(run_dir: Path, out_dir: Path) -> None:
             f"{m}={r[f'{m}_rmse_mean']:.4f}" for m in METHODS) + f"  best={r['best']}")
     if targets:
         for t in targets:
-            print(f"{t['id']}: {'PASS' if t['passed'] else 'FAIL'}  {t['detail']}")
+            print(f"{t['id']}: {verdict(t)}  {t['detail']}")
     print(f"\nReport: {report}")
 
 
@@ -372,18 +407,27 @@ def _clearly(row: dict, better: str, worse: str) -> bool:
     return gap > math.hypot(row[f"{better}_rmse_std"], row[f"{worse}_rmse_std"])
 
 
+def verdict(target: dict) -> str:
+    return "reported (no target)" if target["passed"] is None else ("PASS" if target["passed"] else "FAIL")
+
+
 def evaluate_sim_targets(rows: list[dict]) -> list[dict]:
-    """PREREGISTRATION.md Part F, simulator targets S1-S2, on the v2 held-out circuits."""
-    s1 = [r for r in rows if r["recipe_v2_rmse_mean"] > 1.25 * r["recipe_v1_rmse_mean"]]
-    s2 = [r for r in rows if not _clearly(r, "recipe_v2", "none")]
-    return [
-        {"id": "S1 no harm vs v1 (simulator)", "passed": not s1,
-         "detail": "; ".join(f"{r['circuit']}: v2 {r['recipe_v2_rmse_mean']:.4f} vs 1.25 x v1 "
-                             f"{1.25 * r['recipe_v1_rmse_mean']:.4f}" for r in rows)},
-        {"id": "S2 beats no mitigation (simulator)", "passed": not s2,
-         "detail": "; ".join(f"{r['circuit']}: v2 {r['recipe_v2_rmse_mean']:.4f} ± {r['recipe_v2_rmse_std']:.4f} vs none "
-                             f"{r['none_rmse_mean']:.4f} ± {r['none_rmse_std']:.4f}" for r in rows)},
-    ]
+    """PREREGISTRATION.md Part F4, on the v2 held-out circuits, each circuit separately.
+
+    S1 (gate for the hardware round): v2 clearly better than no mitigation. E1: stated expectation, no target."""
+    out = []
+    for r in rows:
+        gap = r["none_rmse_mean"] - r["recipe_v2_rmse_mean"]
+        spread = math.hypot(r["recipe_v2_rmse_std"], r["none_rmse_std"])
+        out.append({"id": f"S1 {r['circuit']}: v2 clearly better than no mitigation (simulator)",
+                    "passed": _clearly(r, "recipe_v2", "none"),
+                    "detail": f"v2 {r['recipe_v2_rmse_mean']:.4f} vs none {r['none_rmse_mean']:.4f} "
+                              f"(gap {gap:+.4f}, combined spread {spread:.4f})"})
+    for r in rows:
+        out.append({"id": f"E1 {r['circuit']}: expectation, v2 not better than v1 in the simulator", "passed": None,
+                    "detail": f"v2 {r['recipe_v2_rmse_mean']:.4f} vs v1 {r['recipe_v1_rmse_mean']:.4f} "
+                              f"(ratio {r['recipe_v2_rmse_mean'] / r['recipe_v1_rmse_mean']:.2f})"})
+    return out
 
 
 def write_markdown(rows, detail, manifest, branch_stats, targets, path: Path) -> None:
@@ -405,11 +449,13 @@ def write_markdown(rows, detail, manifest, branch_stats, targets, path: Path) ->
         "coherent errors, so twirling is expected to change little here (see `python twirl.py` for a coherent-noise "
         "check). The simulator also did not reproduce the hardware failure of v1 on deep circuits.",
         "",
+        f"Secondary methods ({', '.join(LABEL[m] for m in SECONDARY)}) are reported only; no target uses them.",
+        "",
     ]
     if targets:
         lines += ["## Pre-registered simulator targets (PREREGISTRATION.md Part F)", "",
                   "| Target | Result | Detail |", "|---|---|---|",
-                  *(f"| {t['id']} | **{'PASS' if t['passed'] else 'FAIL'}** | {t['detail']} |" for t in targets), ""]
+                  *(f"| {t['id']} | **{verdict(t)}** | {t['detail']} |" for t in targets), ""]
     lines += ["## Method", "", *(f"- {m}" for m in manifest["method"]), "",
               "## RMSE vs exact (mean ± std over repeats; bold = best)", "",
               "| Circuit | 2q | " + " | ".join(LABEL[m] for m in METHODS) + " |",

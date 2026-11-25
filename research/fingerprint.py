@@ -16,6 +16,7 @@ Anyone can re-run this script and compare the hashes. Changing a single byte of 
 from __future__ import annotations
 
 import hashlib
+import re
 import subprocess
 import sys
 from datetime import datetime
@@ -26,7 +27,8 @@ import runlog
 HERE = Path(__file__).parent
 RUNS = HERE / "results" / "runs"
 KEY_FILES = ("PREREGISTRATION.md", "recipe.py", "heldout.py", "mitigation.py", "folding.py", "hardware.py",
-             "hardware_usage.py", "noise_scaling.py", "baseline.py", "runlog.py")
+             "hardware_usage.py", "noise_scaling.py", "baseline.py", "runlog.py", "recipe_v2.py", "twirl.py",
+             "heldout_v2.py", "mitigation_v2.py", "hardware_v2.py", "v2_design_replay.py")
 
 # Hashes recorded at run time (PREREGISTRATION.md Parts B and D quote them too).
 RECORDED = {
@@ -38,16 +40,21 @@ RECORDED = {
     "A-E + 2 Part C rows (recorded by the smoke job, 24 Nov 10:42)": "1e6445875334a37c4611fde43823840d633a998d43b3e1367d63e5ef1d0a9685",
     "A-E + 3 Part C rows (recorded by hardware round 1, 10:44)": "97b5eb8abf74fb82a77026cf17e7cd5beb454b5d183af3e38cc27767e95ba3ab",
     "A-E + 4 Part C rows (recorded by hardware round 2, 10:58)": "2a0fb6425bff06ae731eb8e41f85ac2032ffd102dffa1809993db51f7ba74b8f",
+    "A-E + 5 Part C rows (recorded by the v2 design runs, 24-25 Nov)": "8b1b6812f12014ee89d96621f21850342c97cf46b6dcba9c8b236df04083ba0f",
 }
-# Versions of the file recorded by a run: label -> (run folder, number of Part C log rows the file had then).
-# The script also checks that each hash above equals the one in that run's manifest.json.
+# Versions of the file recorded by runs: label -> (run folders, number of Part C log rows the file had then).
+# The script also checks that each hash above equals the one in those runs' manifest.json.
 PART_C_VERSIONS = {
-    "Parts A-E (16:48, hardware plan; sent to reviewer)": (None, 1),
-    "A-E + 2 Part C rows (recorded by the smoke job, 24 Nov 10:42)": ("20261124-104212_hardware-smoke", 2),
-    "A-E + 3 Part C rows (recorded by hardware round 1, 10:44)": ("20261124-104424_hardware-round1", 3),
-    "A-E + 4 Part C rows (recorded by hardware round 2, 10:58)": ("20261124-105849_hardware-round2", 4),
+    "Parts A-E (16:48, hardware plan; sent to reviewer)": ((), 1),
+    "A-E + 2 Part C rows (recorded by the smoke job, 24 Nov 10:42)": (("20261124-104212_hardware-smoke",), 2),
+    "A-E + 3 Part C rows (recorded by hardware round 1, 10:44)": (("20261124-104424_hardware-round1",), 3),
+    "A-E + 4 Part C rows (recorded by hardware round 2, 10:58)": (("20261124-105849_hardware-round2",), 4),
+    "A-E + 5 Part C rows (recorded by the v2 design runs, 24-25 Nov)": (
+        ("20261124-161451_mitigation-v2-train", "20261125-101929_mitigation-v2-train-scales1-2-3",
+         "20261125-120531_mitigation-v2-train-partial"), 5),
 }
 RECIPE_FROZEN = "0b08bb7e96d9046e3be34ada9917c09859d2dba9895d1894d647ad26f1a67428"
+RECIPE_V2_FROZEN = "c98dd89d6d4cb794cdefd9c63277734ca5d2d24417f60dcfe522c1b7a957bfd8"  # quoted in Part F (25 Nov 2026)
 PART_B_PLACEHOLDER = "## Part B: the recipe\n\n*To be written after the training rerun and before the held-out run.*\n\n---\n\n"
 PART_C_EMPTY = "## Part C: deviations log\n\n*(none yet)*\n"
 
@@ -59,6 +66,13 @@ def sha256(data: bytes) -> str:
 def git(*args: str) -> str:
     out = subprocess.run(["git", *args], cwd=HERE, capture_output=True, timeout=20)
     return out.stdout.decode("utf-8", errors="replace").strip()
+
+
+def without_part_f(text: str) -> str:
+    """The file before Part F was inserted (Part F sits between Part E and Part C)."""
+    if "## Part F:" not in text:
+        return text
+    return text[: text.index("## Part F:")] + text[text.index("## Part C:"):]
 
 
 def rebuild_earlier_versions(text: str) -> dict[str, str]:
@@ -90,13 +104,15 @@ def main() -> None:
         "Earlier versions of `PREREGISTRATION.md` are rebuilt from today's file and hashed. If a rebuilt hash equals "
         "the hash recorded at run time, that part's text has not changed since. Part C (deviations log) only grows "
         "by rows appended at the end, so each hardware run's version is today's file cut after the log rows it had; "
-        "each of those hashes is also checked against the run's `manifest.json`. The last row is today's file, "
-        "which has no earlier record to match.",
+        "each of those hashes is also checked against the run's `manifest.json`. Part F (recipe v2, 25 Nov) was "
+        "inserted before Part C, so versions from before it are rebuilt with Part F removed. The last row is "
+        "today's file, which has no earlier record to match.",
         "",
         "| Version | Recorded at run time | Rebuilt / checked now | Match |",
         "|---|---|---|---|",
     ]
-    text = (HERE / "PREREGISTRATION.md").read_bytes().decode("utf-8")
+    full_text = (HERE / "PREREGISTRATION.md").read_bytes().decode("utf-8")
+    text = without_part_f(full_text)  # every recorded version below predates Part F
     rebuilt = {k: sha256(v.encode("utf-8")) for k, v in rebuild_earlier_versions(text).items()}
     raw = subprocess.run(["git", "show", "d65539c:research/PREREGISTRATION.md"], cwd=HERE,
                          capture_output=True, timeout=20).stdout
@@ -114,19 +130,33 @@ def main() -> None:
     text_1648 = with_rows(1)
     without_e = text_1648[: text_1648.index("## Part E:")] + text_1648[text_1648.index("## Part C:"):]
     rebuilt["Parts A-D (16:11, recorded by the noise-scaling runs)"] = sha256(without_e.encode("utf-8"))
-    for label, (run_name, n_rows) in PART_C_VERSIONS.items():
+    for label, (run_names, n_rows) in PART_C_VERSIONS.items():
         rebuilt[label] = sha256(with_rows(n_rows).encode("utf-8"))
-        if run_name:
+        for run_name in run_names:
             in_manifest = runlog.read_json(RUNS / run_name / "manifest.json").get("preregistration_sha256")
             if in_manifest != RECORDED[label]:
                 raise SystemExit(f"{run_name}/manifest.json records {in_manifest}, not {RECORDED[label]}")
-    rebuilt["Current file (A-E + all Part C log entries)"] = sha256(text.encode("utf-8"))
-    RECORDED.setdefault("Current file (A-E + all Part C log entries)", sha256(text.encode("utf-8")))
+    current = "Current file (A-F + all Part C log entries)"
+    rebuilt[current] = sha256(full_text.encode("utf-8"))
+    RECORDED.setdefault(current, rebuilt[current])
     rebuilt["recipe.py (frozen 11:22, quoted in Part B)"] = sha256((HERE / "recipe.py").read_bytes())
-    recorded_all = {**RECORDED, "recipe.py (frozen 11:22, quoted in Part B)": RECIPE_FROZEN}
+    rebuilt["recipe_v2.py (frozen 25 Nov, quoted in Part F)"] = sha256((HERE / "recipe_v2.py").read_bytes())
+    recorded_all = {**RECORDED, "recipe.py (frozen 11:22, quoted in Part B)": RECIPE_FROZEN,
+                    "recipe_v2.py (frozen 25 Nov, quoted in Part F)": RECIPE_V2_FROZEN}
     for label, recorded in recorded_all.items():
         now = rebuilt.get(label, "n/a")
         lines.append(f"| {label} | `{recorded[:16]}…` | `{now[:16]}…` | {'✅ yes' if now == recorded else '❌ NO'} |")
+
+    # Part F7: files frozen for the v2 held-out test, with the hash the pre-registration quotes for each.
+    frozen = re.findall(r"^\| `([\w.]+)` \| [^|]* \| `([0-9a-f]{64})` \|$", full_text, flags=re.M)
+    if "## Part F:" in full_text:
+        if not frozen:
+            raise SystemExit("Part F7 frozen-file table not found or not filled in")
+        lines += ["", "## Recipe v2 frozen record (PREREGISTRATION.md Part F7)", "",
+                  "| File | Hash in Part F7 | Now | Match |", "|---|---|---|---|"]
+        for name, quoted in frozen:
+            now = sha256((HERE / name).read_bytes())
+            lines.append(f"| `{name}` | `{quoted[:16]}…` | `{now[:16]}…` | {'✅ yes' if now == quoted else '❌ NO'} |")
 
     lines += ["", "## Key files now", "", "| File | SHA-256 | Last commit touching it |", "|---|---|---|"]
     for name in KEY_FILES:

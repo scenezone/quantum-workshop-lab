@@ -1,0 +1,84 @@
+{
+ "run_id": "20261125-124533_mitigation-v2-test",
+ "kind": "mitigation-v2-test",
+ "created": "2026-11-25T12:45:33",
+ "command": "python.exe mitigation_v2.py --set test",
+ "method": [
+  "Our own implementations on Qiskit Aer with the fake backend's noise model; NOT Qiskit Runtime resilience levels.",
+  "Compilation: level 2, best of 20 seeds (fewest 2q gates, then depth), identical to mitigation.py.",
+  "Budget: every data group gets the same estimated quantum seconds per circuit (sum of shots x (duration + rep delay)), including 20% calibration shots for readout groups.",
+  "v1 group: all-gate native folding at 1/3/5 (folding.py). v2 groups: two-qubit-only folding at nominal 1/2/3 (secondary: 1/1.5/2) with twirl.fold_2q_series; actual scales used in fits. recipe_v2 and the secondary: every CZ Pauli-twirled, 8 independent instances per scale per repeat, counts pooled over instances. v2 without twirling: the same folds as recipe_v2, untwirled.",
+  "Readout correction (tensored, per-qubit) of every scale before extrapolation; extrapolation with mitiq 1.1.0 (linear; exponential with known asymptote).",
+  "Metric: RMSE vs exact noise-free value per repeat; mean +- std over repeats."
+ ],
+ "config": {
+  "set": "test",
+  "noise_scale": 1.0,
+  "backend": "FakeKingston",
+  "only": null,
+  "budget_estimated_quantum_seconds_per_method": 3.0,
+  "repeats": 10,
+  "optimization_level": 2,
+  "transpiler_seeds": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   15,
+   16,
+   17,
+   18,
+   19,
+   20
+  ],
+  "seed_selection": "gates",
+  "v1_scale_factors": [
+   1,
+   3,
+   5
+  ],
+  "v2_nominal_scales": [
+   1.0,
+   2.0,
+   3.0
+  ],
+  "secondary_nominal_scales": [
+   1.0,
+   1.5,
+   2.0
+  ],
+  "twirls": 8,
+  "calibration_fraction": 0.2,
+  "simulator_seed_base": 70000,
+  "rep_delay_s": 0.00025,
+  "recipe_v1": "v1",
+  "recipe_v2": "v2",
+  "recipe_v2_frozen": true,
+  "deep_min_two_qubit_gates": 13
+ },
+ "environment": {
+  "python": "3.12.10",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "packages": {
+   "qiskit": "2.6.2",
+   "qiskit-aer": "0.18.4",
+   "qiskit-ibm-runtime": "0.52.1",
+   "mitiq": "1.1.0",
+   "numpy": "2.2.6",
+   "scipy": "1.17.1"
+  },
+  "git_commit": "d92ee5d5f75839ce645a4503ba33672984d5156c",
+  "git_research_dirty": true
+ },
+ "preregistration_sha256": "ffe5e2637af7b67ac5c850b5af5b224247710f2ed4ed8f5cc6a8c02ed79f4df2"
+}

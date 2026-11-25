@@ -3,11 +3,14 @@
 Why v2: on ibm_fez (24 Nov 2026, rounds 1 and 2) recipe v1 lost badly to IBM resilience level 2 on deep
 circuits. On Grover-4-3it the readout-corrected values at scales 1/3/5 were 0.544 / 0.203 / 0.077 (exact 0.961,
 fully mixed 0.062): at scale 5 the signal was gone, the exponential fit left the range and the fallback to
-linear returned 0.625. v2 changes exactly three things, agreed with the reviewer on 24 Nov 2026:
+linear returned 0.625. v2 changes exactly three things (agreed with the reviewer on 24 Nov 2026; scale factors
+chosen by the reviewer on 25 Nov 2026 after the training-set design runs):
 
   1. Pauli twirling of every CZ (twirl.py), TWIRLS random instances per scale factor, counts pooled.
-  2. Smaller scale factors: 1, 1.5, 2, by folding two-qubit gates only (twirl.fold_2q); the ACTUAL scales
-     (1 + 2F/n) are used in the fit.
+  2. Smaller scale factors: 1, 2, 3, by folding two-qubit gates only (twirl.fold_2q); the ACTUAL scales
+     (1 + 2F/n) are used in the fit. Nominal 1/1.5/2 was the first proposal; on the training set its close
+     spacing amplified shot noise about 2x, so it is kept only as a secondary, no-target variant
+     (SECONDARY_SCALES).
   3. Clipping: the final estimate is clipped to the observable's physical range, instead of falling back to
      linear when the exponential leaves it.
 
@@ -24,9 +27,10 @@ import math
 from mitiq.zne.inference import ExpFactory, LinearFactory
 
 VERSION = "v2"
-FROZEN = False  # set True when Part F is written, before the v2 held-out circuits are simulated
+FROZEN = True  # 25 Nov 2026, PREREGISTRATION.md Part F; frozen before the v2 held-out circuits were simulated
 DELTA = 0.1  # same as v1
-SCALES = (1.0, 1.5, 2.0)  # nominal; actual scales from twirl.fold_2q_series (strictly increasing)
+SCALES = (1.0, 2.0, 3.0)  # nominal; actual scales from twirl.fold_2q_series (strictly increasing)
+SECONDARY_SCALES = (1.0, 1.5, 2.0)  # reported only, no target (Part F)
 TWIRLS = 8  # random twirl instances per scale factor (per repeat in the simulator)
 CAL_FRACTION = 0.2  # same as v1
 

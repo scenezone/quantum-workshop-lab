@@ -1,12 +1,12 @@
 # Fingerprints
 
-Generated 2026-11-24 14:10 by `python fingerprint.py`. Git HEAD: `d65539c39a6d06577d23ecc4bbcedab915e579b0 2026-11-23 12:25:17 +0530` (research folder has uncommitted changes).
+Generated 2026-11-25 12:45 by `python fingerprint.py`. Git HEAD: `d92ee5d5f75839ce645a4503ba33672984d5156c 2026-11-25 10:18:01 +0530` (research folder has uncommitted changes).
 
 SHA-256 is a fingerprint: changing a single byte of a file changes its hash completely. To check, re-run this script or hash a file yourself (`certutil -hashfile <file> SHA256` on Windows, `sha256sum <file>` elsewhere).
 
 ## Pre-registration integrity
 
-Earlier versions of `PREREGISTRATION.md` are rebuilt from today's file and hashed. If a rebuilt hash equals the hash recorded at run time, that part's text has not changed since. Part C (deviations log) only grows by rows appended at the end, so each hardware run's version is today's file cut after the log rows it had; each of those hashes is also checked against the run's `manifest.json`. The last row is today's file, which has no earlier record to match.
+Earlier versions of `PREREGISTRATION.md` are rebuilt from today's file and hashed. If a rebuilt hash equals the hash recorded at run time, that part's text has not changed since. Part C (deviations log) only grows by rows appended at the end, so each hardware run's version is today's file cut after the log rows it had; each of those hashes is also checked against the run's `manifest.json`. Part F (recipe v2, 25 Nov) was inserted before Part C, so versions from before it are rebuilt with Part F removed. The last row is today's file, which has no earlier record to match.
 
 | Version | Recorded at run time | Rebuilt / checked now | Match |
 |---|---|---|---|
@@ -18,25 +18,81 @@ Earlier versions of `PREREGISTRATION.md` are rebuilt from today's file and hashe
 | A-E + 2 Part C rows (recorded by the smoke job, 24 Nov 10:42) | `1e6445875334a37c…` | `1e6445875334a37c…` | ✅ yes |
 | A-E + 3 Part C rows (recorded by hardware round 1, 10:44) | `97b5eb8abf74fb82…` | `97b5eb8abf74fb82…` | ✅ yes |
 | A-E + 4 Part C rows (recorded by hardware round 2, 10:58) | `2a0fb6425bff06ae…` | `2a0fb6425bff06ae…` | ✅ yes |
-| Current file (A-E + all Part C log entries) | `8b1b6812f12014ee…` | `8b1b6812f12014ee…` | ✅ yes |
+| A-E + 5 Part C rows (recorded by the v2 design runs, 24-25 Nov) | `8b1b6812f12014ee…` | `8b1b6812f12014ee…` | ✅ yes |
+| Current file (A-F + all Part C log entries) | `ffe5e2637af7b67a…` | `ffe5e2637af7b67a…` | ✅ yes |
 | recipe.py (frozen 11:22, quoted in Part B) | `0b08bb7e96d9046e…` | `0b08bb7e96d9046e…` | ✅ yes |
+| recipe_v2.py (frozen 25 Nov, quoted in Part F) | `c98dd89d6d4cb794…` | `c98dd89d6d4cb794…` | ✅ yes |
+
+## Recipe v2 frozen record (PREREGISTRATION.md Part F7)
+
+| File | Hash in Part F7 | Now | Match |
+|---|---|---|---|
+| `recipe_v2.py` | `c98dd89d6d4cb794…` | `c98dd89d6d4cb794…` | ✅ yes |
+| `twirl.py` | `3a80e48152259026…` | `3a80e48152259026…` | ✅ yes |
+| `heldout_v2.py` | `47cebe4405b52f8e…` | `47cebe4405b52f8e…` | ✅ yes |
+| `mitigation_v2.py` | `0de8e15281a132a8…` | `0de8e15281a132a8…` | ✅ yes |
+| `hardware_v2.py` | `a24f2acd3b55bd0a…` | `a24f2acd3b55bd0a…` | ✅ yes |
+| `recipe.py` | `0b08bb7e96d9046e…` | `0b08bb7e96d9046e…` | ✅ yes |
+| `mitigation.py` | `4b8036fee7d8228a…` | `4b8036fee7d8228a…` | ✅ yes |
+| `folding.py` | `2309126cb3bc1c61…` | `2309126cb3bc1c61…` | ✅ yes |
+| `baseline.py` | `3c216afa124ae8b3…` | `3c216afa124ae8b3…` | ✅ yes |
+| `hardware.py` | `0fcc586b83a42b7c…` | `0fcc586b83a42b7c…` | ✅ yes |
 
 ## Key files now
 
 | File | SHA-256 | Last commit touching it |
 |---|---|---|
-| `PREREGISTRATION.md` | `8b1b6812f12014ee89d96621f21850342c97cf46b6dcba9c8b236df04083ba0f` | d65539c 2026-11-23 12:25:17 +0530 |
+| `PREREGISTRATION.md` | `ffe5e2637af7b67ac5c850b5af5b224247710f2ed4ed8f5cc6a8c02ed79f4df2` | d92ee5d 2026-11-25 10:18:01 +0530 |
 | `recipe.py` | `0b08bb7e96d9046e3be34ada9917c09859d2dba9895d1894d647ad26f1a67428` | d65539c 2026-11-23 12:25:17 +0530 |
 | `heldout.py` | `7d6b0c9ae9f677876c244174345a672540e99165eea9e3e1cfd028b575c36109` | d65539c 2026-11-23 12:25:17 +0530 |
-| `mitigation.py` | `4b8036fee7d8228aae51fa9a8aa9877e294254447281eb6b14341dafbd82c4a3` | d65539c 2026-11-23 12:25:17 +0530 |
+| `mitigation.py` | `4b8036fee7d8228aae51fa9a8aa9877e294254447281eb6b14341dafbd82c4a3` | d92ee5d 2026-11-25 10:18:01 +0530 |
 | `folding.py` | `2309126cb3bc1c6128af01a9fb3b471e52a1673b9a2f25d6765ff46378d8450a` | d65539c 2026-11-23 12:25:17 +0530 |
-| `hardware.py` | `0fcc586b83a42b7ce1b5fdecbe2df597d994883c1b7c8537a84a431e74f06b9d` | d65539c 2026-11-23 12:25:17 +0530 |
-| `hardware_usage.py` | `642691af914c45b0b82a8a62f6e21f18e708560c5c67cf9cd38def279693b7c7` | not committed yet |
-| `noise_scaling.py` | `db4c5ebc9a84a9e198a5661d1aa9563c170761fdafd3e6f4b95ed67f607c4d10` | not committed yet |
+| `hardware.py` | `0fcc586b83a42b7ce1b5fdecbe2df597d994883c1b7c8537a84a431e74f06b9d` | d92ee5d 2026-11-25 10:18:01 +0530 |
+| `hardware_usage.py` | `642691af914c45b0b82a8a62f6e21f18e708560c5c67cf9cd38def279693b7c7` | d92ee5d 2026-11-25 10:18:01 +0530 |
+| `noise_scaling.py` | `db4c5ebc9a84a9e198a5661d1aa9563c170761fdafd3e6f4b95ed67f607c4d10` | d92ee5d 2026-11-25 10:18:01 +0530 |
 | `baseline.py` | `3c216afa124ae8b3e4d340c3dc74958c1eda1e14df702fec8d29b6841940d094` | d65539c 2026-11-23 12:25:17 +0530 |
 | `runlog.py` | `763418ea443a12291c1b8fed8af8729de876c7678bda1d1d677b7069f1f03663` | d65539c 2026-11-23 12:25:17 +0530 |
+| `recipe_v2.py` | `c98dd89d6d4cb794cdefd9c63277734ca5d2d24417f60dcfe522c1b7a957bfd8` | d92ee5d 2026-11-25 10:18:01 +0530 |
+| `twirl.py` | `3a80e48152259026c71c9b1a4c74417d9451782df6d849e6d1cd44779d015a4a` | d92ee5d 2026-11-25 10:18:01 +0530 |
+| `heldout_v2.py` | `47cebe4405b52f8ee46d84b121fa9ec39862fa97011a4b210a97c05e2207d3be` | d92ee5d 2026-11-25 10:18:01 +0530 |
+| `mitigation_v2.py` | `0de8e15281a132a858f6b491411185b1945000369b9b7afae78087cf1485b183` | d92ee5d 2026-11-25 10:18:01 +0530 |
+| `hardware_v2.py` | `a24f2acd3b55bd0a08528cbebbd2290a3d9b05ac28ce4332d1e49213d639c1d5` | d92ee5d 2026-11-25 10:18:01 +0530 |
+| `v2_design_replay.py` | `a212eecd6c540304d0faaeaabd692ba1013d53c4ddab13344015d06380524f63` | d92ee5d 2026-11-25 10:18:01 +0530 |
 
 ## Runs (newest first)
+
+### `20261125-120531_mitigation-v2-train-partial`
+
+Created 2026-11-25T12:05:31 · code at commit `d92ee5d + uncommitted research changes` · pre-registration `8b1b6812f12014ee…`
+
+| File | Bytes | SHA-256 |
+|---|---|---|
+| `counts.json` | 34163 | `d356b910ffad8ae814a893ebe8b5fe2cbd693b8b65179a7203c7997d20676297` |
+| `manifest.json` | 15219 | `3c816d4ca59067b70c112aeff98da5ca0084c946a89538daa23c05f6a00b347c` |
+| `mitigation_v2.csv` | 1314 | `80cdc5e345a9925f2e7beb81d1ba650eb12e27bf0b40538491bb1f8d6dd06ffe` |
+| `mitigation_v2.md` | 4772 | `01835cb4abc3a668f04bd236742475fad0a8d0c5383b7a954c40c4f1bdd89693` |
+
+### `20261125-101929_mitigation-v2-train-scales1-2-3`
+
+Created 2026-11-25T10:19:29 · code at commit `d92ee5d + uncommitted research changes` · pre-registration `8b1b6812f12014ee…`
+
+| File | Bytes | SHA-256 |
+|---|---|---|
+| `counts.json` | 879405 | `48a2d945b8e3c4053eccf919fcd303b1e42b724056523ac9bbe00abde7dff6f9` |
+| `manifest.json` | 45391 | `d0ab2df29dc26bcf7a02f9b2937352540bac6e4682083fa3c43aa16a2e558a54` |
+| `mitigation_v2.csv` | 4552 | `a22d4506ce24b6738a1a5e727cd792bc1e52481f7a33e160714170b78ee212eb` |
+| `mitigation_v2.md` | 9319 | `6d232e783e23af45631b4c80a796e71c3bfac506e7ac6f021befb17bdd0a7522` |
+
+### `20261124-161451_mitigation-v2-train`
+
+Created 2026-11-24T16:14:51 · code at commit `d65539c + uncommitted research changes` · pre-registration `8b1b6812f12014ee…`
+
+| File | Bytes | SHA-256 |
+|---|---|---|
+| `counts.json` | 877570 | `7e3129974309107a47c227a8858e605b5f4fe050e13a6f9ef2748a60c67b985a` |
+| `manifest.json` | 45612 | `ec9f4250027accbbf71e581ea05aead0fac0071575ce197772dae9572b54294b` |
+| `mitigation_v2.csv` | 4540 | `23bd29dd33865fd3196c0e33ac745f1bff4d0980f69c2de991291d84c613a807` |
+| `mitigation_v2.md` | 9308 | `646c901642a94a6f19514246894a733c35e1e7215cb3837dfe39fd7bce017307` |
 
 ### `20261124-105849_hardware-round2`
 

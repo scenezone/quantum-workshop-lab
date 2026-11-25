@@ -15,7 +15,7 @@ Run `20261124-161451_mitigation-v2-train` · budget **3.0 estimated quantum seco
 
 ## RMSE vs exact (mean ± std over repeats; bold = best)
 
-| Circuit | 2q | None | F: readout+ZNE 1/3/5 linear | Recipe v1 | v1 data + clip | 1/1.5/2 + clip, no twirl | Recipe v2 |
+| Circuit | 2q | None | F: readout+ZNE 1/3/5 linear | Recipe v1 | v1 data + clip | v2 scales + clip, no twirl | Recipe v2 |
 |---|---|---|---|---|---|---|---|
 | Bell | 1 | 0.0232 ± 0.0017 | 0.0053 ± 0.0039 | 0.0053 ± 0.0039 | **0.0019 ± 0.0034** | 0.0055 ± 0.0059 | 0.0023 ± 0.0032 |
 | GHZ-3 | 2 | 0.0480 ± 0.0025 | 0.0088 ± 0.0080 | 0.0088 ± 0.0080 | **0.0033 ± 0.0081** | 0.0053 ± 0.0102 | 0.0051 ± 0.0048 |
@@ -40,14 +40,14 @@ Run `20261124-161451_mitigation-v2-train` · budget **3.0 estimated quantum seco
 | F: readout+ZNE 1/3/5 linear | 4 of 14 | 0.0151 | 0.0281 | 0.0584 |
 | Recipe v1 | 2 of 14 | 0.0112 | 0.0169 | 0.0253 |
 | v1 data + clip | 6 of 14 | 0.0096 | 0.0161 | 0.0250 |
-| 1/1.5/2 + clip, no twirl | 2 of 14 | 0.0225 | 0.0400 | 0.0495 |
+| v2 scales + clip, no twirl | 2 of 14 | 0.0225 | 0.0400 | 0.0495 |
 | Recipe v2 | 0 of 14 | 0.0170 | 0.0341 | 0.0409 |
 
-Branches used (per observable and repeat): Recipe v1: exp 259, linear 91; v1 data + clip: exp 195, linear 88, exp+clip 64, linear+clip 3; 1/1.5/2 + clip, no twirl: linear 198, exp 100, exp+clip 44, linear+clip 8; Recipe v2: linear 199, exp 101, exp+clip 40, linear+clip 10.
+Branches used (per observable and repeat): Recipe v1: exp 259, linear 91; v1 data + clip: exp 195, linear 88, exp+clip 64, linear+clip 3; v2 scales + clip, no twirl: linear 198, exp 100, exp+clip 44, linear+clip 8; Recipe v2: linear 199, exp 101, exp+clip 40, linear+clip 10.
 
 ## Observable estimates (mean ± std over repeats)
 
-| Circuit | Observable | Exact | None | F: readout+ZNE 1/3/5 linear | Recipe v1 | v1 data + clip | 1/1.5/2 + clip, no twirl | Recipe v2 |
+| Circuit | Observable | Exact | None | F: readout+ZNE 1/3/5 linear | Recipe v1 | v1 data + clip | v2 scales + clip, no twirl | Recipe v2 |
 |---|---|---|---|---|---|---|---|---|
 | Bell | ZZ | +1.000 | +0.977 ± 0.002 | +1.001 ± 0.007 | +1.002 ± 0.007 | +0.998 ± 0.003 | +0.995 ± 0.006 | +0.998 ± 0.003 |
 | GHZ-3 | XXX | +1.000 | +0.952 ± 0.003 | +1.002 ± 0.012 | +1.002 ± 0.012 | +0.997 ± 0.008 | +0.995 ± 0.010 | +0.995 ± 0.005 |
