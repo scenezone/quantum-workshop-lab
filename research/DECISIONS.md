@@ -56,6 +56,19 @@ Results are in `POC_REPORT.md`. Points that need a decision:
 
 Results: held-out T1, T2 and T3 **PASS**; O1 (old median target) **NOT MET** (−3.7%). Details in `POC_REPORT.md` section 0.
 
+## Round 5 (23 Nov 2026)
+
+- **Noise scaling 0.5x-2x** (pending since round 2): pre-registered as Part D (16:11) before any run. Held-out set, recipe unchanged, circuits compiled on the unscaled backend. **N1, N2 and N3 all PASS.** The old median target is met at ×1.5 and ×2, and not met at ×0.5 and ×1.
+- **Fingerprints for reviewers:** `fingerprint.py` writes `results/FINGERPRINTS.md`, with SHA-256 of every run file and key method file. It also verifies that Parts A and B and `recipe.py` are byte-identical to the versions the runs recorded (all match).
+
+## Round 6: hardware (24 Nov 2026)
+
+- Budget in RUs (reviewer approved; Part C, 23 Nov 19:58). Every job's seconds, RUs and full `metrics()` are saved.
+- Smoke job, then round 1 and round 2 (drift check, reversed order) on `ibm_fez`, jobs sent one at a time. All Part E rules were checked and logged in Part C before each step.
+- Results: **H1 FAIL in both rounds** (IBM level 2 is much better on deep circuits); **H2 PASS, H3 PASS in both rounds**. The recipe is best on shallow circuits at about a third of level 2's RU cost. Details in `POC_REPORT.md` section 0.3.
+- Usage: about 5.6 RU of 9.9 (343 charged QPU seconds); 4.28 RU remain. Per round, charged seconds: none 27, recipe 29, IBM level 1 30, IBM level 2 83 (`results/hardware_usage.md`, written by `hardware_usage.py` for the reviewer's upgrade-cost estimate). `job.usage()` had shown 0 s for two short jobs; charged seconds come from IBM's job metrics (Part C, after round 2). The trial account expires around 4 Dec 2026; upgrading (card → Pay-As-You-Go) is the owner's decision.
+- Recipe v1 is not modified. Any v2 (twirling, smaller scale factors for deep circuits, clipping instead of linear fallback) must be pre-registered and tested on new circuits and new hardware runs.
+
 ## Seeds and repeats
 
 - 10-20 transpiler seeds; report best of seeds. (Implemented: 20 seeds, best = fewest two-qubit gates, then lowest depth.)

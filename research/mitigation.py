@@ -324,6 +324,31 @@ def extrapolate(fit: str, values: list[float], obs: Observable) -> tuple[float, 
 # ---------------------------------------------------------------- simulate
 
 
+NOISE_ERROR_CAP = 0.5
+
+
+def scaled_backend(name: str, scale: float):
+    """Fake backend whose noise is scaled by `scale` (PREREGISTRATION.md Part D).
+
+    Every calibrated gate and readout error is multiplied by `scale` (capped at NOISE_ERROR_CAP) and every
+    qubit's T1 and T2 are divided by it. Gate durations are unchanged, so the QPU-time budget is unchanged.
+    """
+    from qiskit.providers import QubitProperties
+
+    backend = getattr(fake_provider, name)()
+    target = backend.target
+    for op in target.operation_names:
+        for props in target[op].values():
+            if props is not None and props.error is not None:
+                props.error = min(props.error * scale, NOISE_ERROR_CAP)
+    target.qubit_properties = [
+        None if q is None else QubitProperties(
+            t1=q.t1 / scale if q.t1 else q.t1, t2=q.t2 / scale if q.t2 else q.t2, frequency=q.frequency)
+        for q in target.qubit_properties
+    ]
+    return backend
+
+
 def shot_plan(per_shot_s: dict[str, dict[str, float]], budget_qs: float) -> dict[str, dict[str, dict[str, int]]]:
     """Shots[group][basis][key] so that each group's estimated QPU time is (just under) budget_qs.
 
@@ -339,14 +364,18 @@ def shot_plan(per_shot_s: dict[str, dict[str, float]], budget_qs: float) -> dict
 
 
 def simulate(args) -> Path:
-    backend = getattr(fake_provider, args.backend)()
-    simulator = AerSimulator.from_backend(backend)
+    backend = getattr(fake_provider, args.backend)()  # compilation always uses the unscaled backend
+    noisy = backend if args.noise_scale == 1 else scaled_backend(args.backend, args.noise_scale)
+    simulator = AerSimulator.from_backend(noisy)
     rep_delay = getattr(backend.configuration(), "default_rep_delay", 250e-6) or 250e-6
     all_tasks = tasks(args.set)
+    suffix = "" if args.noise_scale == 1 else f"-noise{args.noise_scale:g}"
+    seed_base = SIM_SEED_BASE[args.set] + (0 if args.noise_scale == 1 else int(round(args.noise_scale * 100)) * 1000)
     run_dir = runlog.new_run(
-        f"mitigation-{args.set}",
+        f"mitigation-{args.set}{suffix}",
         config={
             "set": args.set,
+            "noise_scale": args.noise_scale,
             "backend": args.backend,
             "budget_estimated_quantum_seconds_per_method": args.budget_qs,
             "repeats": args.repeats,
@@ -355,7 +384,7 @@ def simulate(args) -> Path:
             "transpiler_seeds": TRANSPILE_SEEDS,
             "scale_factors": SCALE_FACTORS,
             "calibration_fraction_of_shots": CAL_FRACTION,
-            "simulator_seed_base": SIM_SEED_BASE[args.set],
+            "simulator_seed_base": seed_base,
             "rep_delay_s": rep_delay,
             "deep_min_two_qubit_gates": DEEP_MIN_2Q,
             "reference_method": REFERENCE,
@@ -366,7 +395,7 @@ def simulate(args) -> Path:
     raw: dict = {}
     task_info: dict = {}
     qpy_circuits: list[QuantumCircuit] = []
-    seed = SIM_SEED_BASE[args.set]
+    seed = seed_base
     for task in all_tasks:
         compiled: dict[str, dict[str, QuantumCircuit]] = {}
         info: dict = {}
@@ -554,7 +583,8 @@ def analyze(run_dir: Path, out_dir: Path) -> None:
     report = run_dir / "mitigation.md"
     write_markdown(rows, detail, manifest, methods, guard_stats, recipe_choices, targets, report)
     out_dir.mkdir(parents=True, exist_ok=True)
-    stem = f"mitigation_{config['backend']}_{which}"
+    scale = config.get("noise_scale", 1)
+    stem = f"mitigation_{config['backend']}_{which}" + ("" if scale == 1 else f"_noise{scale:g}")
     shutil.copy(report, out_dir / f"{stem}.md")
     shutil.copy(run_dir / "mitigation.csv", out_dir / f"{stem}.csv")
     for r in rows:
@@ -650,7 +680,7 @@ def write_markdown(rows, detail, manifest, methods, guard_stats, recipe_choices,
 
     main = ["none", "readout", REFERENCE, "readout_zne_expg"] + (["recipe"] if "recipe" in methods else [])
     lines = [
-        f"# Mitigation: {config['backend']}, {config['set']} set (simulator)",
+        f"# Mitigation: {config['backend']}, {config['set']} set, noise ×{config.get('noise_scale', 1):g} (simulator)",
         "",
         f"Run `{manifest['run_id']}` · budget **{config['budget_estimated_quantum_seconds_per_method']} estimated "
         f"quantum seconds per circuit per method** · {config['repeats']} repeats · seed selection "
@@ -765,6 +795,8 @@ def main() -> None:
                         help="estimated quantum seconds per circuit per method")
     parser.add_argument("--repeats", type=int, default=10)
     parser.add_argument("--strategy", choices=("gates", "esp"), default="gates", help="seed selection")
+    parser.add_argument("--noise-scale", type=float, default=1.0,
+                        help="multiply gate/readout errors and divide T1/T2 by this (PREREGISTRATION.md Part D)")
     parser.add_argument("--analyze", type=Path, help="re-analyze an existing run folder (no simulation)")
     parser.add_argument("--out", type=Path, default=Path(__file__).parent / "results")
     args = parser.parse_args()

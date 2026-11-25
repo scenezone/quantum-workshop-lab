@@ -36,7 +36,90 @@ GoQuantum Labs · optimization and error-mitigation layer · simulation results,
 
 Across all 11 method variants on the held-out set, the recipe had the **lowest worst-case error** (0.0231; next best readout+ZNE expg 0.0307, readout+ZNE Richardson 0.0447) and the lowest median (0.0155).
 
-**What this does and does not show.** The recipe's value is in avoiding large failures, especially on deep circuits (Grover-4-3it: 0.1201 → 0.0186). It is not in improving the typical circuit, where a good fixed method is already about as accurate. One held-out observable turned out to be uninformative: Ising-4's exact magnetization (−0.010) is almost equal to its fully-mixed value (0), so noise barely moves it and no method beat doing nothing. We keep it as defined, because changing a held-out circuit after seeing its result would defeat the test. This is still simulation on one noise model; whether it holds on hardware is the next step (Section 9).
+**What this does and does not show.** The recipe's value is in avoiding large failures, especially on deep circuits (Grover-4-3it: 0.1201 → 0.0186). T1 and T2 rest mostly on that one circuit (Section 0.2). It is not in improving the typical circuit, where a good fixed method is already about as accurate. One held-out observable turned out to be uninformative: Ising-4's exact magnetization (−0.010) is almost equal to its fully-mixed value (0), so noise barely moves it and no method beat doing nothing. We keep it as defined, because changing a held-out circuit after seeing its result would defeat the test. This is still simulation on one noise model; whether it holds on hardware is the next step (Section 9).
+
+### 0.1 Noise-scaling robustness (pre-registered, Part D)
+
+**Question:** does the frozen recipe keep its advantage if real hardware is cleaner or noisier than the `FakeKingston` snapshot?
+
+**Setup:** targets written at 16:11, before any noise-scaled run. All gate and readout errors were multiplied by λ (capped at 0.5) and T1/T2 divided by λ, with the circuits and the 3.0 s budget unchanged. Run `20261123-161422_noise-scaling`.
+
+| Pre-registered target | Result | Detail |
+|---|---|---|
+| N1: T1-T3 still pass at λ = 0.5 and 1.5 | **PASS** | all six pass |
+| N2: at λ = 2, recipe worst ≤ F worst and clearly worse on ≤ 1 | **PASS** | worst 0.0325 vs 0.2863; clearly worse on 0 |
+| N3: clearly better than no mitigation on ≥ 4 of 6 at each λ | **PASS** | 4/6 (×0.5), 5/6 (×1.5), 5/6 (×2) |
+
+| λ | Median RMSE none | Median F | Median recipe | Worst F | Worst recipe | O1 (old median target) |
+|---|---|---|---|---|---|---|
+| ×0.5 | 0.0448 | 0.0131 | 0.0103 | 0.0373 | 0.0259 | not met (+1.7%) |
+| ×1 | 0.0845 | 0.0158 | 0.0155 | 0.1201 | 0.0231 | not met (−3.7%) |
+| ×1.5 | 0.1242 | 0.0256 | 0.0200 | 0.2068 | 0.0282 | met (−23.4%) |
+| ×2 | 0.1594 | 0.0313 | 0.0265 | 0.2863 | 0.0325 | met (−27.6%) |
+
+**Reading:** as noise grows, the recipe's worst case stays almost flat (0.026 → 0.033), while F's grows eightfold (0.037 → 0.286, driven by Grover-4-3it). The recipe's advantage also starts reaching the median. At half the noise the recipe and F are about equal on typical circuits. Ising-4 stays uninformative at every λ (no mitigation remains best, because its exact value sits at the fully-mixed value). Noise scaling is a uniform rescaling of one calibration snapshot; real drift is not uniform.
+
+### 0.2 Where the passes come from (reviewer's question)
+
+**T1 and T2 rest mostly on one circuit, Grover-4-3it.** That is where F's linear extrapolation fails badly (RMSE 0.1201 at noise ×1) and the recipe's exponential branch does not (0.0186). Re-evaluating the same pre-registered conditions with that circuit left out:
+
+| Noise | T2 (deep mean, recipe / F) | T2 without Grover-4-3it | T1 (worst, recipe / F) | T1 without Grover-4-3it |
+|---|---|---|---|---|
+| ×0.5 | 0.72, pass | 1.04, **fail** | 0.69, pass | 1.03, **fail** |
+| ×1 | 0.44, pass | 0.99, **fail** | 0.19, pass | 1.00, **fail** |
+| ×1.5 | 0.34, pass | 0.86, **fail** | 0.14, pass | 0.93, **fail** |
+| ×2 | 0.31, pass | 0.83, pass | 0.11, pass | 0.68, pass |
+
+(Pass needs ≤ 0.85 for T2 and ≤ 0.80 for T1.) So at today's noise level, the evidence is that the recipe **avoids one large failure mode** (curved decay on a deep circuit, where linear extrapolation is badly biased). On the other held-out circuits it is about as accurate as F. Only at doubled noise does the advantage extend beyond Grover-4-3it. This is one failure mode seen on one held-out circuit, not a broad improvement. More circuits of that kind are needed before claiming more.
+
+**Ising-4: mitigation brought no benefit.** No mitigation was the most accurate method at every noise level: RMSE 0.0045 at ×1 vs 0.0088 for the recipe, within the spread. At ×2 the recipe was clearly worse (0.0122 ± 0.0080 vs 0.0034 ± 0.0020). The cause is the observable: the exact magnetization (−0.010) is almost equal to its fully-mixed value (0), so noise barely moves it, and extrapolation only adds variance. A future recipe could skip mitigation when the raw value is already close to the fully-mixed value. That would be a new version, tested on new circuits.
+
+### 0.3 Real hardware, 24 November (`ibm_fez`, Heron r2)
+
+**What ran.** Plan and targets pre-registered (A7, Part E, Part C log):
+1. A Bell smoke job.
+2. Round 1, in the order none → recipe → IBM level 1 → IBM level 2.
+3. Round 2, in the reversed order on the same device, as a drift check.
+
+Five jobs per round, sent one at a time. IBM metered every job in Resource Units (1 RU = 1 min of QPU time).
+
+**Pre-registered targets:**
+
+| Target | Round 1 (`20261124-104424_hardware-round1`) | Round 2 (`20261124-105849_hardware-round2`) |
+|---|---|---|
+| H1: recipe lower RMSE than IBM level 2 on ≥ 5/8, at ≤ its usage | **FAIL** (3/8; usage 0.47 vs 1.37 RU) | **FAIL** (2/8; usage 0.47 vs 1.37 RU) |
+| H2: deep-circuit mean ≤ 0.85 × IBM level 1 | **PASS** (0.1145 vs 0.1319) | **PASS** (0.1112 vs 0.1375) |
+| H3: clearly better than no mitigation on ≥ 6/8 | **PASS** (7/8) | **PASS** (6/8) |
+
+**RMSE vs exact, round 1 / round 2:**
+
+| Circuit | 2q gates on `ibm_fez` | None | Recipe | IBM level 1 | IBM level 2 |
+|---|---|---|---|---|---|
+| Bell | 1 | 0.080 / 0.057 | **0.013** / 0.015 | 0.026 / **0.012** | 0.026 / 0.014 |
+| GHZ-5 | 4 | 0.118 / 0.132 | **0.014 / 0.010** | 0.015 / 0.058 | 0.045 / 0.060 |
+| Ising-4 | 36 | **0.009 / 0.002** | 0.023 / 0.016 | 0.034 / 0.024 | 0.019 / 0.014 |
+| Mirror-4 | 12 | 0.120 / 0.100 | **0.021** / 0.033 | 0.069 / 0.067 | 0.030 / **0.026** |
+| Grover-4-3it | 111 | 0.438 / 0.431 | 0.336 / 0.329 | 0.414 / 0.448 | **0.030 / 0.030** |
+| QFT-6 | 88 | 0.123 / 0.110 | 0.085 / 0.084 | 0.104 / 0.102 | **0.035 / 0.038** |
+| QAOA-5 p=2 | 34 | 0.193 / 0.187 | 0.040 / 0.062 | 0.108 / 0.125 | **0.034 / 0.022** |
+| QAOA-6 | 31 | 0.160 / 0.167 | 0.088 / **0.065** | 0.117 / 0.110 | **0.015** / 0.066 |
+
+**Usage per round:** no mitigation 0.439 RU, recipe 0.469 RU, IBM level 1 0.496 RU, IBM level 2 1.373 RU. Identical in both rounds. Estimated vs charged quantum seconds: 24 vs 27 (none), 24 vs 29 (recipe: 22 for the folded circuits + 7 for readout calibration), 23 vs 30 (level 1), 64 vs 83 (level 2). Each job also carried about 2 s of fixed overhead. Every job, with its ID, charged seconds, RUs and execution time, is in `results/hardware_usage.md`. *Correction (24 Nov, Part C):* the recipe was first reported as 22 s, because `job.usage()` returned 0 for the calibration job; IBM's metrics show 7 s charged. RUs, which decide H1, were always complete.
+
+**What this shows:**
+
+1. **On deep circuits IBM's level 2 is far better than our recipe on real hardware.** Grover-4-3it: 0.030 vs 0.33; QFT-6: 0.035 vs 0.085. This reverses the simulator result, where Grover-4-3it was the recipe's biggest win (Section 0.2). The simulator result did not transfer.
+2. **On shallow circuits the recipe was best or tied, at about a third of level 2's cost.** Bell, GHZ-5 and Mirror-4. Readout correction plus ZNE is cheap, and it works when the signal survives folding.
+3. **Why the recipe failed on deep circuits** (from the saved counts). On Grover-4-3it, the readout-corrected P(0110) at scales 1/3/5 was 0.544 / 0.203 / 0.077, with exact 0.961 and fully-mixed value 0.062: by scale 5 the signal had almost vanished. The exponential fit then left the physical range, and the guard (exponential → linear fallback) returned 0.625. Three likely reasons the simulator missed this:
+   - real-hardware noise at 5× folding of a 111-gate circuit is much stronger than in the fake-backend model;
+   - the recipe has no Pauli twirling, which IBM's level 2 uses, so coherent errors are not turned into the stochastic noise the extrapolation models assume;
+   - falling back to linear is the wrong default when exponential overshoots on a fast decay. Clipping to the range would have given about 0.04 here.
+4. **Drift between rounds was small for most circuits.** The exception is QAOA-6 under IBM level 2 (0.015 → 0.066), which shows that one hardware run per method is not enough to rank close methods.
+5. **Ising-4 again:** no mitigation was best in both rounds. The observable is uninformative (Section 0.2).
+
+**Honest bottom line.** The plan's hardware criterion, "at least one result also holds on real hardware", is met by H2 and H3: mitigation clearly helps, and the recipe beats IBM's measurement-only level 1 on deep circuits. The main competitive claim, beating IBM's level 2 (H1), **failed in both rounds**. Recipe v1 is a cheap, good method for shallow circuits, but not a replacement for IBM's level 2 on deep ones. A recipe v2 (Pauli twirling, smaller noise scale factors for deep circuits, clipping instead of linear fallback) would have to be pre-registered and tested on new circuits and new hardware runs. It cannot be tuned on these results and reported as a win. Total hardware usage: about 5.6 RU of the 9.9 RU available (4.28 RU remaining).
+
+**Integrity check** (`results/FINGERPRINTS.md`, `python fingerprint.py`): the Part A (11:14) and Part A+B (11:22) versions of the pre-registration, rebuilt from today's file, hash to exactly the values recorded in the run manifests. So do the committed version, the Part A-D and A-E versions, the versions recorded by the smoke job and by hardware rounds 1 and 2 (rebuilt by cutting Part C after the log rows each run had), and `recipe.py`. The targets and the recipe have not changed since the runs that tested them.
 
 *Sections 1-8 are the 21 November exploratory results (equal shots, not quantum seconds). They motivated the recipe and are kept unchanged.*
 
@@ -185,7 +268,7 @@ Proposed next steps:
 
 1. A rule-based advisor v1 using features available before running: two-qubit count, ESP, observable type, and whether an observable's exact value is near its fully-mixed value. Evaluate it on circuits not used to design the rules. *(Done 23 Nov as recipe v1, which uses measured decay instead of the exact value; see Section 0.)*
 2. Recalibrate the success threshold. "Median error −10% vs best fixed default" is not reachable against readout+ZNE (linear), even with hindsight. A worst-case or deep-circuit metric would fit the evidence better. *(Done 23 Nov: pre-registered T1-T3, all passed on held-out circuits; the original target is kept and remains not met.)*
-3. Noise scaling 0.5x-2x, then hardware validation of 2-3 results, including measured `quantum_seconds`. *(Hardware plan in Section 9; noise scaling not done yet.)*
+3. Noise scaling 0.5x-2x, then hardware validation of 2-3 results, including measured `quantum_seconds`. *(Noise scaling done 23 Nov, Section 0.1, all targets passed; hardware plan in Section 9.)*
 
 **Runs behind this report** (under `research/results/runs/`; each has `manifest.json` and raw counts):
 
@@ -198,10 +281,14 @@ Proposed next steps:
 | `20261123-111818_mitigation-train` | Section 0: training rerun (guard, quantum-seconds budget); recipe designed on it | `python mitigation.py --set train` |
 | `20261123-112303_mitigation-test` | Section 0: held-out test of the frozen recipe; pre-registered targets | `python mitigation.py --set test` |
 | `20261123-115437_hardware-dryrun` | Section 9: hardware pipeline dry run (not evidence) | `python hardware.py` |
+| `20261123-161422_noise-scaling` (+ child runs `…-noise0.5`, `…-noise1.5`, `…-noise2`) | Section 0.1: noise-scaling robustness | `python noise_scaling.py` |
+| `20261124-104212_hardware-smoke` | Section 0.3: Bell smoke job, RU rate | `python hardware.py --submit --smoke --backend auto --confirm-qpu-seconds 5` |
+| `20261124-104424_hardware-round1` | Section 0.3: round 1 on `ibm_fez` | `python hardware.py --submit --backend auto --round 1 --confirm-qpu-seconds 220 --max-usage 220` |
+| `20261124-105849_hardware-round2` | Section 0.3: round 2 (reversed order) on `ibm_fez` | `python hardware.py --submit --backend ibm_fez --round 2 --order ibm_rl2,ibm_rl1,recipe,none --confirm-qpu-seconds 220 --max-usage 220` |
 
 The 21 November commands refer to the code as it was on that date; the scripts have since gained options. The GHZ-5 layout figures come from `python layout_check.py`.
 
-## 9. Next: hardware validation (planned, not run)
+## 9. Hardware validation plan (run on 24 November; results in Section 0.3)
 
 Plan (`hardware.py`, targets H1-H3 pre-registered in `PREREGISTRATION.md` A7):
 

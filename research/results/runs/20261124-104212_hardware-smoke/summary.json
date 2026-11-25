@@ -1,0 +1,33 @@
+{
+ "rows": [
+  {
+   "circuit": "Bell",
+   "two_qubit_gates": 1,
+   "none": 0.07799999999999974,
+   "none_std": 0.012206424931946232,
+   "recipe": NaN,
+   "recipe_std": NaN,
+   "ibm_rl1": 0.0200390365761951,
+   "ibm_rl1_std": 0.010512709300989125,
+   "ibm_rl2": NaN,
+   "ibm_rl2_std": NaN
+  }
+ ],
+ "targets": [],
+ "qpu_estimated": {
+  "none": 0.251776,
+  "ibm_rl1": 0.2751276
+ },
+ "qpu_measured": {
+  "none": 0.0,
+  "ibm_rl1": 3.0
+ },
+ "rus_measured": {
+  "none": 0.032674,
+  "ibm_rl1": 0.038225
+ },
+ "order": [
+  "none",
+  "ibm_rl1"
+ ]
+}

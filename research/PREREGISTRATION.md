@@ -95,8 +95,60 @@ The held-out test (Part A, A6) is the only evidence that counts.
 
 ---
 
+## Part D: noise-scaling robustness (written 23 Nov 2026, 16:11, before any noise-scaled run)
+
+The file before this part had SHA-256 `ebbdb7d17bb4643b1c98055f23c791395533b528fb84ab3db83b862fdbbc3d1d` (Parts A, B and C as committed in `d65539c`).
+
+**Question:** does recipe v1 (unchanged, `FROZEN`) keep its advantage when the hardware is noisier or cleaner than the `FakeKingston` snapshot?
+
+**Setup:**
+- Held-out set (A3) only.
+- Noise scale λ ∈ {0.5, 1.5, 2.0}. λ = 1.0 is the existing run `20261123-112303_mitigation-test`.
+- At scale λ: every calibrated gate error and readout error is multiplied by λ (capped at 0.5), and every qubit's T1 and T2 are divided by λ.
+- The circuits are compiled on the unscaled backend, so only the noise changes, not the circuits.
+- Budget unchanged: 3.0 estimated quantum seconds per circuit per method. Fresh simulator seeds for each λ.
+
+**Targets** (F = readout+ZNE (linear), as in A2):
+
+| ID | Target | Pass condition |
+|---|---|---|
+| **N1** robustness | The A6 targets survive moderate change | T1, T2 and T3 all pass at λ = 0.5 **and** at λ = 1.5 |
+| **N2** high noise | No worse than F when noise doubles | at λ = 2.0: recipe worst RMSE ≤ F worst RMSE, **and** recipe clearly worse than F on ≤ 1 circuit |
+| **N3** still useful | Mitigation still helps at every level | at each λ ∈ {0.5, 1.5, 2.0}: recipe clearly better than no mitigation on ≥ 4 of 6 circuits |
+
+Also reported, not targets: O1 (median vs F) at each λ, and how often the exponential guard fell back to linear.
+
+---
+
+## Part E: hardware execution plan (written 23 Nov 2026, 16:47, before any hardware job)
+
+The file before this part had SHA-256 `caceaa4bc588c549599fd7a779196a9f0eb3dec831a05cc8319a19d907cc1d15` (Parts A-D). The reviewer approved the hardware run on 23 Nov. The targets are H1-H3 from A7, **unchanged**. This part fixes how they are run.
+
+**Device:** a Heron r2 QPU available on our IBM Quantum open instance. `ibm_kingston` is not listed for this account; previous jobs ran on `ibm_fez` and `ibm_marrakesh`. We use whichever of those two has the shorter queue at submission, and record it. Circuits are compiled for that device (level 2, best of 20 seeds), and noise-free exact values are unchanged.
+
+**Budget unit:** the platform reports usage in **Resource Units (RUs)**. The instance had **9.90 RUs** before any job. The RU ↔ quantum-seconds conversion is not known in advance, so:
+
+1. **Smoke job first.** Bell only: one SamplerV2 job and one EstimatorV2 resilience-level-1 job, 1,000 shots each. It checks that both job types run, and records each job's reported usage (quantum seconds and/or RUs). It is not used for any target.
+2. **Round 1.** Methods in the order none → recipe → IBM level 1 → IBM level 2. It runs only if its estimate (135 estimated quantum seconds, converted with the smoke job's rate, × 1.5 buffer) is at most 60% of the remaining RUs.
+3. **Round 2 (drift check).** The reversed order: IBM level 2 → IBM level 1 → recipe → none. It runs only if the RUs remaining after round 1 are at least 1.5 × round 1's measured usage.
+
+**Queue rule:** jobs are submitted one at a time, and each finishes before the next is sent. That keeps us well under the open plan's limit of 3 queued jobs.
+
+**Abort rule:** `hardware.py --max-usage` stops submitting further jobs once the cumulative measured usage of the round exceeds the approved cap. Jobs already finished are kept and reported.
+
+**Evaluation:**
+- H1-H3 are evaluated on **round 1**. H1's quantum-seconds comparison uses each job's measured usage, in the same unit for all methods.
+- Round 2 is reported next to round 1, with H1-H3 evaluated again. If the rounds disagree, both are reported and neither is dropped.
+- No further rounds are run to "fix" a result.
+
+---
+
 ## Part C: deviations log
 
 | Date | What | Why | Effect on targets |
 |---|---|---|---|
 | 23 Nov 2026, after the held-out run | **Hardware budget is equal per method total, not per circuit.** `none` and `recipe` get equal estimated quantum seconds summed over the 8 hardware circuits. Each SamplerV2 job uses one shot count for all its circuits, and the recipe runs as two jobs (folded circuits; calibration). | IBM's SamplerV2 (`qiskit-ibm-runtime` 0.52) rejects jobs whose PUBs have different shot counts, so per-circuit equal budgets cannot be submitted. Found in the hardware dry run. | None to the definitions. H1 already compares total measured quantum_seconds. Per-circuit budgets on hardware differ by a few percent between methods; this is reported. |
+| 23 Nov 2026, 19:58, before any hardware job | **H1's usage comparison may use Resource Units (RUs).** For each job we record both the seconds (`job.usage()`) and the RUs (`job.usage(resource_units=True)`) that IBM reports, plus the full `job.metrics()`. H1 compares the methods in RUs, or in seconds if RUs are not reported, always in the same unit for every method. | Our IBM Quantum instance (Open Plan) meters usage in RUs. IBM's plans page: "For standard QPU workloads, 1 RU = 1 minute of QPU compute time." The reviewer approved this on 23 Nov. IBM's free dry-run usage estimate is not available on the Open Plan, so the Bell smoke job (Part E) stays. | H1's threshold is unchanged (recipe ≤ IBM level 2 in total usage). Only the unit is named. |
+| 24 Nov 2026, 10:45, after the smoke job, before round 1 | **Log (not a change):** (1) Smoke job `20261124-104212_hardware-smoke` on `ibm_fez`: Sampler, Bell, 1,000 shots = 0.0327 RU; Estimator level 1, 1,000 shots = 0.0382 RU, against an estimate of about 0.25 s each. So each job carries about 1.7-2 s of fixed overhead. `usage()` seconds are rounded (0 for the Sampler job), so RUs are the reliable unit, and `--max-usage` now counts RUs × 60. (2) Round 1 check: 135 s + 5 jobs × ~2 s ≈ 145 s ≈ 2.4 RU; × 1.5 = 3.6 RU ≤ 60% of 9.83 RU remaining. **Round 1 is allowed.** (3) `ibm_kingston` was listed as operational at 10:41. Part E's device rule (least busy of `ibm_fez`/`ibm_marrakesh`) is followed anyway, so the device is not chosen after seeing anything. | Part E's rules applied as written. | None. |
+| 24 Nov 2026, after round 1, before round 2 | **Log:** Round 1 (`20261124-104424_hardware-round1`, `ibm_fez`) used 2.78 RU (none 0.439, recipe 0.469, IBM level 1 0.496, IBM level 2 1.373); 7.05 RU remain. Round 2 check: 7.05 ≥ 1.5 × 2.78 = 4.17, so **round 2 is allowed**. Round 2 runs on **`ibm_fez`, the same device as round 1**, because its purpose is a drift check on the same device. Part E's "shorter queue" rule is read as applying to the first hardware round. | Part E applied; it did not say which device round 2 uses. | None. Round 1's H1-H3 results are final as recorded. |
+| 24 Nov 2026, after round 2 | **Log (measurement correction):** (1) `job.usage()` under-reports seconds. It returned 0 s for the smoke Sampler job and for the recipe's readout-calibration job in both rounds; IBM's job metrics (`qpu_charge_time_seconds`) show 2 s and 7 s charged, and their RUs were non-zero. Charged seconds per round are: none 27, **recipe 29 (not 22 as first reported)**, IBM level 1 30, IBM level 2 83. Every job is listed in `results/hardware_usage.md`, generated from the saved results without changing the run folders. `hardware.py` now reads the charged seconds first. (2) The "10:45" in the smoke log row above is approximate. The round 1 manifest (created 10:44:24) already records the hash of the file containing that row, so the row was written before round 1 was submitted. | `usage()` is a rounded summary; the metrics record is what IBM bills. | None. H1 is decided in RUs (19:58 entry), which were complete. In seconds the recipe is still about a third of level 2 (29 vs 83). |

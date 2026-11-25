@@ -1,0 +1,102 @@
+{
+ "none": {
+  "jobs": [
+   {
+    "job_id": "dc2hpbdhdvas73bm83og",
+    "quantum_seconds": 0.0,
+    "rus": 0.032674,
+    "metrics": {
+     "caller": "qiskit",
+     "qiskit_version": "qiskit_ibm_runtime-0.52.1,qiskit-2.6.2*,qiskit_aer-0.18.4",
+     "timestamps": {
+      "created": "2026-11-24T05:12:13.755235Z",
+      "finished": "2026-11-24T05:12:37.6516Z",
+      "running": "2026-11-24T05:12:14.839747Z"
+     },
+     "usage": {
+      "qpu_charge_time_seconds": 2,
+      "value": 0.032674,
+      "unit": "resource_units",
+      "status": "complete",
+      "details": [
+       {
+        "value": 0.032674,
+        "unit": "resource_units",
+        "metric": {
+         "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+         "value": 2
+        }
+       }
+      ]
+     },
+     "circuits_execution_time_ns": 258389504
+    },
+    "wall_s": 27.09192943572998,
+    "shots": 1000
+   }
+  ],
+  "quantum_seconds": 0.0,
+  "rus": 0.032674,
+  "counts": {
+   "Bell": {
+    "Z": {
+     "s1": {
+      "11": 502,
+      "00": 459,
+      "01": 16,
+      "10": 23
+     }
+    }
+   }
+  }
+ },
+ "ibm_rl1": {
+  "jobs": [
+   {
+    "job_id": "dc2hpids2omc738c0fv0",
+    "quantum_seconds": 3.0,
+    "rus": 0.038225,
+    "metrics": {
+     "caller": "qiskit",
+     "qiskit_version": "qiskit_ibm_runtime-0.52.1,qiskit-2.6.2*,qiskit_aer-0.18.4",
+     "timestamps": {
+      "created": "2026-11-24T05:12:41.293196Z",
+      "finished": "2026-11-24T05:12:47.604597Z",
+      "running": "2026-11-24T05:12:42.324432Z"
+     },
+     "usage": {
+      "qpu_charge_time_seconds": 3,
+      "value": 0.038225,
+      "unit": "resource_units",
+      "status": "complete",
+      "details": [
+       {
+        "value": 0.038225,
+        "unit": "resource_units",
+        "metric": {
+         "id": "caffe3ca-729c-5750-8777-df63bbf8bfd9",
+         "value": 3
+        }
+       }
+      ]
+     },
+     "circuits_execution_time_ns": 529407744
+    },
+    "wall_s": 10.748023271560669,
+    "resilience_level": 1
+   }
+  ],
+  "quantum_seconds": 3.0,
+  "rus": 0.038225,
+  "values": {
+   "Bell": {
+    "evs": [
+     0.9799609634238047
+    ],
+    "stds": [
+     0.0120052667464479
+    ]
+   }
+  }
+ }
+}

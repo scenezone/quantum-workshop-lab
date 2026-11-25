@@ -1,0 +1,65 @@
+{
+ "run_id": "20261124-105849_hardware-round2",
+ "kind": "hardware-round2",
+ "created": "2026-11-24T10:58:49",
+ "command": "python.exe hardware.py --submit --backend ibm_fez --round 2 --order ibm_rl2,ibm_rl1,recipe,none --confirm-qpu-seconds 220 --max-usage 220",
+ "method": [
+  "Five jobs: none (1 SamplerV2 job), recipe (2 SamplerV2 jobs: native folding 1/3/5, and readout calibration; analyzed with recipe.py), IBM EstimatorV2 resilience_level 1, IBM EstimatorV2 resilience_level 2.",
+  "Compilation: level 2, best of 20 transpiler seeds (fewest two-qubit gates, then depth).",
+  "IBM SamplerV2 needs one shot count per job, so none and recipe get equal estimated quantum seconds as a method total (budget x circuits), not per circuit. IBM levels use the same shots per PUB as none (precision 1/sqrt(shots)) and add their own overhead. Measured quantum_seconds are read from each job.",
+  "RMSE vs exact noise-free values; spread = bootstrap std (Sampler: multinomial resampling of counts; Estimator: normal draws from the reported std)."
+ ],
+ "config": {
+  "backend": "ibm_fez",
+  "submit": true,
+  "smoke": false,
+  "round": 2,
+  "order": [
+   "ibm_rl2",
+   "ibm_rl1",
+   "recipe",
+   "none"
+  ],
+  "max_usage": 220.0,
+  "budget_qs_per_circuit": 3.0,
+  "circuits": [
+   "Bell",
+   "GHZ-5",
+   "Ising-4",
+   "Mirror-4",
+   "Grover-4-3it",
+   "QFT-6",
+   "QAOA-5-p2",
+   "QAOA-6"
+  ],
+  "recipe_version": "v1",
+  "estimated_quantum_seconds": {
+   "none": 23.998172452000002,
+   "recipe": 23.996417255999994,
+   "ibm_rl1": 23.307951282000005,
+   "ibm_rl2": 63.567139860000005
+  },
+  "shots_per_pub": {
+   "none": 10469,
+   "recipe_scales": 2746,
+   "recipe_cal": 1029,
+   "ibm": 10469
+  },
+  "bootstrap": 500
+ },
+ "environment": {
+  "python": "3.12.10",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "packages": {
+   "qiskit": "2.6.2",
+   "qiskit-aer": "0.18.4",
+   "qiskit-ibm-runtime": "0.52.1",
+   "mitiq": "1.1.0",
+   "numpy": "2.2.6",
+   "scipy": "1.17.1"
+  },
+  "git_commit": "d65539c39a6d06577d23ecc4bbcedab915e579b0",
+  "git_research_dirty": true
+ },
+ "preregistration_sha256": "2a0fb6425bff06ae731eb8e41f85ac2032ffd102dffa1809993db51f7ba74b8f"
+}

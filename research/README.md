@@ -14,6 +14,9 @@ Everything runs on local simulators (Qiskit Aer with fake IBM backend noise). No
 | `mitigation.py` | Mitigation methods at an equal quantum-seconds budget, from saved raw counts; `--set train` or `--set test` |
 | `recipe.py` | Recipe v1 (frozen): readout+ZNE with guarded exponential or linear extrapolation per observable |
 | `hardware.py` | Hardware comparison vs IBM resilience levels 1 and 2. Dry run by default; never submits without explicit flags |
+| `noise_scaling.py` | Held-out set at noise ×0.5/×1.5/×2 and targets N1-N3 (PREREGISTRATION.md Part D) |
+| `hardware_usage.py` | Writes `results/hardware_usage.md`: every hardware job's charged QPU seconds, RUs and cost estimate, from the saved results |
+| `fingerprint.py` | Writes `results/FINGERPRINTS.md`: SHA-256 of every run file, plus pre-registration integrity checks |
 | `selection_compare.py` | Transpiler seed selection: fewest gates vs highest ESP |
 | `layout_check.py` | Which physical qubits a circuit uses, and how noisy they are |
 | `folding.py` | Native unitary folding for ZNE (with self-checks) |
@@ -74,9 +77,14 @@ It simulates each distinct circuit once and splits the shot record into disjoint
 
 The default is a **dry run** on `FakeKingston`. It builds every job, runs the Sampler jobs locally, and prints the QPU-time estimate. The IBM Estimator jobs are built but not executed locally (see the dry-run report). Real hardware needs `--submit`, a saved IBM Quantum account, and `--confirm-qpu-seconds` at least equal to the estimate.
 
+The execution plan is pre-registered in `PREREGISTRATION.md` Part E: smoke job first, then round 1, then a reversed-order round 2 as a drift check if the budget allows. Jobs are sent one at a time. `--max-usage` stops further submissions at a cap.
+
 ```bash
-.venv/Scripts/python hardware.py                                                    # dry run (~17 min)
-.venv/Scripts/python hardware.py --submit --backend ibm_kingston --confirm-qpu-seconds 200
+.venv/Scripts/python hardware.py                                                    # dry run (~7 min)
+.venv/Scripts/python hardware.py --submit --smoke --backend auto --confirm-qpu-seconds 5
+.venv/Scripts/python hardware.py --submit --backend auto --round 1 --confirm-qpu-seconds 200 --max-usage 200
+.venv/Scripts/python hardware.py --submit --backend <same device> --round 2 --order ibm_rl2,ibm_rl1,recipe,none --confirm-qpu-seconds 200 --max-usage 200
+.venv/Scripts/python hardware_usage.py                                              # per-job seconds/RUs table (no IBM calls)
 ```
 
 ## Seed selection
