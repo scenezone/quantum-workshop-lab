@@ -27,6 +27,7 @@ Most scripts run on local simulators (Qiskit Aer with fake IBM backend noise). T
 | `hardware_v1_replication.py` | Replication round of recipe v1 (Part G) |
 | `recipe_v1_1.py`, `v1_1_design_replay.py` | v1.1 flag rules and their replay on saved hardware data (0 RU, design data). Failed the replay |
 | `recipe_v1_2.py`, `heldout_v12.py`, `hardware_v1_2.py` | v1.2 (v1 + decay/alive flags, post hoc), four new circuits, and its hardware round (Part H) |
+| `failure_analysis.py` | Offline (0 RU) analysis of when v1 fails and why Draper under-corrected: failure modes over every saved hardware record, plus noise-model simulations (POC_REPORT.md R.7) |
 | `results/raw_counts/` | Byte-identical copies of every hardware run's raw counts and account reads, with `SHA256SUMS.txt` |
 
 ## Setup

@@ -20,6 +20,7 @@ GoQuantum Labs · optimization and error-mitigation layer · simulation results 
    - Grover-4-3it on fez: about 0.33.
    - QPE-4 on marrakesh, 26 Nov: 0.291, against 0.015 for the same circuit and device a day earlier.
    - Draper-adder-4 on 26 Nov: 0.195 (R.5).
+   - Causes of all three are analysed offline in R.7.
 4. **Recipe v2 (twirling) failed** its main target. **v1.1 (three flag rules) failed** its design replay. **v1.2 (two flag rules)** passed its safety target T1 on four new circuits, but no flag fired, so v1.2 equalled v1 everywhere. Its flags have never been tested on data they were not designed on.
 5. **Nothing here supports a claim about IBM's resilience levels**, in either direction.
 
@@ -91,6 +92,7 @@ The fez rows are seen data (the v2 and v1.1 work was designed on them). Heisenbe
    - The exponential extrapolation still under-corrected, leaving an error of 0.195 ± 0.014. That is less than half of the uncorrected error (0.356), but far from the answer.
    - The flag rules only check the *shape* of the decay. They cannot see a bias like this.
    - So a v1 result with no flag is **not** a guarantee of accuracy. On a 70-CZ circuit the bias left after correction can be about 0.2.
+   - R.7 traces the cause offline: the folded circuits amplified the noise less than v1 assumes (scale 3 acted like about 1.9×).
 2. **Day-to-day variation is larger than the bootstrap spread.** QPE-4 on the same device moved from 0.015 to 0.291 in one day. The ± values above cover shot noise only, not drift. One round per circuit is not enough to rank close methods.
 3. **The v1.2 flags are an untested safety net.**
    - They never fired on new data.
@@ -132,6 +134,96 @@ The fez rows are seen data (the v2 and v1.1 work was designed on them). Heisenbe
 | `20261126-223700_v1-1-design-replay` | v1.1 replay of saved hardware data, 0 RU (design data) |
 | `20261126-224957_hardware-v1-2-dryrun` | v1.2 dry run on `FakeMarrakesh` (not evidence) |
 | `20261126-225723_hardware-v1-2` | v1.2 round on four new circuits, `ibm_marrakesh` |
+
+### R.7 Offline failure analysis (27 Nov, 0 RU; exploratory, post hoc)
+
+Added after the tag `poc-final-20261127`, at the reviewer's request. It covers two questions: when does v1 fail, and why did Draper under-correct?
+
+- **Run:** `20261127-155639_failure-analysis` (`failure_analysis.py`). Full tables are in its `failure_analysis.md`.
+- **Inputs:** the saved hardware counts of every v1 round, plus local simulation on `FakeMarrakesh`. No IBM calls.
+- **Status:** it re-reads rounds that are already reported and tests no target. Every threshold below is descriptive and has not been validated on new data.
+
+The analysis uses these quantities. All are sign-normalised so that the noise-free d(0) is positive:
+
+| Quantity | Definition | What it measures | Known before the answer? |
+|---|---|---|---|
+| r | ln(d(1)/d(3)) / 2 | Decay per unit of fold scale | Yes |
+| κ | ln(d(0)/d(1)) / r | How much the unfolded circuit loses, in units of r. v1's exponential fit assumes κ = 1 | No, needs the exact answer |
+| shape | ln(d(5)/d(3)) / ln(d(3)/d(1)) | 1 means one clean exponential | Yes |
+
+**1. When v1 fails: every error above 0.04 falls into one of four modes.**
+
+The table covers 46 records (observable × round) from the 16 cases.
+
+| Mode | What happens | Records | e > 0.04 | Where |
+|---|---|---|---|---|
+| M0 No signal | The exact value sits at the fully mixed value, so there is nothing to extrapolate | 6 | 0 | Ising-4, QFT-6 X4/Y5 |
+| M1 No clean decay | d is not same-sign and shrinking, so v1 uses its linear branch | 8 | 3 | QPE-4 26 Nov (0.291), QFT-6 X0/X2 |
+| M2 Guard cliff | The exponential fit lands just outside the physical range, so v1's guard silently swaps in the linear fit | 11 | 3 | **Grover-4-3it (0.336, 0.329)**, QFT-6 Y0 |
+| M3 Folds amplify less than assumed (κ > 1) | Decay looks clean; v1 under-corrects | 14 | 2 | **Draper-adder-4 (0.195)**, CDKM-adder-3 (0.066) |
+| M4 Folds amplify more than assumed (κ < 1) | Decay speeds up (shape around 2); v1 over-corrects | 7 | 2 | QFT-6 X3 (0.099, 0.124) |
+
+- **QPE-4, 26 Nov (M1):**
+  - d = 0.660 / −0.008 / 0.158. The scale-3 point is lower than the scale-5 point, which a decay cannot produce.
+  - That looks like a bad execution or drift inside the job, not a decay v1 could fit.
+- **Grover-4-3it (M2):** this is new; it was not known when R.1 to R.5 were written.
+  - The exponential fit gave 1.055 and 1.013 against an exact value of 0.961. That is close to the answer, but above 1.
+  - v1's guard therefore reported the linear fit, 0.625.
+  - Clipping the exponential fit to 1 would have given e = 0.039 instead of 0.336.
+- **Clipping over all 11 M2 records:**
+  - It is better in 7 of them.
+  - The worst error drops from 0.336 to 0.059.
+  - The same cliff appears in simulation. In one Draper model the exponential fit gives exactly 1.000, but because it lands a hair above 1, v1 reports 0.773.
+  - This is a what-if, not a recipe change.
+- **"exp" labels can hide this.** `recipe.estimate` labels these results "exp", so earlier reports listed them as exponential results.
+
+**2. A warning sign visible without the answer: r.** The table uses the 32 records where v1 took its exponential branch, including M2.
+
+| r | Records | Median e | Max e | e > 0.04 |
+|---|---|---|---|---|
+| below 0.1 | 15 | 0.009 | 0.039 | 0 |
+| 0.1 – 0.2 | 10 | 0.023 | 0.195 | 2 |
+| above 0.2 | 7 | 0.099 | 0.336 | 5 |
+
+- The Spearman correlation between r and relative error is 0.58. The records are not independent: QFT-6 alone contributes 20 of them.
+- **Why r matters:**
+  - The error is about 1 − exp(−(κ − 1)·r).
+  - On hardware κ varies: interquartile range 0.86 to 2.28.
+  - So r measures how exposed a circuit is to that variation. Shallow circuits (small r) survive a wrong κ; deep ones do not.
+
+**3. Why Draper under-corrected (0.805 vs 1.0).**
+
+1. **It is not the fit.**
+   - The decay is a clean single exponential: shape 1.03, and all flag rules pass.
+   - A three-parameter fit with a free asymptote also gives 0.800.
+   - Extrapolating each of the 15 Z-string components of P(0010) separately and recombining gives 0.818.
+2. **It is not readout.** Correction lifted P only from 0.644 (none job) to 0.672 (scale 1).
+3. **It is the noise scaling.**
+   - The unfolded circuit lost κ = 2.23 ± 0.20 times as much signal as one unit of folding adds.
+   - Put differently, the scale-3 and scale-5 circuits amplified the noise by only about 1.9× and 2.8×, not 3× and 5×.
+   - All 15 Z-string components show κ between 1.6 and 2.8, so this affects the whole circuit, not one part of the observable.
+   - CDKM-adder-3, in the same round with the same 70 CZ, had κ = 1.31 ± 0.12.
+4. **Which noise does this in simulation.** Compiled the same way as the hardware round on `FakeMarrakesh`:
+
+   | Noise model | Draper κ | Draper v1 | Shape | Matches hardware? |
+   |---|---|---|---|---|
+   | Standard Markovian (gate errors + T1/T2) | 1.05 | 0.987 | ≈ 1 | No: v1 is nearly right |
+   | Markovian + idle T1/T2 | 1.08 | 0.959 | ≈ 1 | No: v1 is nearly right |
+   | Slow detuning (low-frequency dephasing), σ = 10 / 25 kHz | 1.00 / 0.78 | 0.773 / 0.734 (guard cliff) | 1.00 / 1.19 | No: κ ≤ 1 |
+   | Coherent CZ errors (add up inside a fold) | 0.44–0.64 | 0.710–0.861 | > 1 | No: opposite direction |
+   | Coherent sx over-rotation of 0.10 rad (cancels inside a fold) | 2.52 | 0.732 | 0.96 | **Yes** |
+
+   - Only the last row reproduces the hardware signature: a clean single-exponential shape with κ > 1.
+   - The sx over-rotation cancels because the fold sx·sx†·sx undoes it exactly, so folding adds no error of that kind.
+   - The sx model also ranks Draper above CDKM (κ 2.52 vs 2.08). The hardware gap is larger (2.23 vs 1.31).
+5. **What this does not show.**
+   - It does not identify the physical error on `ibm_marrakesh`. An over-rotation of 0.1 rad per sx is far larger than IBM's calibrated sx errors.
+   - So sx over-rotation stands in for a class of error that local folding does not amplify; it is not the cause.
+   - The hardware layout was not saved, and there is one round.
+
+**Consequence.** The data at scales 1 to 5 look perfect, so no rule built only on d(1), d(3) and d(5) can see an M3 bias. Seeing it would need one of two things, neither tested:
+- a known-answer reference circuit with the same structure, run alongside the real one, or
+- a noise-amplification method that does not rely on G·G† pairs.
 
 ## 0. Update, 23 November: pre-registered test on held-out circuits
 

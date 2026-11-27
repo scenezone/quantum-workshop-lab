@@ -1,0 +1,85 @@
+{
+ "run_id": "20261127-155639_failure-analysis",
+ "kind": "failure-analysis",
+ "created": "2026-11-27T15:56:39",
+ "command": "python.exe failure_analysis.py",
+ "method": [
+  "Exploratory, post hoc: classify every saved v1 hardware record by failure mode; decay rate r, kappa, shape and effective fold amplification per record.",
+  "Draper-adder-4 deep dive on its saved counts: free-asymptote fit, per-Z-string extrapolation, bit errors.",
+  "Simulation on FakeMarrakesh of the four v1.2 circuits under Markovian, idle, slow-detuning and coherent noise, to see which noise reproduces the hardware signature."
+ ],
+ "config": {
+  "rounds": [
+   {
+    "case_group": "ibm_fez 24 Nov",
+    "round": "r1",
+    "run": "20261124-104424_hardware-round1",
+    "v1_key": "recipe"
+   },
+   {
+    "case_group": "ibm_fez 24 Nov",
+    "round": "r2",
+    "run": "20261124-105849_hardware-round2",
+    "v1_key": "recipe"
+   },
+   {
+    "case_group": "ibm_marrakesh 25 Nov",
+    "round": "25N",
+    "run": "20261125-145032_hardware-v2",
+    "v1_key": "recipe_v1"
+   },
+   {
+    "case_group": "ibm_marrakesh 26 Nov",
+    "round": "26N",
+    "run": "20261126-120458_hardware-v1-replication",
+    "v1_key": "recipe_v1"
+   },
+   {
+    "case_group": "ibm_marrakesh 26 Nov 22:57",
+    "round": "v12",
+    "run": "20261126-225723_hardware-v1-2",
+    "v1_key": "recipe_v1"
+   }
+  ],
+  "bootstrap": 500,
+  "seed": 7,
+  "no_signal": 0.1,
+  "r_bins": [
+   0.0,
+   0.1,
+   0.2
+  ],
+  "simulation": {
+   "backend": "FakeMarrakesh",
+   "shots": 200000,
+   "detuning_draws": 16,
+   "circuits": [
+    "Draper-adder-4",
+    "CDKM-adder-3",
+    "W-4",
+    "Toffoli-3"
+   ]
+  },
+  "file_sha256": {
+   "failure_analysis.py": "ab4f6480b9e64b48f5d8be955066728399e08eb987e2c43108a7d769f447c933",
+   "recipe.py": "0b08bb7e96d9046e3be34ada9917c09859d2dba9895d1894d647ad26f1a67428",
+   "folding.py": "2309126cb3bc1c6128af01a9fb3b471e52a1673b9a2f25d6765ff46378d8450a"
+  },
+  "qpu": "none (saved data and local simulation only)"
+ },
+ "environment": {
+  "python": "3.12.10",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "packages": {
+   "qiskit": "2.6.2",
+   "qiskit-aer": "0.18.4",
+   "qiskit-ibm-runtime": "0.52.1",
+   "mitiq": "1.1.0",
+   "numpy": "2.2.6",
+   "scipy": "1.17.1"
+  },
+  "git_commit": "73f2ab65140cc8954788d1b779ef7cb2637e561e",
+  "git_research_dirty": true
+ },
+ "preregistration_sha256": "44c9df50bb864d948d33ee182cadcd8693c1f909ccb8c2e955a748c5068ca74d"
+}

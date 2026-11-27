@@ -30,7 +30,7 @@ KEY_FILES = ("PREREGISTRATION.md", "recipe.py", "heldout.py", "mitigation.py", "
              "hardware_usage.py", "noise_scaling.py", "baseline.py", "runlog.py", "recipe_v2.py", "twirl.py",
              "heldout_v2.py", "mitigation_v2.py", "hardware_v2.py", "v2_design_replay.py",
              "hardware_v1_replication.py", "recipe_v1_1.py", "v1_1_design_replay.py", "recipe_v1_2.py",
-             "heldout_v12.py", "hardware_v1_2.py")
+             "heldout_v12.py", "hardware_v1_2.py", "failure_analysis.py")
 
 # Hashes recorded at run time (PREREGISTRATION.md Parts B and D quote them too).
 RECORDED = {
