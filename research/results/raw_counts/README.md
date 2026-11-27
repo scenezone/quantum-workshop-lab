@@ -16,4 +16,11 @@ Byte-identical copies of every real hardware run's `results.json` and of every a
 | `20261126-225723_hardware-v1-2.*` | v1.2 round on four new circuits, `ibm_marrakesh` |
 | `account_reads_20261125.json` | The two account reads before the v2 round |
 
-To check: `sha256sum -c SHA256SUMS.txt` (or `certutil -hashfile <file> SHA256` on Windows). The originals in `../runs/` are hashed in `../FINGERPRINTS.md` with the same values.
+**Line endings matter for the hashes.** The JSON files were written on Windows with CRLF line endings. Git stores them with LF, and this repository checks them out with `core.autocrlf=true`.
+
+| Checkout | Check with |
+|---|---|
+| Windows, `core.autocrlf=true` (CRLF) | `sha256sum -c SHA256SUMS.txt` |
+| Linux / macOS, or any LF checkout | `sha256sum -c SHA256SUMS_LF.txt` |
+
+Both lists describe the same content; only the line endings differ. On Windows you can also use `certutil -hashfile <file> SHA256`. The run-folder hashes in `../FINGERPRINTS.md` were computed on the Windows (CRLF) working copy, so they match `SHA256SUMS.txt`.

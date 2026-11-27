@@ -117,7 +117,8 @@ The fez rows are seen data (the v2 and v1.1 work was designed on them). Heisenbe
   - Result at the tag: all match, none differ.
 - **Raw counts:**
   - `results/raw_counts/` holds byte-identical copies of the raw counts and job metrics (`results.json`) of all six hardware runs, plus every account read.
-  - `SHA256SUMS.txt` in that folder lists their hashes.
+  - `SHA256SUMS.txt` in that folder lists their hashes for a Windows (CRLF) checkout, and `SHA256SUMS_LF.txt` for an LF checkout (Linux/macOS).
+  - The pre-registration and code files are LF everywhere, so their hashes do not depend on the platform.
   - Every number in R.2-R.5 is computed from these files.
 - **Runs after 24 Nov** (each has `manifest.json` with the pre-registration hash it ran under):
 
