@@ -1,6 +1,6 @@
 # Fingerprints
 
-Generated 2026-11-27 13:37 by `python fingerprint.py`. Git HEAD: `31f12fe5bc3ef6209770de092b6e9c8b07015cef 2026-11-27 13:36:42 +0530`.
+Generated 2026-11-27 17:04 by `python fingerprint.py`. Git HEAD: `2b994c73946f6b488895029d05e2d80407ee0435 2026-11-27 17:03:59 +0530`.
 
 SHA-256 is a fingerprint: changing a single byte of a file changes its hash completely. To check, re-run this script or hash a file yourself (`certutil -hashfile <file> SHA256` on Windows, `sha256sum <file>` elsewhere).
 
@@ -73,8 +73,19 @@ Earlier versions of `PREREGISTRATION.md` are rebuilt from today's file and hashe
 | `recipe_v1_2.py` | `36e1a325bbb3e2d7f595c7e18846457fbafd6b154e7c3414c21332ea0591b412` | 8e667fa 2026-11-27 13:31:31 +0530 |
 | `heldout_v12.py` | `ba31d48b8e056ba8814c265fd5082d24e411643658ce06aac1e5bcf82d5b8a77` | 8e667fa 2026-11-27 13:31:31 +0530 |
 | `hardware_v1_2.py` | `ce3a636ec86e9eac9ec02a6760ad4e516db3f4383a33d8d09dc2fbfc91d5af58` | 8e667fa 2026-11-27 13:31:31 +0530 |
+| `failure_analysis.py` | `ab4f6480b9e64b48f5d8be955066728399e08eb987e2c43108a7d769f447c933` | dae4f35 2026-11-27 17:03:41 +0530 |
 
 ## Runs (newest first)
+
+### `20261127-155639_failure-analysis`
+
+Created 2026-11-27T15:56:39 · code at commit `73f2ab6 + uncommitted research changes` · pre-registration `44c9df50bb864d94…`
+
+| File | Bytes | SHA-256 |
+|---|---|---|
+| `failure_analysis.md` | 20394 | `d4e4779c8328ca31fde3bee53696f640a19e524037fbaebb24e5cd66d1445a57` |
+| `manifest.json` | 2511 | `9cbc835a8c887912e520959914e0c98e1f451d3d2ccb87787e0376d54f154772` |
+| `summary.json` | 81493 | `1f2c32c4e7d45b0c925c1bb619dc7ddeca8eb952719b48294cd765ff43078fd0` |
 
 ### `20261126-225723_hardware-v1-2`
 
