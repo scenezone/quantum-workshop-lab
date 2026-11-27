@@ -1,6 +1,6 @@
 # Fingerprints
 
-Generated 2026-11-26 22:58 by `python fingerprint.py`. Git HEAD: `9c7a3327f2e81ebc1c3fbbeba78efdeb0647338a 2026-11-25 12:52:06 +0530` (research folder has uncommitted changes).
+Generated 2026-11-27 13:37 by `python fingerprint.py`. Git HEAD: `31f12fe5bc3ef6209770de092b6e9c8b07015cef 2026-11-27 13:36:42 +0530`.
 
 SHA-256 is a fingerprint: changing a single byte of a file changes its hash completely. To check, re-run this script or hash a file yourself (`certutil -hashfile <file> SHA256` on Windows, `sha256sum <file>` elsewhere).
 
@@ -51,7 +51,7 @@ Earlier versions of `PREREGISTRATION.md` are rebuilt from today's file and hashe
 
 | File | SHA-256 | Last commit touching it |
 |---|---|---|
-| `PREREGISTRATION.md` | `44c9df50bb864d948d33ee182cadcd8693c1f909ccb8c2e955a748c5068ca74d` | 9c7a332 2026-11-25 12:52:06 +0530 |
+| `PREREGISTRATION.md` | `44c9df50bb864d948d33ee182cadcd8693c1f909ccb8c2e955a748c5068ca74d` | 8e667fa 2026-11-27 13:31:31 +0530 |
 | `recipe.py` | `0b08bb7e96d9046e3be34ada9917c09859d2dba9895d1894d647ad26f1a67428` | d65539c 2026-11-23 12:25:17 +0530 |
 | `heldout.py` | `7d6b0c9ae9f677876c244174345a672540e99165eea9e3e1cfd028b575c36109` | d65539c 2026-11-23 12:25:17 +0530 |
 | `mitigation.py` | `4b8036fee7d8228aae51fa9a8aa9877e294254447281eb6b14341dafbd82c4a3` | d92ee5d 2026-11-25 10:18:01 +0530 |
@@ -65,14 +65,14 @@ Earlier versions of `PREREGISTRATION.md` are rebuilt from today's file and hashe
 | `twirl.py` | `3a80e48152259026c71c9b1a4c74417d9451782df6d849e6d1cd44779d015a4a` | d92ee5d 2026-11-25 10:18:01 +0530 |
 | `heldout_v2.py` | `47cebe4405b52f8ee46d84b121fa9ec39862fa97011a4b210a97c05e2207d3be` | d92ee5d 2026-11-25 10:18:01 +0530 |
 | `mitigation_v2.py` | `0de8e15281a132a858f6b491411185b1945000369b9b7afae78087cf1485b183` | 9c7a332 2026-11-25 12:52:06 +0530 |
-| `hardware_v2.py` | `1c8b4e376bde624a8c31ca6903793eb8ed56d7cd86591db6dc721e7e2453a3e2` | 9c7a332 2026-11-25 12:52:06 +0530 |
+| `hardware_v2.py` | `1c8b4e376bde624a8c31ca6903793eb8ed56d7cd86591db6dc721e7e2453a3e2` | 8e667fa 2026-11-27 13:31:31 +0530 |
 | `v2_design_replay.py` | `a212eecd6c540304d0faaeaabd692ba1013d53c4ddab13344015d06380524f63` | d92ee5d 2026-11-25 10:18:01 +0530 |
-| `hardware_v1_replication.py` | `5e54ce25580e09efb5c29018854b23ec66e8b3aa72be26b8e09627a9dbd26486` | not committed yet |
-| `recipe_v1_1.py` | `4b9a2a84ff354876c52a4feacd1333ece298e87fae34a57608d5406f320b4693` | not committed yet |
-| `v1_1_design_replay.py` | `114a3416f83d91ec1f09b44134855c275f981f8f7336ceb147c4bb7895383e21` | not committed yet |
-| `recipe_v1_2.py` | `36e1a325bbb3e2d7f595c7e18846457fbafd6b154e7c3414c21332ea0591b412` | not committed yet |
-| `heldout_v12.py` | `ba31d48b8e056ba8814c265fd5082d24e411643658ce06aac1e5bcf82d5b8a77` | not committed yet |
-| `hardware_v1_2.py` | `ce3a636ec86e9eac9ec02a6760ad4e516db3f4383a33d8d09dc2fbfc91d5af58` | not committed yet |
+| `hardware_v1_replication.py` | `5e54ce25580e09efb5c29018854b23ec66e8b3aa72be26b8e09627a9dbd26486` | 8e667fa 2026-11-27 13:31:31 +0530 |
+| `recipe_v1_1.py` | `4b9a2a84ff354876c52a4feacd1333ece298e87fae34a57608d5406f320b4693` | 8e667fa 2026-11-27 13:31:31 +0530 |
+| `v1_1_design_replay.py` | `114a3416f83d91ec1f09b44134855c275f981f8f7336ceb147c4bb7895383e21` | 8e667fa 2026-11-27 13:31:31 +0530 |
+| `recipe_v1_2.py` | `36e1a325bbb3e2d7f595c7e18846457fbafd6b154e7c3414c21332ea0591b412` | 8e667fa 2026-11-27 13:31:31 +0530 |
+| `heldout_v12.py` | `ba31d48b8e056ba8814c265fd5082d24e411643658ce06aac1e5bcf82d5b8a77` | 8e667fa 2026-11-27 13:31:31 +0530 |
+| `hardware_v1_2.py` | `ce3a636ec86e9eac9ec02a6760ad4e516db3f4383a33d8d09dc2fbfc91d5af58` | 8e667fa 2026-11-27 13:31:31 +0530 |
 
 ## Runs (newest first)
 
