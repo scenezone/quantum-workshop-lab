@@ -1,0 +1,8 @@
+# PREREGISTRATION.md and results/FINGERPRINTS.md quote SHA-256 hashes of these exact bytes.
+# Pin each file's line endings so every checkout (Windows, Linux, macOS; any core.autocrlf) reproduces them.
+/PREREGISTRATION.md text eol=lf
+/*.py text eol=lf
+# Frozen in Part F7 with CRLF line endings (written on Windows); keep them CRLF everywhere.
+/hardware_v2.py text eol=crlf
+/mitigation_v2.py text eol=crlf
+/recipe_v2.py text eol=crlf
