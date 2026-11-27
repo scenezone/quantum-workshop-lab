@@ -1,6 +1,6 @@
 # Fingerprints
 
-Generated 2026-11-25 12:45 by `python fingerprint.py`. Git HEAD: `d92ee5d5f75839ce645a4503ba33672984d5156c 2026-11-25 10:18:01 +0530` (research folder has uncommitted changes).
+Generated 2026-11-26 22:58 by `python fingerprint.py`. Git HEAD: `9c7a3327f2e81ebc1c3fbbeba78efdeb0647338a 2026-11-25 12:52:06 +0530` (research folder has uncommitted changes).
 
 SHA-256 is a fingerprint: changing a single byte of a file changes its hash completely. To check, re-run this script or hash a file yourself (`certutil -hashfile <file> SHA256` on Windows, `sha256sum <file>` elsewhere).
 
@@ -19,30 +19,39 @@ Earlier versions of `PREREGISTRATION.md` are rebuilt from today's file and hashe
 | A-E + 3 Part C rows (recorded by hardware round 1, 10:44) | `97b5eb8abf74fb82…` | `97b5eb8abf74fb82…` | ✅ yes |
 | A-E + 4 Part C rows (recorded by hardware round 2, 10:58) | `2a0fb6425bff06ae…` | `2a0fb6425bff06ae…` | ✅ yes |
 | A-E + 5 Part C rows (recorded by the v2 design runs, 24-25 Nov) | `8b1b6812f12014ee…` | `8b1b6812f12014ee…` | ✅ yes |
-| Current file (A-F + all Part C log entries) | `ffe5e2637af7b67a…` | `ffe5e2637af7b67a…` | ✅ yes |
+| A-F + 7 Part C rows (recorded by the v2 held-out test and dry run, 25 Nov) | `ffe5e2637af7b67a…` | `ffe5e2637af7b67a…` | ✅ yes |
+| A-F + 11 Part C rows (recorded by the v2 hardware round, 25 Nov 14:50 IST, and the replication dry run) | `037d45941177382b…` | `037d45941177382b…` | ✅ yes |
+| A-G + 11 Part C rows (recorded by the replication round, the v1.1 design replay and the v1.2 dry run, 26 Nov) | `7cb2acc714255172…` | `7cb2acc714255172…` | ✅ yes |
+| Current file (A-H + all Part C log entries) | `44c9df50bb864d94…` | `44c9df50bb864d94…` | ✅ yes |
 | recipe.py (frozen 11:22, quoted in Part B) | `0b08bb7e96d9046e…` | `0b08bb7e96d9046e…` | ✅ yes |
 | recipe_v2.py (frozen 25 Nov, quoted in Part F) | `c98dd89d6d4cb794…` | `c98dd89d6d4cb794…` | ✅ yes |
 
-## Recipe v2 frozen record (PREREGISTRATION.md Part F7)
+## Frozen records (PREREGISTRATION.md Parts F7, G5 and H6, with Part C supersessions)
 
-| File | Hash in Part F7 | Now | Match |
-|---|---|---|---|
-| `recipe_v2.py` | `c98dd89d6d4cb794…` | `c98dd89d6d4cb794…` | ✅ yes |
-| `twirl.py` | `3a80e48152259026…` | `3a80e48152259026…` | ✅ yes |
-| `heldout_v2.py` | `47cebe4405b52f8e…` | `47cebe4405b52f8e…` | ✅ yes |
-| `mitigation_v2.py` | `0de8e15281a132a8…` | `0de8e15281a132a8…` | ✅ yes |
-| `hardware_v2.py` | `a24f2acd3b55bd0a…` | `a24f2acd3b55bd0a…` | ✅ yes |
-| `recipe.py` | `0b08bb7e96d9046e…` | `0b08bb7e96d9046e…` | ✅ yes |
-| `mitigation.py` | `4b8036fee7d8228a…` | `4b8036fee7d8228a…` | ✅ yes |
-| `folding.py` | `2309126cb3bc1c61…` | `2309126cb3bc1c61…` | ✅ yes |
-| `baseline.py` | `3c216afa124ae8b3…` | `3c216afa124ae8b3…` | ✅ yes |
-| `hardware.py` | `0fcc586b83a42b7c…` | `0fcc586b83a42b7c…` | ✅ yes |
+| File | Hash quoted | Expected now | Now | Match |
+|---|---|---|---|---|
+| `recipe_v2.py` | `c98dd89d6d4cb794…` | `c98dd89d6d4cb794…` | `c98dd89d6d4cb794…` | ✅ yes |
+| `twirl.py` | `3a80e48152259026…` | `3a80e48152259026…` | `3a80e48152259026…` | ✅ yes |
+| `heldout_v2.py` | `47cebe4405b52f8e…` | `47cebe4405b52f8e…` | `47cebe4405b52f8e…` | ✅ yes |
+| `mitigation_v2.py` | `0de8e15281a132a8…` | `0de8e15281a132a8…` | `0de8e15281a132a8…` | ✅ yes |
+| `hardware_v2.py` | `a24f2acd3b55bd0a…` | `1c8b4e376bde624a…` (Part C) | `1c8b4e376bde624a…` | ✅ yes |
+| `recipe.py` | `0b08bb7e96d9046e…` | `0b08bb7e96d9046e…` | `0b08bb7e96d9046e…` | ✅ yes |
+| `mitigation.py` | `4b8036fee7d8228a…` | `4b8036fee7d8228a…` | `4b8036fee7d8228a…` | ✅ yes |
+| `folding.py` | `2309126cb3bc1c61…` | `2309126cb3bc1c61…` | `2309126cb3bc1c61…` | ✅ yes |
+| `baseline.py` | `3c216afa124ae8b3…` | `3c216afa124ae8b3…` | `3c216afa124ae8b3…` | ✅ yes |
+| `hardware.py` | `0fcc586b83a42b7c…` | `0fcc586b83a42b7c…` | `0fcc586b83a42b7c…` | ✅ yes |
+| `hardware_v1_replication.py` | `5e54ce25580e09ef…` | `5e54ce25580e09ef…` | `5e54ce25580e09ef…` | ✅ yes |
+| `recipe_v1_2.py` | `36e1a325bbb3e2d7…` | `36e1a325bbb3e2d7…` | `36e1a325bbb3e2d7…` | ✅ yes |
+| `recipe_v1_1.py` | `4b9a2a84ff354876…` | `4b9a2a84ff354876…` | `4b9a2a84ff354876…` | ✅ yes |
+| `heldout_v12.py` | `ba31d48b8e056ba8…` | `ba31d48b8e056ba8…` | `ba31d48b8e056ba8…` | ✅ yes |
+| `hardware_v1_2.py` | `ce3a636ec86e9eac…` | `ce3a636ec86e9eac…` | `ce3a636ec86e9eac…` | ✅ yes |
+| `v1_1_design_replay.py` | `114a3416f83d91ec…` | `114a3416f83d91ec…` | `114a3416f83d91ec…` | ✅ yes |
 
 ## Key files now
 
 | File | SHA-256 | Last commit touching it |
 |---|---|---|
-| `PREREGISTRATION.md` | `ffe5e2637af7b67ac5c850b5af5b224247710f2ed4ed8f5cc6a8c02ed79f4df2` | d92ee5d 2026-11-25 10:18:01 +0530 |
+| `PREREGISTRATION.md` | `44c9df50bb864d948d33ee182cadcd8693c1f909ccb8c2e955a748c5068ca74d` | 9c7a332 2026-11-25 12:52:06 +0530 |
 | `recipe.py` | `0b08bb7e96d9046e3be34ada9917c09859d2dba9895d1894d647ad26f1a67428` | d65539c 2026-11-23 12:25:17 +0530 |
 | `heldout.py` | `7d6b0c9ae9f677876c244174345a672540e99165eea9e3e1cfd028b575c36109` | d65539c 2026-11-23 12:25:17 +0530 |
 | `mitigation.py` | `4b8036fee7d8228aae51fa9a8aa9877e294254447281eb6b14341dafbd82c4a3` | d92ee5d 2026-11-25 10:18:01 +0530 |
@@ -52,14 +61,111 @@ Earlier versions of `PREREGISTRATION.md` are rebuilt from today's file and hashe
 | `noise_scaling.py` | `db4c5ebc9a84a9e198a5661d1aa9563c170761fdafd3e6f4b95ed67f607c4d10` | d92ee5d 2026-11-25 10:18:01 +0530 |
 | `baseline.py` | `3c216afa124ae8b3e4d340c3dc74958c1eda1e14df702fec8d29b6841940d094` | d65539c 2026-11-23 12:25:17 +0530 |
 | `runlog.py` | `763418ea443a12291c1b8fed8af8729de876c7678bda1d1d677b7069f1f03663` | d65539c 2026-11-23 12:25:17 +0530 |
-| `recipe_v2.py` | `c98dd89d6d4cb794cdefd9c63277734ca5d2d24417f60dcfe522c1b7a957bfd8` | d92ee5d 2026-11-25 10:18:01 +0530 |
+| `recipe_v2.py` | `c98dd89d6d4cb794cdefd9c63277734ca5d2d24417f60dcfe522c1b7a957bfd8` | 9c7a332 2026-11-25 12:52:06 +0530 |
 | `twirl.py` | `3a80e48152259026c71c9b1a4c74417d9451782df6d849e6d1cd44779d015a4a` | d92ee5d 2026-11-25 10:18:01 +0530 |
 | `heldout_v2.py` | `47cebe4405b52f8ee46d84b121fa9ec39862fa97011a4b210a97c05e2207d3be` | d92ee5d 2026-11-25 10:18:01 +0530 |
-| `mitigation_v2.py` | `0de8e15281a132a858f6b491411185b1945000369b9b7afae78087cf1485b183` | d92ee5d 2026-11-25 10:18:01 +0530 |
-| `hardware_v2.py` | `a24f2acd3b55bd0a08528cbebbd2290a3d9b05ac28ce4332d1e49213d639c1d5` | d92ee5d 2026-11-25 10:18:01 +0530 |
+| `mitigation_v2.py` | `0de8e15281a132a858f6b491411185b1945000369b9b7afae78087cf1485b183` | 9c7a332 2026-11-25 12:52:06 +0530 |
+| `hardware_v2.py` | `1c8b4e376bde624a8c31ca6903793eb8ed56d7cd86591db6dc721e7e2453a3e2` | 9c7a332 2026-11-25 12:52:06 +0530 |
 | `v2_design_replay.py` | `a212eecd6c540304d0faaeaabd692ba1013d53c4ddab13344015d06380524f63` | d92ee5d 2026-11-25 10:18:01 +0530 |
+| `hardware_v1_replication.py` | `5e54ce25580e09efb5c29018854b23ec66e8b3aa72be26b8e09627a9dbd26486` | not committed yet |
+| `recipe_v1_1.py` | `4b9a2a84ff354876c52a4feacd1333ece298e87fae34a57608d5406f320b4693` | not committed yet |
+| `v1_1_design_replay.py` | `114a3416f83d91ec1f09b44134855c275f981f8f7336ceb147c4bb7895383e21` | not committed yet |
+| `recipe_v1_2.py` | `36e1a325bbb3e2d7f595c7e18846457fbafd6b154e7c3414c21332ea0591b412` | not committed yet |
+| `heldout_v12.py` | `ba31d48b8e056ba8814c265fd5082d24e411643658ce06aac1e5bcf82d5b8a77` | not committed yet |
+| `hardware_v1_2.py` | `ce3a636ec86e9eac9ec02a6760ad4e516db3f4383a33d8d09dc2fbfc91d5af58` | not committed yet |
 
 ## Runs (newest first)
+
+### `20261126-225723_hardware-v1-2`
+
+Created 2026-11-26T22:57:23 · code at commit `9c7a332 + uncommitted research changes` · pre-registration `44c9df50bb864d94…`
+
+| File | Bytes | SHA-256 |
+|---|---|---|
+| `account_reads.json` | 1032 | `df748c53282eef18bab94be9e37504cc490b7c3abd2423419acba3b022b97f48` |
+| `hardware_v1_2.md` | 4607 | `263d9de7cae229a1504094b8a1f6295f252095d1a2be48bc9c974d0007777297` |
+| `manifest.json` | 1680 | `b9ad45665087b16a62bfdf71f62b1d4340bdf44e1702bfbea3a36afc0240c786` |
+| `results.json` | 8810 | `92f39de01893c8dc8d2d02e187418d7d75c3b22fd66b44110b87630b02b2b77d` |
+| `summary.json` | 7237 | `4938d648d55f207ae8a346bcd8aa4381f18be772be1a3d80c088252eaebc2fa7` |
+
+### `20261126-224957_hardware-v1-2-dryrun`
+
+Created 2026-11-26T22:49:57 · code at commit `9c7a332 + uncommitted research changes` · pre-registration `7cb2acc714255172…`
+
+| File | Bytes | SHA-256 |
+|---|---|---|
+| `hardware_v1_2.md` | 4776 | `6940bf12ae5573335b65865f4090a5f5864e44e7f02d3a80658d578b0e713327` |
+| `manifest.json` | 1646 | `616fbe3258e33bebc4c5b0d97bf720fde14312bd0388cc583f4768b468e1af3d` |
+| `results.json` | 6532 | `0fbdfe086b166d17edbec078c799296ab09937bfaf6d61d88511d96a7a1aab7d` |
+| `summary.json` | 7230 | `a3a11e00c0b4345d7ce0978717da93158c7cddbb6bf701b960f2408c3378f7c5` |
+
+### `20261126-223700_v1-1-design-replay`
+
+Created 2026-11-26T22:37:00 · code at commit `9c7a332 + uncommitted research changes` · pre-registration `7cb2acc714255172…`
+
+| File | Bytes | SHA-256 |
+|---|---|---|
+| `manifest.json` | 1941 | `9923234d46740d6cb294a9a1c0cc101850d474eaa57bfbafcc2d114ec67424f1` |
+| `summary.json` | 59723 | `819ab0f93c3706a865a86b396b4a784e21616f03ce6d684e29d14a2ad1a51743` |
+| `v1_1_design_replay.md` | 11409 | `1027e3eb449763c47206a6abdb341749d9e75e797a7eafba10d3edd5e077b5a4` |
+
+### `20261126-120458_hardware-v1-replication`
+
+Created 2026-11-26T12:04:58 · code at commit `9c7a332 + uncommitted research changes` · pre-registration `7cb2acc714255172…`
+
+| File | Bytes | SHA-256 |
+|---|---|---|
+| `account_reads.json` | 1014 | `4ccc095f607cf588e93662f277a697f35f5cfc8790032d016a518768317e6212` |
+| `hardware_v1_replication.md` | 3409 | `367f503afa152e3b68bdf2e0791e9c671236e1f3530e53562c45657301adab23` |
+| `manifest.json` | 1758 | `d282141f7ee8ec2ba0ecdefe075f07e5d47fd2f03bf4e63f5d548a9e4f339260` |
+| `results.json` | 7717 | `d57a056c72d878e14aa1f7156970ecaa16ddc3b31abcc485cb313b29332c0b3e` |
+| `summary.json` | 4842 | `cf729dd6609cc56c125fc4620eb629e82f2cb870eac200d351e6ac25c4c6c00b` |
+
+### `20261126-120029_hardware-v1-replication-dryrun`
+
+Created 2026-11-26T12:00:29 · code at commit `9c7a332 + uncommitted research changes` · pre-registration `037d45941177382b…`
+
+| File | Bytes | SHA-256 |
+|---|---|---|
+| `hardware_v1_replication.md` | 3456 | `b0688efc5bc360a0f9c92399780ece70615f3c909e4fded6a45b397bfceeda27` |
+| `manifest.json` | 1728 | `af6280f7d89ee3af616734d81c8487545450bd1d7672469388a12b3784958c66` |
+| `results.json` | 4429 | `08032acc8eb80a843161b502aef8fc26ffd5fc38318bdbef945b34b1e0b01585` |
+| `summary.json` | 4714 | `b0eb71e8177ad5bf310061fc165048d530757a70b76aad8b0a16cb065f62e14e` |
+
+### `20261125-145032_hardware-v2`
+
+Created 2026-11-25T14:50:32 · code at commit `9c7a332 + uncommitted research changes` · pre-registration `037d45941177382b…`
+
+| File | Bytes | SHA-256 |
+|---|---|---|
+| `account_reads.json` | 1349 | `c5be90e63ddd050a33e6b99ceada7abef7e316da3e8ca9026fcc9c23837e3314` |
+| `hardware_v2.md` | 3704 | `5103e6a4503f5da2fba5a9ea977391bbfb50bccb98c7b7ecb10bee88d9cfeefa` |
+| `manifest.json` | 2756 | `0bcc74a112adc77a9482c45a290151723da8b69fb34871bac32e80351633079a` |
+| `results.json` | 43417 | `176dd94f2726dc486d8deabc786c7fec9c257ff2c28d8bf1399f00e5c64e0b6a` |
+| `summary.json` | 4260 | `b09961f6433aab66ec9cc513f839dd1d05a99d94f92ea3abda74ed69c5f19f2c` |
+
+### `20261125-125318_hardware-v2-dryrun`
+
+Created 2026-11-25T12:53:18 · code at commit `9c7a332 + uncommitted research changes` · pre-registration `ffe5e2637af7b67a…`
+
+| File | Bytes | SHA-256 |
+|---|---|---|
+| `hardware_v2.md` | 3873 | `683498ec3f0bef0ad01df1b285e5a3b782ec3a89ffe094dbd9db43d88a58a9af` |
+| `manifest.json` | 2707 | `77601d84957d781ae3d5093d17c04fcef2f7e7daa956d27e795183f699fa803f` |
+| `results.json` | 35887 | `2f86e56f2db524081a99d961ffdc9936ddeba541d9dc5f9783009ed7332888e8` |
+| `summary.json` | 4167 | `6821b4434bf486c6afe4066ad871e562a1e597b9f5f54c3c7e493908e7a738c3` |
+
+### `20261125-124533_mitigation-v2-test`
+
+Created 2026-11-25T12:45:33 · code at commit `d92ee5d + uncommitted research changes` · pre-registration `ffe5e2637af7b67a…`
+
+| File | Bytes | SHA-256 |
+|---|---|---|
+| `counts.json` | 108284 | `d3c3309de2390300339556f593f5c71ce303122043beeb1dd49278e8bfcf059d` |
+| `manifest.json` | 8729 | `d8a744722a5bfa5d940196e4bcb0f7d1f2d781fdcf543bcbc59a685d1778ff92` |
+| `mitigation_v2.csv` | 1035 | `2b067856bdb48e8da8e999acae1c37dfa1f493bf3bb568642d337ec6b9086366` |
+| `mitigation_v2.md` | 4326 | `b8b0406cfecb4e8171545f6d2c2b7972f702dedc707fc2d4e494bdb08e6c5291` |
+| `targets.json` | 677 | `17bc904ec6dd80501af58f59e4c0c240c3544396b253a029aa3074380095f0e0` |
 
 ### `20261125-120531_mitigation-v2-train-partial`
 

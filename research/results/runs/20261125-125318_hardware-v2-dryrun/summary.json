@@ -1,0 +1,133 @@
+{
+ "rows": [
+  {
+   "circuit": "Heisenberg-4",
+   "two_qubit_gates": 44,
+   "exact": -0.6462202414743252,
+   "none": 0.06904660611709112,
+   "none_value": -0.5771736353572341,
+   "none_branch": "-",
+   "none_std": 0.0036472924691586797,
+   "recipe_v1": 0.0013313019143232907,
+   "recipe_v1_value": -0.6448889395600019,
+   "recipe_v1_branch": "exp",
+   "recipe_v1_std": 0.00625937493402167,
+   "v1_clip": 0.0013313019143232907,
+   "v1_clip_value": -0.6448889395600019,
+   "v1_clip_branch": "exp",
+   "v1_clip_std": 0.007049355689844726,
+   "recipe_v2": 0.003971371662095047,
+   "recipe_v2_value": -0.6422488698122302,
+   "recipe_v2_branch": "exp",
+   "recipe_v2_std": 0.008046666639556666,
+   "v2_s15": 0.016019503529753454,
+   "v2_s15_value": -0.6302007379445718,
+   "v2_s15_branch": "exp",
+   "v2_s15_std": 0.013476224623709655,
+   "ibm_rl2": NaN,
+   "ibm_rl2_std": NaN,
+   "ibm_rl2_value": NaN,
+   "ibm_rl2_branch": "not run"
+  },
+  {
+   "circuit": "QPE-4",
+   "two_qubit_gates": 26,
+   "exact": 0.9999999999999989,
+   "none": 0.08507195776206988,
+   "none_value": 0.914928042237929,
+   "none_branch": "-",
+   "none_std": 0.0018452884828255422,
+   "recipe_v1": 0.0015937198993301038,
+   "recipe_v1_value": 0.9984062801006688,
+   "recipe_v1_branch": "exp",
+   "recipe_v1_std": 0.003087738851279836,
+   "v1_clip": 1.1102230246251565e-15,
+   "v1_clip_value": 1.0,
+   "v1_clip_branch": "exp+clip",
+   "v1_clip_std": 0.0009195253540622939,
+   "recipe_v2": 0.014109959402228922,
+   "recipe_v2_value": 0.98589004059777,
+   "recipe_v2_branch": "exp",
+   "recipe_v2_std": 0.007494412842253445,
+   "v2_s15": 0.028481773931686827,
+   "v2_s15_value": 0.9715182260683121,
+   "v2_s15_branch": "exp",
+   "v2_s15_std": 0.00998333406319207,
+   "ibm_rl2": NaN,
+   "ibm_rl2_std": NaN,
+   "ibm_rl2_value": NaN,
+   "ibm_rl2_branch": "not run"
+  }
+ ],
+ "targets": [
+  {
+   "id": "G1 Heisenberg-4: v2 clearly better than recipe v1",
+   "passed": false,
+   "detail": "v2 no clear difference: 0.0040 vs 0.0013 (gap -0.0026, combined spread 0.0102)"
+  },
+  {
+   "id": "G2 Heisenberg-4: v2 not clearly worse than IBM level 2",
+   "passed": true,
+   "detail": "v2 no clear difference: 0.0040 vs nan (gap +nan, combined spread nan)"
+  },
+  {
+   "id": "G3 Heisenberg-4: v2 clearly better than no mitigation",
+   "passed": true,
+   "detail": "v2 clearly better: 0.0040 vs 0.0690 (gap +0.0651, combined spread 0.0088)"
+  },
+  {
+   "id": "G1 QPE-4: v2 clearly better than recipe v1",
+   "passed": false,
+   "detail": "v2 clearly worse: 0.0141 vs 0.0016 (gap -0.0125, combined spread 0.0081)"
+  },
+  {
+   "id": "G2 QPE-4: v2 not clearly worse than IBM level 2",
+   "passed": true,
+   "detail": "v2 no clear difference: 0.0141 vs nan (gap +nan, combined spread nan)"
+  },
+  {
+   "id": "G3 QPE-4: v2 clearly better than no mitigation",
+   "passed": true,
+   "detail": "v2 clearly better: 0.0141 vs 0.0851 (gap +0.0710, combined spread 0.0077)"
+  },
+  {
+   "id": "G2-cost: v2 RUs <= 0.5 x IBM level 2 RUs (round total)",
+   "passed": false,
+   "detail": "v2 0.000 RU vs 0.5 x L2 = nan RU"
+  },
+  {
+   "id": "secondary Heisenberg-4: v1_clip vs recipe v2",
+   "passed": null,
+   "detail": "v1_clip no clear difference: 0.0013 vs 0.0040 (gap +0.0026, combined spread 0.0107)"
+  },
+  {
+   "id": "secondary Heisenberg-4: v2_s15 vs recipe v2",
+   "passed": null,
+   "detail": "v2_s15 no clear difference: 0.0160 vs 0.0040 (gap -0.0120, combined spread 0.0157)"
+  },
+  {
+   "id": "secondary QPE-4: v1_clip vs recipe v2",
+   "passed": null,
+   "detail": "v1_clip clearly better: 0.0000 vs 0.0141 (gap +0.0141, combined spread 0.0076)"
+  },
+  {
+   "id": "secondary QPE-4: v2_s15 vs recipe v2",
+   "passed": null,
+   "detail": "v2_s15 clearly worse: 0.0285 vs 0.0141 (gap -0.0144, combined spread 0.0125)"
+  }
+ ],
+ "estimated": {
+  "none": 11.99993684,
+  "recipe_v1": 11.999317172000001,
+  "recipe_v2": 11.994469568000001,
+  "ibm_rl2": 46.550243576272806,
+  "v2_s15": 11.995885088
+ },
+ "rus": {
+  "none": 0,
+  "recipe_v1": 0,
+  "recipe_v2": 0,
+  "ibm_rl2": NaN,
+  "v2_s15": 0
+ }
+}

@@ -69,6 +69,7 @@ BOOTSTRAP = 500
 RL2_SECONDS_PER_SHOT_PER_CIRCUIT = 83 / (8 * 10469)  # measured in rounds 1-2 (planning only)
 SAMPLER_JOB_OVERHEAD_S = 2.5  # rounds 1-2: charged minus estimated, per Sampler job (27 vs 24, 29 vs 24 in 2 jobs)
 RESERVE_RUS = 1.0  # Part F5: kept for resubmitting a failed job
+SECONDARY_FLOOR_RUS = 2.0  # Part C, 25 Nov 2026: v2_s15 runs only if >= 2 RU remain after it
 
 
 def estimator_observables() -> dict[str, SparsePauliOp]:
@@ -161,8 +162,15 @@ def estimated_seconds(plan: dict) -> dict[str, float]:
     return est
 
 
-def run_jobs(plan: dict, mode, order: list[str], max_rus: float | None, save) -> dict:
+def run_jobs(plan: dict, mode, order: list[str], max_rus: float | None, save, account_remaining=None,
+             secondary_cost_rus: float = 0.0) -> dict:
+    """Submit the methods in `order`, one job at a time.
+
+    account_remaining: callable returning the account's remaining RUs (None in a dry run). The secondary v2_s15
+    runs only if at least SECONDARY_FLOOR_RUS would remain after it (Part C, 25 Nov 2026: the reserve is never
+    used for the secondary)."""
     s = plan["shots"]
+    start_remaining = account_remaining() if account_remaining else None
     items = {"none": [], "v1": [], "v1cal": [], "v2": [], "v2cal": [], "sec": [], "seccal": []}
     for name, e in plan["tasks"].items():
         b = e["basis"]
@@ -188,6 +196,17 @@ def run_jobs(plan: dict, mode, order: list[str], max_rus: float | None, save) ->
         if max_rus is not None and used_rus >= max_rus:
             print(f"STOP: {used_rus:.3f} RU used reached the cap {max_rus}; not submitting {method} or later.")
             break
+        if method == "v2_s15" and start_remaining is not None:
+            now = account_remaining()
+            left = min(x for x in (now, start_remaining - used_rus) if x is not None)  # the more cautious of the two
+            if left - secondary_cost_rus < SECONDARY_FLOOR_RUS:
+                reason = (f"skipped: {left:.3f} RU remain, the secondary needs ~{secondary_cost_rus:.2f} RU and at least "
+                          f"{SECONDARY_FLOOR_RUS} RU must remain after it (Part C, 25 Nov 2026)")
+                print(f"v2_s15 {reason}")
+                results[method] = {"jobs": [], "skipped": reason, "quantum_seconds": None, "rus": None}
+                save(results)
+                continue
+            print(f"v2_s15 allowed: {left:.3f} RU remain, ~{secondary_cost_rus:.2f} RU needed, floor {SECONDARY_FLOOR_RUS}")
         resubmitted: list = []
         if method == "none":
             counts, info = submit("none", lambda: hardware._sampler_job(mode, items["none"], s["none"]), resubmitted)
@@ -402,6 +421,30 @@ def main() -> None:
         return
     if args.submit and args.confirm_qpu_seconds < total:
         raise SystemExit(f"Refusing to submit: estimate {total:.1f} s > --confirm-qpu-seconds {args.confirm_qpu_seconds}")
+    account_remaining = None
+    account_reads: list[dict] = []  # every read, with its UTC time; saved as account_reads.json in the run folder
+    if args.submit:
+        from datetime import datetime, timezone
+
+        def account_remaining():
+            try:
+                u = service.usage()
+                read = {"read_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                        **{k: u.get(k) for k in ("usage_remaining_ru", "usage_consumed_ru", "usage_limit_ru",
+                                                 "usage_remaining_seconds", "usage_consumed_seconds", "usage_period")}}
+                account_reads.append(read)
+                print(f"Account read {read['read_at_utc']}: {read['usage_remaining_ru']} RU remaining")
+                return float(u["usage_remaining_ru"])
+            except Exception as exc:  # noqa: BLE001
+                print(f"could not read the account's remaining RUs ({type(exc).__name__})")
+                account_reads.append({"read_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                                      "error": type(exc).__name__})
+                return None
+        remaining = account_remaining()
+        need = 1.5 * sum(charged.values()) / 60
+        print(f"Account: {remaining} RU remaining; Part F5 needs >= {need:.2f}")
+        if remaining is None or remaining < need:
+            raise SystemExit(f"Refusing to submit: remaining RUs {remaining} < 1.5 x expected = {need:.2f} (Part F5)")
 
     kind = "hardware-v2" if args.submit else "hardware-v2-dryrun"
     run_dir = runlog.new_run(kind, config={
@@ -423,7 +466,11 @@ def main() -> None:
             "Error = |estimate - exact|; spread = bootstrap std (Sampler: multinomial resampling; Estimator: normal "
             "draws from the reported std).",
         ])
-    results = run_jobs(plan, backend, order, args.max_rus, lambda res: runlog.write_json(run_dir / "results.json", res))
+    results = run_jobs(plan, backend, order, args.max_rus, lambda res: runlog.write_json(run_dir / "results.json", res),
+                       account_remaining, charged.get("v2_s15", 0.0) / 60)
+    if account_reads:
+        account_remaining()  # one last read after the round
+        runlog.write_json(run_dir / "account_reads.json", account_reads)
     runlog.write_json(run_dir / "results.json", results)
     rows = analyze(plan, results)
     rus = {m: results.get(m, {}).get("rus") for m in METHODS}

@@ -1,0 +1,22 @@
+[
+ {
+  "id": "S1 Heisenberg-4: v2 clearly better than no mitigation (simulator)",
+  "passed": true,
+  "detail": "v2 0.0143 vs none 0.0667 (gap +0.0524, combined spread 0.0083)"
+ },
+ {
+  "id": "S1 QPE-4: v2 clearly better than no mitigation (simulator)",
+  "passed": true,
+  "detail": "v2 0.0086 vs none 0.0827 (gap +0.0740, combined spread 0.0086)"
+ },
+ {
+  "id": "E1 Heisenberg-4: expectation, v2 not better than v1 in the simulator",
+  "passed": null,
+  "detail": "v2 0.0143 vs v1 0.0108 (ratio 1.32)"
+ },
+ {
+  "id": "E1 QPE-4: expectation, v2 not better than v1 in the simulator",
+  "passed": null,
+  "detail": "v2 0.0086 vs v1 0.0047 (ratio 1.84)"
+ }
+]

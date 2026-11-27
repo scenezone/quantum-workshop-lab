@@ -28,7 +28,9 @@ HERE = Path(__file__).parent
 RUNS = HERE / "results" / "runs"
 KEY_FILES = ("PREREGISTRATION.md", "recipe.py", "heldout.py", "mitigation.py", "folding.py", "hardware.py",
              "hardware_usage.py", "noise_scaling.py", "baseline.py", "runlog.py", "recipe_v2.py", "twirl.py",
-             "heldout_v2.py", "mitigation_v2.py", "hardware_v2.py", "v2_design_replay.py")
+             "heldout_v2.py", "mitigation_v2.py", "hardware_v2.py", "v2_design_replay.py",
+             "hardware_v1_replication.py", "recipe_v1_1.py", "v1_1_design_replay.py", "recipe_v1_2.py",
+             "heldout_v12.py", "hardware_v1_2.py")
 
 # Hashes recorded at run time (PREREGISTRATION.md Parts B and D quote them too).
 RECORDED = {
@@ -41,6 +43,9 @@ RECORDED = {
     "A-E + 3 Part C rows (recorded by hardware round 1, 10:44)": "97b5eb8abf74fb82a77026cf17e7cd5beb454b5d183af3e38cc27767e95ba3ab",
     "A-E + 4 Part C rows (recorded by hardware round 2, 10:58)": "2a0fb6425bff06ae731eb8e41f85ac2032ffd102dffa1809993db51f7ba74b8f",
     "A-E + 5 Part C rows (recorded by the v2 design runs, 24-25 Nov)": "8b1b6812f12014ee89d96621f21850342c97cf46b6dcba9c8b236df04083ba0f",
+    "A-F + 7 Part C rows (recorded by the v2 held-out test and dry run, 25 Nov)": "ffe5e2637af7b67ac5c850b5af5b224247710f2ed4ed8f5cc6a8c02ed79f4df2",
+    "A-F + 11 Part C rows (recorded by the v2 hardware round, 25 Nov 14:50 IST, and the replication dry run)": "037d45941177382b3e364e9e4b80dcbc2470ebbda02c75c9435fc136c9e35252",
+    "A-G + 11 Part C rows (recorded by the replication round, the v1.1 design replay and the v1.2 dry run, 26 Nov)": "7cb2acc71425517280d6bbd5d2666638dcb510575c82042642eefa6d3fd7b345",
 }
 # Versions of the file recorded by runs: label -> (run folders, number of Part C log rows the file had then).
 # The script also checks that each hash above equals the one in those runs' manifest.json.
@@ -52,6 +57,19 @@ PART_C_VERSIONS = {
     "A-E + 5 Part C rows (recorded by the v2 design runs, 24-25 Nov)": (
         ("20261124-161451_mitigation-v2-train", "20261125-101929_mitigation-v2-train-scales1-2-3",
          "20261125-120531_mitigation-v2-train-partial"), 5),
+}
+# Versions with Part F (it sits before Part C): label -> (run folders, number of Part C log rows).
+PART_F_VERSIONS = {
+    "A-F + 7 Part C rows (recorded by the v2 held-out test and dry run, 25 Nov)": (
+        ("20261125-124533_mitigation-v2-test", "20261125-125318_hardware-v2-dryrun"), 7),
+    "A-F + 11 Part C rows (recorded by the v2 hardware round, 25 Nov 14:50 IST, and the replication dry run)": (
+        ("20261125-145032_hardware-v2", "20261126-120029_hardware-v1-replication-dryrun"), 11),
+}
+# Versions with Part G but before Part H (H sits between G and C): label -> (run folders, number of Part C log rows).
+PART_G_VERSIONS = {
+    "A-G + 11 Part C rows (recorded by the replication round, the v1.1 design replay and the v1.2 dry run, 26 Nov)": (
+        ("20261126-120458_hardware-v1-replication", "20261126-223700_v1-1-design-replay",
+         "20261126-224957_hardware-v1-2-dryrun"), 11),
 }
 RECIPE_FROZEN = "0b08bb7e96d9046e3be34ada9917c09859d2dba9895d1894d647ad26f1a67428"
 RECIPE_V2_FROZEN = "c98dd89d6d4cb794cdefd9c63277734ca5d2d24417f60dcfe522c1b7a957bfd8"  # quoted in Part F (25 Nov 2026)
@@ -136,7 +154,36 @@ def main() -> None:
             in_manifest = runlog.read_json(RUNS / run_name / "manifest.json").get("preregistration_sha256")
             if in_manifest != RECORDED[label]:
                 raise SystemExit(f"{run_name}/manifest.json records {in_manifest}, not {RECORDED[label]}")
-    current = "Current file (A-F + all Part C log entries)"
+    # Versions with Part F but before Part G (G sits between F and C): the file without Part G, cut after its
+    # n-th Part C row.
+    text_f = full_text
+    if "## Part G:" in full_text:
+        text_f = full_text[: full_text.index("## Part G:")] + full_text[full_text.index("## Part C:"):]
+    fc_start = text_f.index("## Part C:")
+    fc_lines = text_f[fc_start:].rstrip("\n").split("\n")
+    f_rows = [i for i, line in enumerate(fc_lines) if line.startswith("| ") and not line.startswith("| Date ")]
+    for label, (run_names, n_rows) in PART_F_VERSIONS.items():
+        rebuilt[label] = sha256((text_f[:fc_start] + "\n".join(fc_lines[: f_rows[n_rows - 1] + 1]) + "\n")
+                                .encode("utf-8"))
+        for run_name in run_names:
+            in_manifest = runlog.read_json(RUNS / run_name / "manifest.json").get("preregistration_sha256")
+            if in_manifest != RECORDED[label]:
+                raise SystemExit(f"{run_name}/manifest.json records {in_manifest}, not {RECORDED[label]}")
+    # Versions with Part G but before Part H: the file without Part H, cut after its n-th Part C row.
+    text_g = full_text
+    if "## Part H:" in full_text:
+        text_g = full_text[: full_text.index("## Part H:")] + full_text[full_text.index("## Part C:"):]
+    gc_start = text_g.index("## Part C:")
+    gc_lines = text_g[gc_start:].rstrip("\n").split("\n")
+    g_rows = [i for i, line in enumerate(gc_lines) if line.startswith("| ") and not line.startswith("| Date ")]
+    for label, (run_names, n_rows) in PART_G_VERSIONS.items():
+        rebuilt[label] = sha256((text_g[:gc_start] + "\n".join(gc_lines[: g_rows[n_rows - 1] + 1]) + "\n")
+                                .encode("utf-8"))
+        for run_name in run_names:
+            in_manifest = runlog.read_json(RUNS / run_name / "manifest.json").get("preregistration_sha256")
+            if in_manifest != RECORDED[label]:
+                raise SystemExit(f"{run_name}/manifest.json records {in_manifest}, not {RECORDED[label]}")
+    current = "Current file (A-H + all Part C log entries)"
     rebuilt[current] = sha256(full_text.encode("utf-8"))
     RECORDED.setdefault(current, rebuilt[current])
     rebuilt["recipe.py (frozen 11:22, quoted in Part B)"] = sha256((HERE / "recipe.py").read_bytes())
@@ -152,11 +199,17 @@ def main() -> None:
     if "## Part F:" in full_text:
         if not frozen:
             raise SystemExit("Part F7 frozen-file table not found or not filled in")
-        lines += ["", "## Recipe v2 frozen record (PREREGISTRATION.md Part F7)", "",
-                  "| File | Hash in Part F7 | Now | Match |", "|---|---|---|---|"]
+        # A later Part C row may supersede a file's F7 hash: "**Supersedes F7:** `file` SHA-256 `hash`" (last wins).
+        log = full_text[full_text.index("## Part C:"):]
+        superseded = dict(re.findall(r"\*\*Supersedes F7:\*\* `([\w.]+)` SHA-256 `([0-9a-f]{64})`", log))
+        lines += ["", "## Frozen records (PREREGISTRATION.md Parts F7, G5 and H6, with Part C supersessions)", "",
+                  "| File | Hash quoted | Expected now | Now | Match |", "|---|---|---|---|---|"]
         for name, quoted in frozen:
             now = sha256((HERE / name).read_bytes())
-            lines.append(f"| `{name}` | `{quoted[:16]}…` | `{now[:16]}…` | {'✅ yes' if now == quoted else '❌ NO'} |")
+            expected = superseded.get(name, quoted)
+            note = " (Part C)" if name in superseded else ""
+            lines.append(f"| `{name}` | `{quoted[:16]}…` | `{expected[:16]}…`{note} | `{now[:16]}…` | "
+                         f"{'✅ yes' if now == expected else '❌ NO'} |")
 
     lines += ["", "## Key files now", "", "| File | SHA-256 | Last commit touching it |", "|---|---|---|"]
     for name in KEY_FILES:

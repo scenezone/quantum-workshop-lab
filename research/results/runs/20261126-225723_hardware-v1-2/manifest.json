@@ -1,0 +1,61 @@
+{
+ "run_id": "20261126-225723_hardware-v1-2",
+ "kind": "hardware-v1-2",
+ "created": "2026-11-26T22:57:23",
+ "command": "python.exe hardware_v1_2.py --submit --confirm-qpu-seconds 30 --max-rus 0.65",
+ "method": [
+  "Three jobs, one at a time: none (1 Sampler); recipe v1 (Sampler: all-gate folding 1/3/5; Sampler: readout calibration). Recipe v1.2 = v1 + decay/alive flags, from v1's counts.",
+  "Compilation level 2, best of 20 seeds; 3.0 estimated quantum s per circuit per method.",
+  "Error = |estimate - exact|; spread = bootstrap std; clearly better = gap > combined spread."
+ ],
+ "config": {
+  "backend": "ibm_marrakesh",
+  "submit": true,
+  "order": [
+   "none",
+   "recipe_v1"
+  ],
+  "max_rus": 0.65,
+  "budget_qs_per_circuit": 3.0,
+  "circuits": {
+   "W-4": 6,
+   "Toffoli-3": 7,
+   "CDKM-adder-3": 70,
+   "Draper-adder-4": 70
+  },
+  "recipe_v1": "v1",
+  "recipe_v1_2": "v1.2",
+  "k": 2.0,
+  "rules": [
+   "decay",
+   "alive"
+  ],
+  "shots_per_pub": {
+   "none": 11703,
+   "v1_scales": 3059,
+   "v1_cal": 1147
+  },
+  "estimated_quantum_seconds": {
+   "none": 11.999647644,
+   "recipe_v1": 11.996600796000001
+  },
+  "bootstrap": 500,
+  "seed": 7,
+  "reserve_rus": 0.5
+ },
+ "environment": {
+  "python": "3.12.10",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "packages": {
+   "qiskit": "2.6.2",
+   "qiskit-aer": "0.18.4",
+   "qiskit-ibm-runtime": "0.52.1",
+   "mitiq": "1.1.0",
+   "numpy": "2.2.6",
+   "scipy": "1.17.1"
+  },
+  "git_commit": "9c7a3327f2e81ebc1c3fbbeba78efdeb0647338a",
+  "git_research_dirty": true
+ },
+ "preregistration_sha256": "44c9df50bb864d948d33ee182cadcd8693c1f909ccb8c2e955a748c5068ca74d"
+}

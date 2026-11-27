@@ -1,0 +1,155 @@
+{
+ "rows": [
+  {
+   "circuit": "Heisenberg-4",
+   "two_qubit_gates": 44,
+   "exact": -0.6462202414743252,
+   "none": 0.07043040923384158,
+   "none_value": -0.5757898322404836,
+   "none_branch": "-",
+   "none_std": 0.0038304554589027526,
+   "recipe_v1": 0.008378731594471889,
+   "recipe_v1_value": -0.6545989730687971,
+   "recipe_v1_branch": "exp",
+   "recipe_v1_std": 0.008090985797004341,
+   "v1_clip": 0.008378731594471889,
+   "v1_clip_value": -0.6545989730687971,
+   "v1_clip_branch": "exp",
+   "v1_clip_std": 0.007995447550595763,
+   "recipe_v2": NaN,
+   "recipe_v2_std": NaN,
+   "recipe_v2_value": NaN,
+   "recipe_v2_branch": "not run",
+   "v2_s15": NaN,
+   "v2_s15_std": NaN,
+   "v2_s15_value": NaN,
+   "v2_s15_branch": "not run",
+   "ibm_rl2": NaN,
+   "ibm_rl2_std": NaN,
+   "ibm_rl2_value": NaN,
+   "ibm_rl2_branch": "not run"
+  },
+  {
+   "circuit": "QPE-4",
+   "two_qubit_gates": 26,
+   "exact": 0.9999999999999989,
+   "none": 0.08123988759260725,
+   "none_value": 0.9187601124073916,
+   "none_branch": "-",
+   "none_std": 0.0018691071683954224,
+   "recipe_v1": 0.003780793599989729,
+   "recipe_v1_value": 0.9962192064000092,
+   "recipe_v1_branch": "exp",
+   "recipe_v1_std": 0.004050908057735236,
+   "v1_clip": 0.003780793599989729,
+   "v1_clip_value": 0.9962192064000092,
+   "v1_clip_branch": "exp",
+   "v1_clip_std": 0.005063445124827861,
+   "recipe_v2": NaN,
+   "recipe_v2_std": NaN,
+   "recipe_v2_value": NaN,
+   "recipe_v2_branch": "not run",
+   "v2_s15": NaN,
+   "v2_s15_std": NaN,
+   "v2_s15_value": NaN,
+   "v2_s15_branch": "not run",
+   "ibm_rl2": NaN,
+   "ibm_rl2_std": NaN,
+   "ibm_rl2_value": NaN,
+   "ibm_rl2_branch": "not run"
+  }
+ ],
+ "targets": [
+  {
+   "id": "R1 Heisenberg-4: v1 clearly better than no mitigation",
+   "passed": true,
+   "detail": "v1 clearly better: 0.0084 vs 0.0704 (gap +0.0621, combined spread 0.0090)"
+  },
+  {
+   "id": "R2 Heisenberg-4: v1 not clearly worse than IBM level 2",
+   "passed": true,
+   "detail": "v1 no clear difference: 0.0084 vs nan (gap +nan, combined spread nan)"
+  },
+  {
+   "id": "R1 QPE-4: v1 clearly better than no mitigation",
+   "passed": true,
+   "detail": "v1 clearly better: 0.0038 vs 0.0812 (gap +0.0775, combined spread 0.0045)"
+  },
+  {
+   "id": "R2 QPE-4: v1 not clearly worse than IBM level 2",
+   "passed": true,
+   "detail": "v1 no clear difference: 0.0038 vs nan (gap +nan, combined spread nan)"
+  },
+  {
+   "id": "R2-cost: v1 RUs <= 0.5 x IBM level 2 RUs (round total)",
+   "passed": false,
+   "detail": "v1 0.000 RU vs 0.5 x L2 = nan RU"
+  }
+ ],
+ "replication": [
+  {
+   "circuit": "Heisenberg-4",
+   "comparison": "recipe_v1 vs none",
+   "25 Nov": "clearly better",
+   "25 Nov detail": "0.0197 vs 0.1242 (gap +0.1045, combined spread 0.0125)",
+   "now": "clearly better",
+   "now detail": "0.0084 vs 0.0704 (gap +0.0621, combined spread 0.0090)",
+   "same": true
+  },
+  {
+   "circuit": "Heisenberg-4",
+   "comparison": "recipe_v1 vs ibm_rl2",
+   "25 Nov": "no clear difference",
+   "25 Nov detail": "0.0197 vs 0.0170 (gap -0.0027, combined spread 0.0133)",
+   "now": "no clear difference",
+   "now detail": "0.0084 vs nan (gap +nan, combined spread nan)",
+   "same": true
+  },
+  {
+   "circuit": "Heisenberg-4",
+   "comparison": "v1_clip vs recipe_v1",
+   "25 Nov": "no clear difference",
+   "25 Nov detail": "0.0197 vs 0.0197 (gap +0.0000, combined spread 0.0165)",
+   "now": "no clear difference",
+   "now detail": "0.0084 vs 0.0084 (gap +0.0000, combined spread 0.0114)",
+   "same": true
+  },
+  {
+   "circuit": "QPE-4",
+   "comparison": "recipe_v1 vs none",
+   "25 Nov": "clearly better",
+   "25 Nov detail": "0.0151 vs 0.1601 (gap +0.1450, combined spread 0.0079)",
+   "now": "clearly better",
+   "now detail": "0.0038 vs 0.0812 (gap +0.0775, combined spread 0.0045)",
+   "same": true
+  },
+  {
+   "circuit": "QPE-4",
+   "comparison": "recipe_v1 vs ibm_rl2",
+   "25 Nov": "clearly better",
+   "25 Nov detail": "0.0151 vs 0.0616 (gap +0.0465, combined spread 0.0077)",
+   "now": "no clear difference",
+   "now detail": "0.0038 vs nan (gap +nan, combined spread nan)",
+   "same": false
+  },
+  {
+   "circuit": "QPE-4",
+   "comparison": "v1_clip vs recipe_v1",
+   "25 Nov": "clearly better",
+   "25 Nov detail": "0.0000 vs 0.0151 (gap +0.0151, combined spread 0.0076)",
+   "now": "no clear difference",
+   "now detail": "0.0038 vs 0.0038 (gap +0.0000, combined spread 0.0065)",
+   "same": false
+  }
+ ],
+ "estimated": {
+  "none": 11.99993684,
+  "recipe_v1": 11.999317172000001,
+  "ibm_rl2": 46.550243576272806
+ },
+ "rus": {
+  "ibm_rl2": NaN,
+  "recipe_v1": 0,
+  "none": 0
+ }
+}

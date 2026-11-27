@@ -1,0 +1,103 @@
+{
+ "run_id": "20261125-145032_hardware-v2",
+ "kind": "hardware-v2",
+ "created": "2026-11-25T14:50:32",
+ "command": "python.exe hardware_v2.py --submit --backend auto --confirm-qpu-seconds 100 --max-rus 3.0",
+ "method": [
+  "Eight jobs, one at a time: none (1 Sampler), recipe v1 (Sampler: all-gate folding 1/3/5; Sampler: readout calibration), recipe v2 (Sampler: Pauli-twirled two-qubit folding at nominal 1/2/3, 8 instances per scale; Sampler: readout calibration), IBM Estimator resilience_level 2, then the secondary v2 at 1/1.5/2 (same two Sampler jobs as recipe v2, own twirls).",
+  "Compilation: level 2, best of 20 seeds (fewest 2q gates, then depth). Same compiled circuit for every method.",
+  "none, recipe v1, recipe v2 and v2_s15 get equal estimated quantum seconds per method total; IBM level 2 uses precision 1/sqrt(shots of none).",
+  "Error = |estimate - exact|; spread = bootstrap std (Sampler: multinomial resampling; Estimator: normal draws from the reported std)."
+ ],
+ "config": {
+  "backend": "ibm_marrakesh",
+  "submit": true,
+  "order": [
+   "none",
+   "recipe_v1",
+   "recipe_v2",
+   "ibm_rl2",
+   "v2_s15"
+  ],
+  "max_rus": 3.0,
+  "budget_qs_per_circuit": 6.0,
+  "circuits": [
+   "Heisenberg-4",
+   "QPE-4"
+  ],
+  "twirls": 8,
+  "twirl_seed": 20261125,
+  "recipe_v1": "v1",
+  "recipe_v2": "v2",
+  "recipe_v2_frozen": true,
+  "v2_nominal_scales": [
+   1.0,
+   2.0,
+   3.0
+  ],
+  "secondary_nominal_scales": [
+   1.0,
+   1.5,
+   2.0
+  ],
+  "shots_per_pub": {
+   "none": 23422,
+   "v1_scales": 6129,
+   "v1_cal": 2298,
+   "ibm": 23422,
+   "v2_twirl": 776,
+   "v2_cal": 2328,
+   "sec_twirl": 779,
+   "sec_cal": 2337
+  },
+  "estimated_quantum_seconds": {
+   "none": 11.999559040000001,
+   "recipe_v1": 11.998517472,
+   "recipe_v2": 11.999095551999998,
+   "ibm_rl2": 46.42339287420002,
+   "v2_s15": 11.997375884
+  },
+  "actual_scales": {
+   "Heisenberg-4": {
+    "v2": {
+     "q1": 1.0,
+     "q2": 2.0,
+     "q3": 3.0
+    },
+    "sec": {
+     "q1": 1.0,
+     "q15": 1.5,
+     "q2": 2.0
+    }
+   },
+   "QPE-4": {
+    "v2": {
+     "q1": 1.0,
+     "q2": 2.0,
+     "q3": 3.0
+    },
+    "sec": {
+     "q1": 1.0,
+     "q15": 1.5384615384615383,
+     "q2": 2.0
+    }
+   }
+  },
+  "bootstrap": 500
+ },
+ "environment": {
+  "python": "3.12.10",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "packages": {
+   "qiskit": "2.6.2",
+   "qiskit-aer": "0.18.4",
+   "qiskit-ibm-runtime": "0.52.1",
+   "mitiq": "1.1.0",
+   "numpy": "2.2.6",
+   "scipy": "1.17.1"
+  },
+  "git_commit": "9c7a3327f2e81ebc1c3fbbeba78efdeb0647338a",
+  "git_research_dirty": true
+ },
+ "preregistration_sha256": "037d45941177382b3e364e9e4b80dcbc2470ebbda02c75c9435fc136c9e35252"
+}

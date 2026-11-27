@@ -1,0 +1,258 @@
+{
+ "rows": [
+  {
+   "circuit": "W-4",
+   "depth_class": "shallow",
+   "two_qubit_gates": 6,
+   "exact": 1.0,
+   "asymptote": 0.25,
+   "scaled": [
+    0.9275076227618501,
+    0.8698980327391805,
+    0.8125409437194542
+   ],
+   "d": [
+    0.6775076227618501,
+    0.6198980327391805,
+    0.5625409437194542
+   ],
+   "se_d": [
+    0.006085279703862398,
+    0.007204904071421159,
+    0.007781635777026787
+   ],
+   "checks": {
+    "decay": true,
+    "alive": true,
+    "one_exp": true
+   },
+   "failed_rules": [],
+   "flagged": false,
+   "none_value": 0.9072887293856275,
+   "recipe_v1_value": 0.9605909172165904,
+   "recipe_v1_branch": "exp",
+   "recipe_v1_2_value": 0.9605909172165904,
+   "recipe_v1_2_branch": "exp",
+   "none": 0.09271127061437245,
+   "recipe_v1": 0.0394090827834096,
+   "recipe_v1_2": 0.0394090827834096,
+   "none_std": 0.0027163850783539657,
+   "recipe_v1_std": 0.008203779360304492,
+   "recipe_v1_2_std": 0.008203779360304492,
+   "v1_class": "good"
+  },
+  {
+   "circuit": "Toffoli-3",
+   "depth_class": "shallow",
+   "two_qubit_gates": 7,
+   "exact": 1.0,
+   "asymptote": 0.125,
+   "scaled": [
+    0.9503411075759517,
+    0.8765219778976701,
+    0.8064632452214704
+   ],
+   "d": [
+    0.8253411075759517,
+    0.7515219778976701,
+    0.6814632452214704
+   ],
+   "se_d": [
+    0.006349721485549633,
+    0.007798093585759029,
+    0.00842446887347945
+   ],
+   "checks": {
+    "decay": true,
+    "alive": true,
+    "one_exp": true
+   },
+   "failed_rules": [],
+   "flagged": false,
+   "none_value": 0.9310433222250705,
+   "recipe_v1_value": 0.991344215807684,
+   "recipe_v1_branch": "exp",
+   "recipe_v1_2_value": 0.991344215807684,
+   "recipe_v1_2_branch": "exp",
+   "none": 0.06895667777492953,
+   "recipe_v1": 0.008655784192316052,
+   "recipe_v1_2": 0.008655784192316052,
+   "none_std": 0.002366821760680481,
+   "recipe_v1_std": 0.006615895955014589,
+   "recipe_v1_2_std": 0.006615895955014589,
+   "v1_class": "good"
+  },
+  {
+   "circuit": "CDKM-adder-3",
+   "depth_class": "deep",
+   "two_qubit_gates": 70,
+   "exact": 0.9999999999999942,
+   "asymptote": 0.0625,
+   "scaled": [
+    0.7641539447244055,
+    0.5125859460699556,
+    0.3557523202570933
+   ],
+   "d": [
+    0.7016539447244055,
+    0.45008594606995556,
+    0.2932523202570933
+   ],
+   "se_d": [
+    0.00950230144547437,
+    0.010035498044184162,
+    0.00915294511978043
+   ],
+   "checks": {
+    "decay": true,
+    "alive": true,
+    "one_exp": true
+   },
+   "failed_rules": [],
+   "flagged": false,
+   "none_value": 0.7144321968725967,
+   "recipe_v1_value": 0.934235611617507,
+   "recipe_v1_branch": "exp",
+   "recipe_v1_2_value": 0.934235611617507,
+   "recipe_v1_2_branch": "exp",
+   "none": 0.2855678031273975,
+   "recipe_v1": 0.06576438838248722,
+   "recipe_v1_2": 0.06576438838248722,
+   "none_std": 0.004051295934962627,
+   "recipe_v1_std": 0.016623158619363504,
+   "recipe_v1_2_std": 0.016623158619363504,
+   "v1_class": "ambiguous"
+  },
+  {
+   "circuit": "Draper-adder-4",
+   "depth_class": "deep",
+   "two_qubit_gates": 70,
+   "exact": 0.9999999999999991,
+   "asymptote": 0.0625,
+   "scaled": [
+    0.6722617016335538,
+    0.47691288155946476,
+    0.34070939466663563
+   ],
+   "d": [
+    0.6097617016335538,
+    0.41441288155946476,
+    0.27820939466663563
+   ],
+   "se_d": [
+    0.008915343972476,
+    0.008992446620104844,
+    0.009233890515150568
+   ],
+   "checks": {
+    "decay": true,
+    "alive": true,
+    "one_exp": true
+   },
+   "failed_rules": [],
+   "flagged": false,
+   "none_value": 0.6440229001110827,
+   "recipe_v1_value": 0.8051254405434363,
+   "recipe_v1_branch": "exp",
+   "recipe_v1_2_value": 0.8051254405434363,
+   "recipe_v1_2_branch": "exp",
+   "none": 0.35597709988891646,
+   "recipe_v1": 0.19487455945656285,
+   "recipe_v1_2": 0.19487455945656285,
+   "none_std": 0.004338911831742284,
+   "recipe_v1_std": 0.014424704253203337,
+   "recipe_v1_2_std": 0.014424704253203337,
+   "v1_class": "failure"
+  }
+ ],
+ "targets": [
+  {
+   "id": "T1 W-4: v1.2 not clearly worse than no mitigation",
+   "passed": true,
+   "detail": "v1.2 clearly better: 0.0394 vs 0.0927 (gap +0.0533, combined spread 0.0086)"
+  },
+  {
+   "id": "T1 Toffoli-3: v1.2 not clearly worse than no mitigation",
+   "passed": true,
+   "detail": "v1.2 clearly better: 0.0087 vs 0.0690 (gap +0.0603, combined spread 0.0070)"
+  },
+  {
+   "id": "T1 CDKM-adder-3: v1.2 not clearly worse than no mitigation",
+   "passed": true,
+   "detail": "v1.2 clearly better: 0.0658 vs 0.2856 (gap +0.2198, combined spread 0.0171)"
+  },
+  {
+   "id": "T1 Draper-adder-4: v1.2 not clearly worse than no mitigation",
+   "passed": true,
+   "detail": "v1.2 clearly better: 0.1949 vs 0.3560 (gap +0.1611, combined spread 0.0151)"
+  },
+  {
+   "id": "reported W-4: recipe_v1 vs none",
+   "passed": null,
+   "detail": "recipe_v1 clearly better: 0.0394 vs 0.0927 (gap +0.0533, combined spread 0.0086)"
+  },
+  {
+   "id": "reported W-4: recipe_v1_2 vs recipe_v1",
+   "passed": null,
+   "detail": "recipe_v1_2 no clear difference: 0.0394 vs 0.0394 (gap +0.0000, combined spread 0.0116)"
+  },
+  {
+   "id": "reported W-4: recipe_v1_2 vs none",
+   "passed": null,
+   "detail": "recipe_v1_2 clearly better: 0.0394 vs 0.0927 (gap +0.0533, combined spread 0.0086)"
+  },
+  {
+   "id": "reported Toffoli-3: recipe_v1 vs none",
+   "passed": null,
+   "detail": "recipe_v1 clearly better: 0.0087 vs 0.0690 (gap +0.0603, combined spread 0.0070)"
+  },
+  {
+   "id": "reported Toffoli-3: recipe_v1_2 vs recipe_v1",
+   "passed": null,
+   "detail": "recipe_v1_2 no clear difference: 0.0087 vs 0.0087 (gap +0.0000, combined spread 0.0094)"
+  },
+  {
+   "id": "reported Toffoli-3: recipe_v1_2 vs none",
+   "passed": null,
+   "detail": "recipe_v1_2 clearly better: 0.0087 vs 0.0690 (gap +0.0603, combined spread 0.0070)"
+  },
+  {
+   "id": "reported CDKM-adder-3: recipe_v1 vs none",
+   "passed": null,
+   "detail": "recipe_v1 clearly better: 0.0658 vs 0.2856 (gap +0.2198, combined spread 0.0171)"
+  },
+  {
+   "id": "reported CDKM-adder-3: recipe_v1_2 vs recipe_v1",
+   "passed": null,
+   "detail": "recipe_v1_2 no clear difference: 0.0658 vs 0.0658 (gap +0.0000, combined spread 0.0235)"
+  },
+  {
+   "id": "reported CDKM-adder-3: recipe_v1_2 vs none",
+   "passed": null,
+   "detail": "recipe_v1_2 clearly better: 0.0658 vs 0.2856 (gap +0.2198, combined spread 0.0171)"
+  },
+  {
+   "id": "reported Draper-adder-4: recipe_v1 vs none",
+   "passed": null,
+   "detail": "recipe_v1 clearly better: 0.1949 vs 0.3560 (gap +0.1611, combined spread 0.0151)"
+  },
+  {
+   "id": "reported Draper-adder-4: recipe_v1_2 vs recipe_v1",
+   "passed": null,
+   "detail": "recipe_v1_2 no clear difference: 0.1949 vs 0.1949 (gap +0.0000, combined spread 0.0204)"
+  },
+  {
+   "id": "reported Draper-adder-4: recipe_v1_2 vs none",
+   "passed": null,
+   "detail": "recipe_v1_2 clearly better: 0.1949 vs 0.3560 (gap +0.1611, combined spread 0.0151)"
+  }
+ ],
+ "estimated": {
+  "none": 11.999647644,
+  "recipe_v1": 11.996600796000001
+ },
+ "rus": {
+  "none": 0.238168,
+  "recipe_v1": 0.26658
+ }
+}

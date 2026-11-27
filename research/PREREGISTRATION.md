@@ -299,6 +299,174 @@ The circuits, the exact values, the recipe and the scale decision are fixed by t
 
 ---
 
+## Part G: replication round of recipe v1 (written 26 Nov 2026, before the round)
+
+The file before this part had SHA-256 `037d45941177382b3e364e9e4b80dcbc2470ebbda02c75c9435fc136c9e35252` (the version the 25 Nov hardware round recorded). Parts A-F and their results are unchanged.
+
+### G1. Why this round
+
+In the v2 hardware round (`20261125-145032_hardware-v2`, `ibm_marrakesh`, 25 Nov) recipe v2 failed G1 on both circuits. Recipe v1 was the best method:
+- Heisenberg-4: no clear difference from IBM level 2 (0.020 vs 0.017).
+- QPE-4: clearly better than IBM level 2 (0.015 vs 0.062).
+- Its cost was a third of level 2's.
+
+The reviewer decided on 26 Nov that v1 is our best progress so far, and that one more round, including IBM level 2, should check whether this holds. New circuits come later.
+
+**Heisenberg-4 and QPE-4 are seen data.** This round tests whether the 25 Nov result repeats. It does not test whether v1 works on new circuits.
+
+### G2. Design (`hardware_v1_replication.py`, SHA-256 `5e54ce25580e09efb5c29018854b23ec66e8b3aa72be26b8e09627a9dbd26486`)
+
+**Device and jobs:**
+- **Device:** `ibm_marrakesh`, the device of the 25 Nov round. If it is not operational, we wait; we do not switch device.
+- **Jobs:** 4, one at a time, in the reverse of the 25 Nov order: IBM level 2 → recipe v1 (2 jobs) → none.
+- `v1_clip` is computed from v1's counts. Recipe v2 is not run.
+- Plan, compilation (level 2, best of 20 seeds), the 6.0 s per circuit per method budget, shots, the bootstrap, and the one-time resubmission of a failed job all come from `hardware_v2.py` (unchanged since its Part C entry, SHA-256 `1c8b4e376bde624a…`). `recipe.py` is unchanged and frozen.
+
+**RUs:**
+- Expected charge: IBM level 2 0.78 + v1 0.28 + none 0.24 = **1.30 RU**.
+- The round runs only if the account shows at least 1.5 × 1.30 = **1.95 RU**. The last read, on 25 Nov 09:24:10 UTC, showed 2.441 RU.
+- `--max-rus 1.4`. About 1.1 RU is expected to remain.
+- Every account read is saved with its time in the run folder.
+- **One round only.** No rerun.
+
+### G3. Targets (each circuit separately; "clearly" as in F6: gap > combined spread of the bootstrap stds)
+
+| Target | Comparison | Pass if |
+|---|---|---|
+| **R1** | v1 vs no mitigation | v1 is clearly better |
+| **R2** | v1 vs IBM level 2 | v1 is not clearly worse |
+| **R2-cost** | round total | v1's RUs ≤ 0.5 × IBM level 2's RUs |
+
+### G4. The replication question (reported; the main result of this round)
+
+For each circuit, the verdict of each comparison is compared with the 25 Nov round. "Repeated" means the same verdict.
+
+| Circuit | v1 vs none (25 Nov) | v1 vs IBM level 2 (25 Nov) | v1 + clip vs v1 (25 Nov) |
+|---|---|---|---|
+| Heisenberg-4 | clearly better | no clear difference | no clear difference |
+| QPE-4 | clearly better | clearly better | clearly better (exact 1.0 is at the range edge, so clipping an overshoot lands on it) |
+
+How the results are read:
+- Only a verdict that is the same in both rounds is called repeated.
+- Two circuits and two rounds still show a direction, not a proof.
+- Recipe v1 does not change. `v1_clip` has no target.
+- After this round, the next step is new circuits, which needs a new part written before they are run.
+
+### G5. Frozen record
+
+| File | Fixes | SHA-256 |
+|---|---|---|
+| `hardware_v1_replication.py` | Part G round: device, order, targets R1/R2, replication table | `5e54ce25580e09efb5c29018854b23ec66e8b3aa72be26b8e09627a9dbd26486` |
+
+---
+
+## Part H: recipe v1.2 on new circuits (written 26 Nov 2026, 22:55 IST, before any v1.2 hardware job)
+
+The file before this part had SHA-256 `7cb2acc71425517280d6bbd5d2666638dcb510575c82042642eefa6d3fd7b345` (the version the replication round and the v1.1 design replay recorded). Parts A-G and their results are unchanged.
+
+### H1. Why, and what we saw before writing this part
+
+**The reviewer's plan (26 Nov):**
+1. A diagnostic replay of all saved hardware data, 0 RU.
+2. Simple flag rules from physics, fixed before the replay.
+3. One round on new circuits, without IBM resilience levels, keeping about 0.5 RU in reserve.
+4. No comparison with IBM level 2 and no claim about it.
+
+**v1.1 and its replay:**
+- v1.1 = recipe v1 plus three flag rules: `decay`, `alive`, `one_exp` (`recipe_v1_1.py`, k = 2). The rules were fixed before the replay.
+- The replay (`20261126-223700_v1-1-design-replay`) covered 12 independent cases (device + calibration day + circuit):
+  - failure cases flagged: **4/4**;
+  - good cases flagged by mistake: **3/8**. All three were on ibm_marrakesh, and `one_exp` fired on all three; `decay` also fired on Heisenberg 26 Nov.
+  - v1.1 clearly worse than none: **1/12** (fez QFT-6, on single observables);
+  - `alive` never fired.
+- The rules were not changed. v1.1 is not run on hardware.
+
+**v1.2 is post hoc:**
+- On 26 Nov the reviewer chose v1.2 = v1.1 without `one_exp`. **This choice was made after seeing the replay, so it is post hoc.**
+- On the replay data, v1.2 would flag 3 of 4 failures (not Grover on fez) and 1 of 8 good cases (Heisenberg 26 Nov).
+- That replay is v1.2's design data, not evidence. Only this part's round on new circuits counts.
+
+**What was seen about the new circuits before this part was written:**
+- **Candidate scan:** exact (noise-free) values and compiled two-qubit counts on FakeMarrakesh (level 2, best of 20 seeds).
+- **Candidates not chosen:** MCX-4 (49 CZ), CDKM-adder-2 (43 CZ) and Draper-adder-3 (33 CZ), all below the ~60 CZ wanted for the deep pair.
+- **Dry run:** after the four circuits were fixed, one local run on FakeMarrakesh noise (`20261126-224957_hardware-v1-2-dryrun`) checked the pipeline.
+  - No flag fired.
+  - v1 was clearly better than none on all four circuits.
+  - Nothing was changed after it.
+- **Flag code path:** checked with three synthetic inputs: a QPE-26N-like rise gave `decay`, normal decay gave `exp`, and a dead signal gave `alive`.
+
+### H2. Recipe v1.2 (`recipe_v1_2.py`, frozen)
+
+- **Rules:** recipe v1 (`recipe.py`, unchanged) plus `decay` and `alive`.
+  - The code is `recipe_v1_1.checks`, k = 2. d(s) is the readout-corrected value at fold scale s minus the fully mixed value.
+  - SEs come from 500 bootstrap replicas of the v1 counts, seed 7.
+- `decay`: d(1), d(3), d(5) have the same sign, and for both steps |d(s_next)| − |d(s)| ≤ k · SE(|d(s_next)| − |d(s)|).
+- `alive`: |d(5)| > k · SE(d(5)).
+- **If either rule fails:** v1.2 reports the **scale-1 readout-corrected value** with a flag naming the failed rules. There is no extrapolation and no clipping.
+- **Otherwise:** exactly v1's value.
+
+### H3. Circuits (`heldout_v12.py`)
+
+None of these families appears in any earlier run, simulator or hardware. Each has one observable, the probability of the ideal answer.
+
+| Circuit | Type | What | Observable | Exact | Fully mixed | CZ (FakeMarrakesh) |
+|---|---|---|---|---|---|---|
+| W-4 | shallow | W state, RY + CRY/CX cascade | P(exactly one excitation) | 1 | 0.25 | 6 |
+| Toffoli-3 | shallow | X on q0, q1; CCX | P(111) | 1 | 0.125 | 7 |
+| CDKM-adder-3 | deep | Cuccaro ripple-carry adder 5 + 6 | P(1011) (sum and carry-out) | 1 | 0.0625 | 70 |
+| Draper-adder-4 | deep | QFT adder 11 + 7 mod 16 | P(0010) | 1 | 0.0625 | 70 |
+
+The deep pair is expected to be failure-prone and the shallow pair good. That is an expectation, not a target.
+
+### H4. Design (`hardware_v1_2.py`)
+
+**Device and jobs:**
+- **Device:** `ibm_marrakesh`. If it is not operational, we wait; we do not switch device.
+- **Jobs:** 3, one at a time: none (1 Sampler) → recipe v1 (folding 1/3/5 Sampler; readout calibration Sampler). v1.2 is computed from v1's counts.
+- **Reused unchanged:** compilation (level 2, best of 20 seeds), folding, calibration circuits, `hardware_v2.run_jobs` (a failed job is resubmitted once, unchanged), and the bootstrap.
+- **Budget:** 3.0 estimated quantum seconds per circuit per method. On FakeMarrakesh the shots per PUB are none 11 705, v1 3 059 per scale, calibration 1 147; on the device they are recomputed from its target.
+
+**RUs:**
+- Expected charge: none 0.24 + v1 0.28 = **0.525 RU**.
+- The round runs only if the account shows at least max(1.5 × 0.525, 0.525 + 0.5) = **1.02 RU**. The last read, on 26 Nov 06:37 UTC, showed 1.138 RU.
+- `--max-rus 0.65`.
+- Every account read is saved with its time in the run folder.
+- **One round only.** No rerun.
+
+**No IBM resilience level is run.** This round makes no comparison with IBM level 2 and no claim about it.
+
+### H5. Target and reported results (each circuit separately; "clearly" = gap > combined spread of the bootstrap stds)
+
+| Target | Comparison | Pass if |
+|---|---|---|
+| **T1** | v1.2 vs no mitigation | v1.2 is **not clearly worse**, on every one of the 4 circuits |
+
+v1.2's bootstrap error uses the flag decided on the real data.
+
+**Reported, no target:**
+- v1 vs none;
+- v1.2 vs v1;
+- for each circuit: whether it was flagged, and by which rule;
+- v1's class, as in the replay (failure = v1 clearly worse than none or e > 0.10; good = v1 clearly better than none and e < 0.04; ambiguous = the rest; e = |v1 − exact|), and whether the flags landed on the failures;
+- the `one_exp` result, for information only.
+
+**How the results are read:**
+- T1 is a safety target, not an accuracy target. v1.2 could pass it by flagging everything, so the number of flags and v1.2 vs v1 are always reported next to it.
+- If T1 fails on any circuit, v1.2 fails, and that is reported. Nothing is tuned afterwards.
+- Four circuits, one device and one day show a direction, not a proof.
+
+### H6. Frozen record
+
+| File | Fixes | SHA-256 |
+|---|---|---|
+| `recipe_v1_2.py` | v1.2: v1 + decay/alive flags, scale-1 value when flagged | `36e1a325bbb3e2d7f595c7e18846457fbafd6b154e7c3414c21332ea0591b412` |
+| `recipe_v1_1.py` | the rule code v1.2 calls (`checks`, k = 2) | `4b9a2a84ff354876c52a4feacd1333ece298e87fae34a57608d5406f320b4693` |
+| `heldout_v12.py` | the four circuits and their observables | `ba31d48b8e056ba8814c265fd5082d24e411643658ce06aac1e5bcf82d5b8a77` |
+| `hardware_v1_2.py` | device, jobs, budget, RU rule, target T1, report | `ce3a636ec86e9eac9ec02a6760ad4e516db3f4383a33d8d09dc2fbfc91d5af58` |
+| `v1_1_design_replay.py` | the v1.1 design replay (design data) | `114a3416f83d91ec1f09b44134855c275f981f8f7336ceb147c4bb7895383e21` |
+
+---
+
 ## Part C: deviations log
 
 | Date | What | Why | Effect on targets |
@@ -310,3 +478,8 @@ The circuits, the exact values, the recipe and the scale decision are fixed by t
 | 24 Nov 2026, after round 2 | **Log (measurement correction):** (1) `job.usage()` under-reports seconds. It returned 0 s for the smoke Sampler job and for the recipe's readout-calibration job in both rounds; IBM's job metrics (`qpu_charge_time_seconds`) show 2 s and 7 s charged, and their RUs were non-zero. Charged seconds per round are: none 27, **recipe 29 (not 22 as first reported)**, IBM level 1 30, IBM level 2 83. Every job is listed in `results/hardware_usage.md`, generated from the saved results without changing the run folders. `hardware.py` now reads the charged seconds first. (2) The "10:45" in the smoke log row above is approximate. The round 1 manifest (created 10:44:24) already records the hash of the file containing that row, so the row was written before round 1 was submitted. | `usage()` is a rounded summary; the metrics record is what IBM bills. | None. H1 is decided in RUs (19:58 entry), which were complete. In seconds the recipe is still about a third of level 2 (29 vs 83). |
 | 25 Nov 2026, before any v2 held-out run | **Log: recipe v2's scale factors (1 / 2 / 3) were selected on training data only, before any held-out result was seen.** The evidence was the simulator design runs on the 14 training circuits (`20261124-161451_mitigation-v2-train` at 1/1.5/2 and `20261125-101929_mitigation-v2-train-scales1-2-3` at 1/2/3) and the saved hardware counts of rounds 1-2 (clip replay). The reviewer chose 1/2/3 on 25 Nov. At that time, no noisy simulation or hardware run of Heisenberg-4 or QPE-4 existed; only their exact values and compiled gate counts had been computed. 1/1.5/2 is kept only as a secondary with no target. | Reviewer request: record how the scales were chosen. | None. It makes the selection record explicit. |
 | 25 Nov 2026, before any v2 held-out run | **Part F revised (F4-F7).** The first version of Part F had file SHA-256 `f48ec3f53ecb8c9a…`. No run recorded it and nothing was run with it. Changes: (1) every target is evaluated per circuit with the three-way verdict (clearly better / no clear difference / clearly worse; clearly = gap > combined spread). (2) v2 vs v1 (G1) and v2 vs IBM level 2 (G2) are separate targets. G2's earlier "+ 0.05" margin is replaced by "not clearly worse". G1's earlier "lower on both, clearly on one" is replaced by "clearly better" on each circuit. (3) The note that 2 circuits show a direction, not a proof. (4) v1 + clip is reported as a secondary, and it is reported if it beats v2. (5) `v2_s15` runs as a secondary at the same budget: expected 0.28 RU (the reviewer estimated ~0.1 RU). (6) The run is on 1-2 Dec, 3-4 Dec is a buffer, a failed job is resubmitted once, and ~1 RU is kept in reserve. (7) F7, the frozen record. | Reviewer's requests of 25 Nov, made before any v2 held-out result existed. | Targets are fixed in their final form before the simulator test and the hardware round. |
+| 25 Nov 2026, after the v2 simulator test and dry run, before any v2 hardware job | **Reviewer decisions:** (1) **G2 stays as written** (v2 not clearly worse than IBM level 2). Removing the +0.05 margin already made it stricter. (2) **New rule for the secondary:** `v2_s15` runs only if at least **2 RU remain after it**; it never uses the reserve. Before each submission `hardware_v2.py` now reads the account's remaining RUs. It refuses to start if they are below 1.5 × the expected 1.87 RU, and before `v2_s15` it uses the lower of the account value and its own count. **Supersedes F7:** `hardware_v2.py` SHA-256 `629f4dcfca5b3f415973697fb4ea1db90f355bee2f119849a740bf1e829ce1ae`. No other file changed. (3) **Clarification of the reserve:** the expected remainder is 4.28 − 1.87 ≈ 2.4 RU. The 1.28 RU in F5 is the floor if `--max-rus 3.0` were fully used, not the expected remainder. On 25 Nov the account showed 4.277 RU remaining (5.723 of 10 used). Its usage period ended 25 Nov 08:32 UTC, so the remaining RUs are read again at submission. | Reviewer, 25 Nov, after the S1 result (both PASS). | None on G1-G3, S1 or the recipe. Only the secondary may be dropped. |
+| 25 Nov 2026, 14:39 IST, before any v2 hardware job | **Log: account RUs read, and a correction.** Read 1 (`QiskitRuntimeService().usage()`): 25 Nov 2026 **08:32:52 UTC (14:02:52 IST)**, **4.277033 RU remaining**, 5.722967 of 10 RU consumed (349 of 600 s). Read 2: **09:09:07 UTC (14:39:07 IST)**, the same values. Both raw reads are in `results/account_reads/20261125.json`. **Correction to the previous row:** there is no rollover. `usage_period` is a **rolling 28-day window that ends at the moment of the read** (read 1: 28 Oct 08:32:52 → 25 Nov 08:32:52 UTC; read 2: 28 Oct 09:09:06 → 25 Nov 09:09:06 UTC). So "the period ended 25 Nov 08:32 UTC" was wrong; that was just the time of read 1. Both reads are therefore inside the same window, not before or after a reset. Our 24 Nov jobs (5.6246 RU) stay in the window until about 22 Dec, so no reset is expected before the 1-2 Dec round. The other ~0.10 RU (used before 24 Nov, 10 − 9.90) may leave the window earlier, which can only raise the remaining RUs. Remaining RUs are read again, with the time, immediately before submission. | Reviewer request, 25 Nov. | None. |
+| 25 Nov 2026, before any v2 hardware job | **Record-keeping only:** `hardware_v2.py` now saves every account read it makes in the run folder as `account_reads.json`: the read before submission, the read before `v2_s15`, and one read after the round, each with its UTC time, remaining and consumed RUs, and `usage_period`. **Supersedes F7:** `hardware_v2.py` SHA-256 `1c8b4e376bde624a8c31ca6903793eb8ed56d7cd86591db6dc721e7e2453a3e2`. | Reviewer request, 25 Nov: log the exact RUs shown and when they were read. | None. |
+| 25 Nov 2026, 14:49 IST (09:19 UTC), before any v2 hardware job | **Run date moved: the v2 hardware round runs now (25 Nov), not on 1-2 Dec (F5).** Nothing else changes: device rule, job order, budget, shots, twirl seed, the S1 gate (passed on both circuits), the 1.5 × expected RU check, `--max-rus 3.0`, the one-time resubmission of a failed job, the 2-RU floor for `v2_s15`, and every target in F6. The days up to the end of the trial (about 4 Dec) are now the buffer for a queue delay or a failed job. | Instruction from the user and reviewer on 25 Nov, given after the account read was logged. | None on targets. |
+| 26 Nov 2026, 22:55 IST, before any v1.2 hardware job | **v1.1 design replay done; the reviewer chose v1.2 (Part H).** The v1.1 rules (`recipe_v1_1.py`, k = 2, fixed before the replay) were replayed on all saved hardware data (`20261126-223700_v1-1-design-replay`, 0 RU). Failures flagged: 4/4. Good cases flagged: 3/8 (`one_exp` on all three; `decay` also on Heisenberg 26 Nov). v1.1 clearly worse than none: 1/12 cases (fez QFT-6). The rules were not changed, and v1.1 is not run on hardware. v1.2 = v1.1 without `one_exp`. | `one_exp` flagged good cases, and a false flag costs accuracy: those cases went from ≤ 0.020 to about 0.11 error. | v1.2 is post hoc: the replay is its design data, and only Part H's round on new circuits can be evidence. No target in Parts A-G changes. |

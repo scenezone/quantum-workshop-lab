@@ -1,0 +1,2438 @@
+{
+ "tally": {
+  "failure": {
+   "total": 4,
+   "flagged": 4,
+   "cases": [
+    "ibm_fez 24 Nov | Ising-4",
+    "ibm_fez 24 Nov | Grover-4-3it",
+    "ibm_fez 24 Nov | QFT-6",
+    "ibm_marrakesh 26 Nov | QPE-4"
+   ],
+   "flagged_cases": [
+    "ibm_fez 24 Nov | Ising-4",
+    "ibm_fez 24 Nov | Grover-4-3it",
+    "ibm_fez 24 Nov | QFT-6",
+    "ibm_marrakesh 26 Nov | QPE-4"
+   ]
+  },
+  "ambiguous": {
+   "total": 0,
+   "flagged": 0,
+   "cases": [],
+   "flagged_cases": []
+  },
+  "good": {
+   "total": 8,
+   "flagged": 3,
+   "cases": [
+    "ibm_fez 24 Nov | Bell",
+    "ibm_fez 24 Nov | GHZ-5",
+    "ibm_fez 24 Nov | Mirror-4",
+    "ibm_fez 24 Nov | QAOA-5-p2",
+    "ibm_fez 24 Nov | QAOA-6",
+    "ibm_marrakesh 25 Nov | Heisenberg-4",
+    "ibm_marrakesh 25 Nov | QPE-4",
+    "ibm_marrakesh 26 Nov | Heisenberg-4"
+   ],
+   "flagged_cases": [
+    "ibm_marrakesh 25 Nov | Heisenberg-4",
+    "ibm_marrakesh 25 Nov | QPE-4",
+    "ibm_marrakesh 26 Nov | Heisenberg-4"
+   ]
+  },
+  "v11_clearly_worse_than_none": [
+   "ibm_fez 24 Nov | QFT-6"
+  ]
+ },
+ "cases": [
+  {
+   "case": "ibm_fez 24 Nov | Bell",
+   "group": "ibm_fez 24 Nov",
+   "circuit": "Bell",
+   "records": [
+    {
+     "case": "ibm_fez 24 Nov | Bell",
+     "group": "ibm_fez 24 Nov",
+     "round": "r1",
+     "circuit": "Bell",
+     "observable": "ZZ",
+     "exact": 0.9999999999999998,
+     "asymptote": 0.0,
+     "width": 2.0,
+     "scaled": [
+      0.9889708817486631,
+      0.9686497390779948,
+      0.9765947445551191
+     ],
+     "d": [
+      0.9889708817486631,
+      0.9686497390779948,
+      0.9765947445551191
+     ],
+     "se_d": [
+      0.011789544033465672,
+      0.011902939468714775,
+      0.01248037239613699
+     ],
+     "rules": {
+      "decay": true,
+      "alive": true,
+      "one_exp": true
+     },
+     "failed_rules": [],
+     "flagged": false,
+     "none": 0.9203362307765786,
+     "v1": 0.9873538913557498,
+     "v1_branch": "linear",
+     "v11": 0.9873538913557498,
+     "v11_branch": "linear",
+     "err": {
+      "none": 0.07966376922342122,
+      "v1": 0.012646108644249976,
+      "v11": 0.012646108644249976
+     },
+     "std": {
+      "none": 0.0038638380178523616,
+      "v1": 0.009730963423378178,
+      "v11": 0.009730963423378178
+     },
+     "e": 0.006323054322124988,
+     "v1_vs_none": "clearly better",
+     "class": "good",
+     "v11_vs_none": "clearly better",
+     "v11_vs_v1": "no clear difference"
+    },
+    {
+     "case": "ibm_fez 24 Nov | Bell",
+     "group": "ibm_fez 24 Nov",
+     "round": "r2",
+     "circuit": "Bell",
+     "observable": "ZZ",
+     "exact": 0.9999999999999998,
+     "asymptote": 0.0,
+     "width": 2.0,
+     "scaled": [
+      0.9842442877332888,
+      0.9727706882311353,
+      0.9727854263165588
+     ],
+     "d": [
+      0.9842442877332888,
+      0.9727706882311353,
+      0.9727854263165588
+     ],
+     "se_d": [
+      0.009316036275609268,
+      0.009570945087477618,
+      0.009256380977319756
+     ],
+     "rules": {
+      "decay": true,
+      "alive": true,
+      "one_exp": true
+     },
+     "failed_rules": [],
+     "flagged": false,
+     "none": 0.942687935810488,
+     "v1": 0.9851942801562075,
+     "v1_branch": "linear",
+     "v11": 0.9851942801562075,
+     "v11_branch": "linear",
+     "err": {
+      "none": 0.057312064189511736,
+      "v1": 0.014805719843792309,
+      "v11": 0.014805719843792309
+     },
+     "std": {
+      "none": 0.0034234457231975958,
+      "v1": 0.009343277984864777,
+      "v11": 0.009343277984864777
+     },
+     "e": 0.007402859921896154,
+     "v1_vs_none": "clearly better",
+     "class": "good",
+     "v11_vs_none": "clearly better",
+     "v11_vs_v1": "no clear difference"
+    }
+   ],
+   "class": "good",
+   "flagged": false,
+   "rules_fired": [],
+   "v11_clearly_worse_than_none": false
+  },
+  {
+   "case": "ibm_fez 24 Nov | GHZ-5",
+   "group": "ibm_fez 24 Nov",
+   "circuit": "GHZ-5",
+   "records": [
+    {
+     "case": "ibm_fez 24 Nov | GHZ-5",
+     "group": "ibm_fez 24 Nov",
+     "round": "r1",
+     "circuit": "GHZ-5",
+     "observable": "XXXXX",
+     "exact": 0.9999999999999996,
+     "asymptote": 0.0,
+     "width": 2.0,
+     "scaled": [
+      0.9674755415981724,
+      0.9477645585857508,
+      0.908238423642123
+     ],
+     "d": [
+      0.9674755415981724,
+      0.9477645585857508,
+      0.908238423642123
+     ],
+     "se_d": [
+      0.014608291140841946,
+      0.015191537979218279,
+      0.015662295924247963
+     ],
+     "rules": {
+      "decay": true,
+      "alive": true,
+      "one_exp": true
+     },
+     "failed_rules": [],
+     "flagged": false,
+     "none": 0.8819371477696053,
+     "v1": 0.9863469721820143,
+     "v1_branch": "exp",
+     "v11": 0.9863469721820143,
+     "v11_branch": "exp",
+     "err": {
+      "none": 0.11806285223039426,
+      "v1": 0.013653027817985275,
+      "v11": 0.013653027817985275
+     },
+     "std": {
+      "none": 0.004699820195003431,
+      "v1": 0.012634324613306176,
+      "v11": 0.012634324613306176
+     },
+     "e": 0.0068265139089926374,
+     "v1_vs_none": "clearly better",
+     "class": "good",
+     "v11_vs_none": "clearly better",
+     "v11_vs_v1": "no clear difference"
+    },
+    {
+     "case": "ibm_fez 24 Nov | GHZ-5",
+     "group": "ibm_fez 24 Nov",
+     "round": "r2",
+     "circuit": "GHZ-5",
+     "observable": "XXXXX",
+     "exact": 0.9999999999999996,
+     "asymptote": 0.0,
+     "width": 2.0,
+     "scaled": [
+      0.960942973732008,
+      0.9325150777671561,
+      0.873643638199969
+     ],
+     "d": [
+      0.960942973732008,
+      0.9325150777671561,
+      0.873643638199969
+     ],
+     "se_d": [
+      0.014242542217789395,
+      0.01464064353608992,
+      0.015479335646945674
+     ],
+     "rules": {
+      "decay": true,
+      "alive": true,
+      "one_exp": true
+     },
+     "failed_rules": [],
+     "flagged": false,
+     "none": 0.8683732925780877,
+     "v1": 0.9895389902919092,
+     "v1_branch": "exp",
+     "v11": 0.9895389902919092,
+     "v11_branch": "exp",
+     "err": {
+      "none": 0.13162670742191185,
+      "v1": 0.010461009708090385,
+      "v11": 0.010461009708090385
+     },
+     "std": {
+      "none": 0.0049173130068690405,
+      "v1": 0.01153537142380037,
+      "v11": 0.01153537142380037
+     },
+     "e": 0.005230504854045193,
+     "v1_vs_none": "clearly better",
+     "class": "good",
+     "v11_vs_none": "clearly better",
+     "v11_vs_v1": "no clear difference"
+    }
+   ],
+   "class": "good",
+   "flagged": false,
+   "rules_fired": [],
+   "v11_clearly_worse_than_none": false
+  },
+  {
+   "case": "ibm_fez 24 Nov | Ising-4",
+   "group": "ibm_fez 24 Nov",
+   "circuit": "Ising-4",
+   "records": [
+    {
+     "case": "ibm_fez 24 Nov | Ising-4",
+     "group": "ibm_fez 24 Nov",
+     "round": "r1",
+     "circuit": "Ising-4",
+     "observable": "M",
+     "exact": -0.010216610173160307,
+     "asymptote": 0.0,
+     "width": 2.0,
+     "scaled": [
+      -0.0223809660508503,
+      0.029292791511193288,
+      0.04455896888011086
+     ],
+     "d": [
+      -0.0223809660508503,
+      0.029292791511193288,
+      0.04455896888011086
+     ],
+     "se_d": [
+      0.012772854496851335,
+      0.01254759240323734,
+      0.011825240848070469
+     ],
+     "rules": {
+      "decay": false,
+      "alive": true,
+      "one_exp": true
+     },
+     "failed_rules": [
+      "decay"
+     ],
+     "flagged": true,
+     "none": -0.001194001337281508,
+     "v1": -0.03304801975140291,
+     "v1_branch": "linear",
+     "v11": -0.0223809660508503,
+     "v11_branch": "flag:decay",
+     "err": {
+      "none": 0.009022608835878798,
+      "v1": 0.022831409578242604,
+      "v11": 0.012164355877689992
+     },
+     "std": {
+      "none": 0.005417949422560134,
+      "v1": 0.01353694118653019,
+      "v11": 0.009376887563135714
+     },
+     "e": 0.011415704789121302,
+     "v1_vs_none": "no clear difference",
+     "class": "ambiguous",
+     "v11_vs_none": "no clear difference",
+     "v11_vs_v1": "no clear difference"
+    },
+    {
+     "case": "ibm_fez 24 Nov | Ising-4",
+     "group": "ibm_fez 24 Nov",
+     "round": "r2",
+     "circuit": "Ising-4",
+     "observable": "M",
+     "exact": -0.010216610173160307,
+     "asymptote": 0.0,
+     "width": 2.0,
+     "scaled": [
+      -0.009148726946005221,
+      0.026025980376926813,
+      0.05922488447519888
+     ],
+     "d": [
+      -0.009148726946005221,
+      0.026025980376926813,
+      0.05922488447519888
+     ],
+     "se_d": [
+      0.01302383234151717,
+      0.012174809456447487,
+      0.011568543535886083
+     ],
+     "rules": {
+      "decay": false,
+      "alive": true,
+      "one_exp": true
+     },
+     "failed_rules": [
+      "decay"
+     ],
+     "flagged": true,
+     "none": -0.012417613907727582,
+     "v1": -0.02591282926386291,
+     "v1_branch": "linear",
+     "v11": -0.009148726946005221,
+     "v11_branch": "flag:decay",
+     "err": {
+      "none": 0.002201003734567275,
+      "v1": 0.015696219090702603,
+      "v11": 0.001067883227155085
+     },
+     "std": {
+      "none": 0.004042805279556817,
+      "v1": 0.012624815235991517,
+      "v11": 0.008018792827133695
+     },
+     "e": 0.007848109545351301,
+     "v1_vs_none": "clearly worse",
+     "class": "failure",
+     "v11_vs_none": "no clear difference",
+     "v11_vs_v1": "no clear difference"
+    }
+   ],
+   "class": "failure",
+   "flagged": true,
+   "rules_fired": [
+    "decay"
+   ],
+   "v11_clearly_worse_than_none": false
+  },
+  {
+   "case": "ibm_fez 24 Nov | Mirror-4",
+   "group": "ibm_fez 24 Nov",
+   "circuit": "Mirror-4",
+   "records": [
+    {
+     "case": "ibm_fez 24 Nov | Mirror-4",
+     "group": "ibm_fez 24 Nov",
+     "round": "r1",
+     "circuit": "Mirror-4",
+     "observable": "P(0000)",
+     "exact": 1.0,
+     "asymptote": 0.0625,
+     "width": 1.0,
+     "scaled": [
+      0.9286359849065741,
+      0.8411551011973475,
+      0.756375879655575
+     ],
+     "d": [
+      0.8661359849065741,
+      0.7786551011973475,
+      0.693875879655575
+     ],
+     "se_d": [
+      0.008008476330774644,
+      0.009301276458529345,
+      0.010185743959042445
+     ],
+     "rules": {
+      "decay": true,
+      "alive": true,
+      "one_exp": true
+     },
+     "failed_rules": [],
+     "flagged": false,
+     "none": 0.8804088260578852,
+     "v1": 0.9791371213753696,
+     "v1_branch": "exp",
+     "v11": 0.9791371213753696,
+     "v11_branch": "exp",
+     "err": {
+      "none": 0.11959117394211483,
+      "v1": 0.020862878624630432,
+      "v11": 0.020862878624630432
+     },
+     "std": {
+      "none": 0.0031650621178758104,
+      "v1": 0.010104503044947838,
+      "v11": 0.010104503044947838
+     },
+     "e": 0.020862878624630432,
+     "v1_vs_none": "clearly better",
+     "class": "good",
+     "v11_vs_none": "clearly better",
+     "v11_vs_v1": "no clear difference"
+    },
+    {
+     "case": "ibm_fez 24 Nov | Mirror-4",
+     "group": "ibm_fez 24 Nov",
+     "round": "r2",
+     "circuit": "Mirror-4",
+     "observable": "P(0000)",
+     "exact": 1.0,
+     "asymptote": 0.0625,
+     "width": 1.0,
+     "scaled": [
+      0.9226005983318784,
+      0.8497370509974042,
+      0.7723820193992457
+     ],
+     "d": [
+      0.8601005983318784,
+      0.7872370509974042,
+      0.7098820193992457
+     ],
+     "se_d": [
+      0.007503583765802055,
+      0.008326636133125584,
+      0.009150043408692073
+     ],
+     "rules": {
+      "decay": true,
+      "alive": true,
+      "one_exp": true
+     },
+     "failed_rules": [],
+     "flagged": false,
+     "none": 0.8996083675613716,
+     "v1": 0.9668193684552849,
+     "v1_branch": "exp",
+     "v11": 0.9668193684552849,
+     "v11_branch": "exp",
+     "err": {
+      "none": 0.10039163243862836,
+      "v1": 0.03318063154471507,
+      "v11": 0.03318063154471507
+     },
+     "std": {
+      "none": 0.0030155862908909726,
+      "v1": 0.009814192647165723,
+      "v11": 0.009814192647165723
+     },
+     "e": 0.03318063154471507,
+     "v1_vs_none": "clearly better",
+     "class": "good",
+     "v11_vs_none": "clearly better",
+     "v11_vs_v1": "no clear difference"
+    }
+   ],
+   "class": "good",
+   "flagged": false,
+   "rules_fired": [],
+   "v11_clearly_worse_than_none": false
+  },
+  {
+   "case": "ibm_fez 24 Nov | Grover-4-3it",
+   "group": "ibm_fez 24 Nov",
+   "circuit": "Grover-4-3it",
+   "records": [
+    {
+     "case": "ibm_fez 24 Nov | Grover-4-3it",
+     "group": "ibm_fez 24 Nov",
+     "round": "r1",
+     "circuit": "Grover-4-3it",
+     "observable": "P(0110)",
+     "exact": 0.961318969726553,
+     "asymptote": 0.0625,
+     "width": 1.0,
+     "scaled": [
+      0.5442613632201513,
+      0.20250180927200656,
+      0.07740253849100194
+     ],
+     "d": [
+      0.4817613632201513,
+      0.14000180927200656,
+      0.01490253849100194
+     ],
+     "se_d": [
+      0.01147645430100775,
+      0.007867889234364192,
+      0.005363851272609034
+     ],
+     "rules": {
+      "decay": true,
+      "alive": true,
+      "one_exp": false
+     },
+     "failed_rules": [
+      "one_exp"
+     ],
+     "flagged": true,
+     "none": 0.5230681058362785,
+     "v1": 0.6248660222079152,
+     "v1_branch": "exp",
+     "v11": 0.5442613632201513,
+     "v11_branch": "flag:one_exp",
+     "err": {
+      "none": 0.43825086389027446,
+      "v1": 0.33645294751863775,
+      "v11": 0.41705760650640167
+     },
+     "std": {
+      "none": 0.004819625840709707,
+      "v1": 0.08880173450394428,
+      "v11": 0.01147645430100775
+     },
+     "e": 0.33645294751863775,
+     "v1_vs_none": "clearly better",
+     "class": "failure",
+     "v11_vs_none": "clearly better",
+     "v11_vs_v1": "no clear difference"
+    },
+    {
+     "case": "ibm_fez 24 Nov | Grover-4-3it",
+     "group": "ibm_fez 24 Nov",
+     "round": "r2",
+     "circuit": "Grover-4-3it",
+     "observable": "P(0110)",
+     "exact": 0.961318969726553,
+     "asymptote": 0.0625,
+     "width": 1.0,
+     "scaled": [
+      0.5511167307784666,
+      0.2162959887406718,
+      0.08906304121621846
+     ],
+     "d": [
+      0.48861673077846657,
+      0.1537959887406718,
+      0.026563041216218455
+     ],
+     "se_d": [
+      0.01020946845813255,
+      0.008482681273666706,
+      0.005734077612766169
+     ],
+     "rules": {
+      "decay": true,
+      "alive": true,
+      "one_exp": false
+     },
+     "failed_rules": [
+      "one_exp"
+     ],
+     "flagged": true,
+     "none": 0.5308052345018627,
+     "v1": 0.632032187416805,
+     "v1_branch": "exp",
+     "v11": 0.5511167307784666,
+     "v11_branch": "flag:one_exp",
+     "err": {
+      "none": 0.4305137352246903,
+      "v1": 0.32928678230974795,
+      "v11": 0.4102022389480864
+     },
+     "std": {
+      "none": 0.005102985438686139,
+      "v1": 0.15073276321526424,
+      "v11": 0.01020946845813255
+     },
+     "e": 0.32928678230974795,
+     "v1_vs_none": "no clear difference",
+     "class": "failure",
+     "v11_vs_none": "clearly better",
+     "v11_vs_v1": "no clear difference"
+    }
+   ],
+   "class": "failure",
+   "flagged": true,
+   "rules_fired": [
+    "one_exp"
+   ],
+   "v11_clearly_worse_than_none": false
+  },
+  {
+   "case": "ibm_fez 24 Nov | QFT-6",
+   "group": "ibm_fez 24 Nov",
+   "circuit": "QFT-6",
+   "records": [
+    {
+     "case": "ibm_fez 24 Nov | QFT-6",
+     "group": "ibm_fez 24 Nov",
+     "round": "r1",
+     "circuit": "QFT-6",
+     "observable": "X0",
+     "exact": -0.4713967368259957,
+     "asymptote": 0.0,
+     "width": 2.0,
+     "scaled": [
+      -0.2655948548435523,
+      0.09434989534715006,
+      0.23478008535994976
+     ],
+     "d": [
+      -0.2655948548435523,
+      0.09434989534715006,
+      0.23478008535994976
+     ],
+     "se_d": [
+      0.020361122536380737,
+      0.019517215091287975,
+      0.017972885018839365
+     ],
+     "rules": {
+      "decay": false,
+      "alive": true,
+      "one_exp": false
+     },
+     "failed_rules": [
+      "decay",
+      "one_exp"
+     ],
+     "flagged": true,
+     "none": -0.252650682968765,
+     "v1": -0.3541028298647773,
+     "v1_branch": "linear",
+     "v11": -0.2655948548435523,
+     "v11_branch": "flag:decay+one_exp",
+     "err": {
+      "none": 0.21874605385723073,
+      "v1": 0.11729390696121839,
+      "v11": 0.20580188198244342
+     },
+     "std": {
+      "none": 0.009699968428673014,
+      "v1": 0.024050503497929247,
+      "v11": 0.020361122536380737
+     },
+     "e": 0.05864695348060919,
+     "v1_vs_none": "clearly better",
+     "class": "ambiguous",
+     "v11_vs_none": "no clear difference",
+     "v11_vs_v1": "clearly worse"
+    },
+    {
+     "case": "ibm_fez 24 Nov | QFT-6",
+     "group": "ibm_fez 24 Nov",
+     "round": "r1",
+     "circuit": "QFT-6",
+     "observable": "X1",
+     "exact": -0.5555702330195986,
+     "asymptote": 0.0,
+     "width": 2.0,
+     "scaled": [
+      -0.4874243456580228,
+      -0.3650795006902424,
+      -0.19731321627334591
+     ],
+     "d": [
+      -0.4874243456580228,
+      -0.3650795006902424,
+      -0.19731321627334591
+     ],
+     "se_d": [
+      0.0165708944138604,
+      0.017546895453715,
+      0.01832442863438809
+     ],
+     "rules": {
+      "decay": true,
+      "alive": true,
+      "one_exp": false
+     },
+     "failed_rules": [
+      "one_exp"
+     ],
+     "flagged": true,
+     "none": -0.4635590791861687,
+     "v1": -0.625556860993952,
+     "v1_branch": "exp",
+     "v11": -0.4874243456580228,
+     "v11_branch": "flag:one_exp",
+     "err": {
+      "none": 0.09201115383342995,
+      "v1": 0.0699866279743534,
+      "v11": 0.06814588736157584
+     },
+     "std": {
+      "none": 0.008084430153764512,
+      "v1": 0.030494863513665427,
+      "v11": 0.0165708944138604
+     },
+     "e": 0.0349933139871767,
+     "v1_vs_none": "no clear difference",
+     "class": "ambiguous",
+     "v11_vs_none": "clearly better",
+     "v11_vs_v1": "no clear difference"
+    },
+    {
+     "case": "ibm_fez 24 Nov | QFT-6",
+     "group": "ibm_fez 24 Nov",
+     "round": "r1",
+     "circuit": "QFT-6",
+     "observable": "X2",
+     "exact": -0.3826834323650883,
+     "asymptote": 0.0,
+     "width": 2.0,
+     "scaled": [
+      -0.2687202102862245,
+      -0.2694564123991032,
+      -0.2120326475945724
+     ],
+     "d": [
+      -0.2687202102862245,
+      -0.2694564123991032,
+      -0.2120326475945724
+     ],
+     "se_d": [
+      0.01943569896498429,
+      0.019493926241261558,
+      0.018995515676505335
+     ],
+     "rules": {
+      "decay": true,
+      "alive": true,
+      "one_exp": true
+     },
+     "failed_rules": [],
+     "flagged": false,
+     "none": -0.292196007259528,
+     "v1": -0.29258542877870564,
+     "v1_branch": "linear",
+     "v11": -0.29258542877870564,
+     "v11_branch": "linear",
+     "err": {
+      "none": 0.09048742510556029,
+      "v1": 0.09009800358638265,
+      "v11": 0.09009800358638265
+     },
+     "std": {
+      "none": 0.009921766577778464,
+      "v1": 0.026304893288285232,
+      "v11": 0.026304893288285232
+     },
+     "e": 0.04504900179319132,
+     "v1_vs_none": "no clear difference",
+     "class": "ambiguous",
+     "v11_vs_none": "no clear difference",
+     "v11_vs_v1": "no clear difference"
+    },
+    {
+     "case": "ibm_fez 24 Nov | QFT-6",
+     "group": "ibm_fez 24 Nov",
+     "round": "r1",
+     "circuit": "QFT-6",
+     "observable": "X3",
+     "exact": -0.7071067811865471,
+     "asymptote": 0.0,
+     "width": 2.0,
+     "scaled": [
+      -0.6246792258662985,
+      -0.3882843611512722,
+      -0.1466694205592577
+     ],
+     "d": [
+      -0.6246792258662985,
+      -0.3882843611512722,
+      -0.1466694205592577
+     ],
+     "se_d": [
+      0.01620764510964128,
+      0.019365798786605114,
+      0.018958515320538754
+     ],
+     "rules": {
+      "decay": true,
+      "alive": true,
+      "one_exp": false
+     },
+     "failed_rules": [
+      "one_exp"
+     ],
+     "flagged": true,
+     "none": -0.5436049288375203,
+     "v1": -0.904508050934128,
+     "v1_branch": "exp",
+     "v11": -0.6246792258662985,
+     "v11_branch": "flag:one_exp",
+     "err": {
+      "none": 0.1635018523490268,
+      "v1": 0.19740126974758088,
+      "v11": 0.08242755532024859
+     },
+     "std": {
+      "none": 0.00835480164347744,
+      "v1": 0.03616358692400175,
+      "v11": 0.01620764510964128
+     },
+     "e": 0.09870063487379044,
+     "v1_vs_none": "no clear difference",
+     "class": "ambiguous",
+     "v11_vs_none": "clearly better",
+     "v11_vs_v1": "clearly better"
+    },
+    {
+     "case": "ibm_fez 24 Nov | QFT-6",
+     "group": "ibm_fez 24 Nov",
+     "round": "r1",
+     "circuit": "QFT-6",
+     "observable": "X4",
+     "exact": -1.8041124150158794e-15,
+     "asymptote": 0.0,
+     "width": 2.0,
+     "scaled": [
+      -0.012043619717533122,
+      -0.1579549694523043,
+      -0.27660005686290096
+     ],
+     "d": [
+      -0.012043619717533122,
+      -0.1579549694523043,
+      -0.27660005686290096
+     ],
+     "se_d": [
+      0.018761801668580713,
+      0.01890150664913677,
+      0.019363366559598336
+     ],
+     "rules": {
+      "decay": false,
+      "alive": true,
+      "one_exp": true
+     },
+     "failed_rules": [
+      "decay"
+     ],
+     "flagged": true,
+     "none": -0.049574935523927735,
+     "v1": 0.049551112514779706,
+     "v1_branch": "linear",
+     "v11": -0.012043619717533122,
+     "v11_branch": "flag:decay",
+     "err": {
+      "none": 0.04957493552392593,
+      "v1": 0.04955111251478151,
+      "v11": 0.012043619717531318
+     },
+     "std": {
+      "none": 0.009928922094994653,
+      "v1": 0.02235109270083096,
+      "v11": 0.012601911645104883
+     },
+     "e": 0.024775556257390755,
+     "v1_vs_none": "no clear difference",
+     "class": "ambiguous",
+     "v11_vs_none": "clearly better",
+     "v11_vs_v1": "clearly better"
+    },
+    {
+     "case": "ibm_fez 24 Nov | QFT-6",
+     "group": "ibm_fez 24 Nov",
+     "round": "r1",
+     "circuit": "QFT-6",
+     "observable": "X5",
+     "exact": -0.9999999999999989,
+     "asymptote": 0.0,
+     "width": 2.0,
+     "scaled": [
+      -0.9199292691900496,
+      -0.7862638063988107,
+      -0.6170572378942943
+     ],
+     "d": [
+      -0.9199292691900496,
+      -0.7862638063988107,
+      -0.6170572378942943
+     ],
+     "se_d": [
+      0.011979838104864669,
+      0.014330186052959132,
+      0.016695600498703694
+     ],
+     "rules": {
+      "decay": true,
+      "alive": true,
+      "one_exp": false
+     },
+     "failed_rules": [
+      "one_exp"
+     ],
+     "flagged": true,
+     "none": -0.8859489922628714,
+     "v1": -1.0015707946328674,
+     "v1_branch": "exp",
+     "v11": -0.9199292691900496,
+     "v11_branch": "flag:one_exp",
+     "err": {
+      "none": 0.11405100773712751,
+      "v1": 0.0015707946328684663,
+      "v11": 0.08007073080994931
+     },
+     "std": {
+      "none": 0.004536609015586453,
+      "v1": 0.008012652580715027,
+      "v11": 0.011979838104864669
+     },
+     "e": 0.0007853973164342332,
+     "v1_vs_none": "clearly better",
+     "class": "good",
+     "v11_vs_none": "clearly better",
+     "v11_vs_v1": "clearly worse"
+    },
+    {
+     "case": "ibm_fez 24 Nov | QFT-6",
+     "group": "ibm_fez 24 Nov",
+     "round": "r1",
+     "circuit": "QFT-6",
+     "observable": "Y0",
+     "exact": -0.8819212643483549,
+     "asymptote": 0.0,
+     "width": 2.0,
+     "scaled": [
+      -0.8360365752525726,
+      -0.6319773856482516,
+      -0.32551758453339874
+     ],
+     "d": [
+      -0.8360365752525726,
+      -0.6319773856482516,
+      -0.32551758453339874
+     ],
+     "se_d": [
+      0.014637812933715764,
+      0.017715827532047822,
+      0.01835994827776489
+     ],
+     "rules": {
+      "decay": true,
+      "alive": true,
+      "one_exp": false
+     },
+     "failed_rules": [
+      "one_exp"
+     ],
+     "flagged": true,
+     "none": -0.7764829496609031,
+     "v1": -0.9807330915174541,
+     "v1_branch": "exp",
+     "v11": -0.8360365752525726,
+     "v11_branch": "flag:one_exp",
+     "err": {
+      "none": 0.1054383146874518,
+      "v1": 0.0988118271690992,
+      "v11": 0.04588468909578236
+     },
+     "std": {
+      "none": 0.006264225266019909,
+      "v1": 0.018193454659208203,
+      "v11": 0.014637812933715766
+     },
+     "e": 0.0494059135845496,
+     "v1_vs_none": "no clear difference",
+     "class": "ambiguous",
+     "v11_vs_none": "clearly better",
+     "v11_vs_v1": "clearly better"
+    },
+    {
+     "case": "ibm_fez 24 Nov | QFT-6",
+     "group": "ibm_fez 24 Nov",
+     "round": "r1",
+     "circuit": "QFT-6",
+     "observable": "Y1",
+     "exact": 0.8314696123025465,
+     "asymptote": 0.0,
+     "width": 2.0,
+     "scaled": [
+      0.6810097733333523,
+      0.5871447242956487,
+      0.4214142470884533
+     ],
+     "d": [
+      0.6810097733333523,
+      0.5871447242956487,
+      0.4214142470884533
+     ],
+     "se_d": [
+      0.014307625121978734,
+      0.015902559628768718,
+      0.016016986566243403
+     ],
+     "rules": {
+      "decay": true,
+      "alive": true,
+      "one_exp": false
+     },
+     "failed_rules": [
+      "one_exp"
+     ],
+     "flagged": true,
+     "none": 0.6924252555162862,
+     "v1": 0.7844207438189574,
+     "v1_branch": "exp",
+     "v11": 0.6810097733333523,
+     "v11_branch": "flag:one_exp",
+     "err": {
+      "none": 0.13904435678626026,
+      "v1": 0.047048868483589024,
+      "v11": 0.15045983896919413
+     },
+     "std": {
+      "none": 0.0070635174369588,
+      "v1": 0.02087475146874627,
+      "v11": 0.014307625121978734
+     },
+     "e": 0.023524434241794512,
+     "v1_vs_none": "clearly better",
+     "class": "good",
+     "v11_vs_none": "no clear difference",
+     "v11_vs_v1": "clearly worse"
+    },
+    {
+     "case": "ibm_fez 24 Nov | QFT-6",
+     "group": "ibm_fez 24 Nov",
+     "round": "r1",
+     "circuit": "QFT-6",
+     "observable": "Y2",
+     "exact": -0.9238795325112864,
+     "asymptote": 0.0,
+     "width": 2.0,
+     "scaled": [
+      -0.8293118436200456,
+      -0.5230834292695535,
+      -0.22271584581572132
+     ],
+     "d": [
+      -0.8293118436200456,
+      -0.5230834292695535,
+      -0.22271584581572132
+     ],
+     "se_d": [
+      0.01153990216709002,
+      0.016470147429450466,
+      0.019079783105664026
+     ],
+     "rules": {
+      "decay": true,
+      "alive": true,
+      "one_exp": false
+     },
+     "failed_rules": [
+      "one_exp"
+     ],
+     "flagged": true,
+     "none": -0.7751456681631483,
+     "v1": -0.9799840379216832,
+     "v1_branch": "exp",
+     "v11": -0.8293118436200456,
+     "v11_branch": "flag:one_exp",
+     "err": {
+      "none": 0.14873386434813807,
+      "v1": 0.0561045054103968,
+      "v11": 0.09456768889124079
+     },
+     "std": {
+      "none": 0.005912353331956315,
+      "v1": 0.015778970567749524,
+      "v11": 0.01153990216709002
+     },
+     "e": 0.0280522527051984,
+     "v1_vs_none": "clearly better",
+     "class": "good",
+     "v11_vs_none": "clearly better",
+     "v11_vs_v1": "clearly worse"
+    },
+    {
+     "case": "ibm_fez 24 Nov | QFT-6",
+     "group": "ibm_fez 24 Nov",
+     "round": "r1",
+     "circuit": "QFT-6",
+     "observable": "Y3",
+     "exact": 0.7071067811865465,
+     "asymptote": 0.0,
+     "width": 2.0,
+     "scaled": [
+      0.6262693322946516,
+      0.6009398814686534,
+      0.539106222099305
+     ],
+     "d": [
+      0.6262693322946516,
+      0.6009398814686534,
+      0.539106222099305
+     ],
+     "se_d": [
+      0.015333604718839967,
+      0.015444768995297089,
+      0.01672604255981893
+     ],
+     "rules": {
+      "decay": true,
+      "alive": true,
+      "one_exp": true
+     },
+     "failed_rules": [],
+     "flagged": false,
+     "none": 0.6353042315407393,
+     "v1": 0.6568454176290948,
+     "v1_branch": "exp",
+     "v11": 0.6568454176290948,
+     "v11_branch": "exp",
+     "err": {
+      "none": 0.07180254964580712,
+      "v1": 0.0502613635574517,
+      "v11": 0.0502613635574517
+     },
+     "std": {
+      "none": 0.007791701810310424,
+      "v1": 0.019677441379063135,
+      "v11": 0.019677441379063135
+     },
+     "e": 0.02513068177872585,
+     "v1_vs_none": "clearly better",
+     "class": "good",
+     "v11_vs_none": "clearly better",
+     "v11_vs_v1": "no clear difference"
+    },
+    {
+     "case": "ibm_fez 24 Nov | QFT-6",
+     "group": "ibm_fez 24 Nov",
+     "round": "r1",
+     "circuit": "QFT-6",
+     "observable": "Y4",
+     "exact": -0.9999999999999992,
+     "asymptote": 0.0,
+     "width": 2.0,
+     "scaled": [
+      -0.8997909536424126,
+      -0.7280871936009902,
+      -0.551224951498237
+     ],
+     "d": [
+      -0.8997909536424126,
+      -0.7280871936009902,
+      -0.551224951498237
+     ],
+     "se_d": [
+      0.01128279620746127,
+      0.014104829783294224,
+      0.01652458285647356
+     ],
+     "rules": {
+      "decay": true,
+      "alive": true,
+      "one_exp": true
+     },
+     "failed_rules": [],
+     "flagged": false,
+     "none": -0.8691374534339475,
+     "v1": -0.9877922011886776,
+     "v1_branch": "exp",
+     "v11": -0.9877922011886776,
+     "v11_branch": "exp",
+     "err": {
+      "none": 0.13086254656605167,
+      "v1": 0.012207798811321613,
+      "v11": 0.012207798811321613
+     },
+     "std": {
+      "none": 0.005095068968984085,
+      "v1": 0.008986996418609927,
+      "v11": 0.008986996418609927
+     },
+     "e": 0.0061038994056608065,
+     "v1_vs_none": "clearly better",
+     "class": "good",
+     "v11_vs_none": "clearly better",
+     "v11_vs_v1": "no clear difference"
+    },
+    {
+     "case": "ibm_fez 24 Nov | QFT-6",
+     "group": "ibm_fez 24 Nov",
+     "round": "r1",
+     "circuit": "QFT-6",
+     "observable": "Y5",
+     "exact": 3.6056227448177935e-15,
+     "asymptote": 0.0,
+     "width": 2.0,
+     "scaled": [
+      -0.04788953503730339,
+      -0.12943631622444707,
+      -0.16749148077844753
+     ],
+     "d": [
+      -0.04788953503730339,
+      -0.12943631622444707,
+      -0.16749148077844753
+     ],
+     "se_d": [
+      0.022146249005263394,
+      0.02172323924391628,
+      0.02170846364632827
+     ],
+     "rules": {
+      "decay": false,
+      "alive": true,
+      "one_exp": true
+     },
+     "failed_rules": [
+      "decay"
+     ],
+     "flagged": true,
+     "none": -0.020345782787276747,
+     "v1": -0.025237651374207862,
+     "v1_branch": "linear",
+     "v11": -0.04788953503730339,
+     "v11_branch": "flag:decay",
+     "err": {
+      "none": 0.020345782787280352,
+      "v1": 0.025237651374211467,
+      "v11": 0.047889535037307
+     },
+     "std": {
+      "none": 0.00937561524553959,
+      "v1": 0.020019941925560617,
+      "v11": 0.021010478692583705
+     },
+     "e": 0.012618825687105734,
+     "v1_vs_none": "no clear difference",
+     "class": "ambiguous",
+     "v11_vs_none": "clearly worse",
+     "v11_vs_v1": "no clear difference"
+    },
+    {
+     "case": "ibm_fez 24 Nov | QFT-6",
+     "group": "ibm_fez 24 Nov",
+     "round": "r2",
+     "circuit": "QFT-6",
+     "observable": "X0",
+     "exact": -0.4713967368259957,
+     "asymptote": 0.0,
+     "width": 2.0,
+     "scaled": [
+      -0.3128923370589405,
+      -0.050804384874158746,
+      0.13103753700685564
+     ],
+     "d": [
+      -0.3128923370589405,
+      -0.050804384874158746,
+      0.13103753700685564
+     ],
+     "se_d": [
+      0.018220093030130776,
+      0.019110473884183497,
+      0.019434637045808955
+     ],
+     "rules": {
+      "decay": false,
+      "alive": true,
+      "one_exp": true
+     },
+     "failed_rules": [
+      "decay"
+     ],
+     "flagged": true,
+     "none": -0.27614862928646483,
+     "v1": -0.4105004671914283,
+     "v1_branch": "linear",
+     "v11": -0.3128923370589405,
+     "v11_branch": "flag:decay",
+     "err": {
+      "none": 0.19524810753953087,
+      "v1": 0.0608962696345674,
+      "v11": 0.15850439976705522
+     },
+     "std": {
+      "none": 0.009128105129086277,
+      "v1": 0.02116571158507973,
+      "v11": 0.018220093030130776
+     },
+     "e": 0.0304481348172837,
+     "v1_vs_none": "clearly better",
+     "class": "good",
+     "v11_vs_none": "clearly better",
+     "v11_vs_v1": "clearly worse"
+    },
+    {
+     "case": "ibm_fez 24 Nov | QFT-6",
+     "group": "ibm_fez 24 Nov",
+     "round": "r2",
+     "circuit": "QFT-6",
+     "observable": "X1",
+     "exact": -0.5555702330195986,
+     "asymptote": 0.0,
+     "width": 2.0,
+     "scaled": [
+      -0.4962119589277807,
+      -0.3602816217528527,
+      -0.20230852719820638
+     ],
+     "d": [
+      -0.4962119589277807,
+      -0.3602816217528527,
+      -0.20230852719820638
+     ],
+     "se_d": [
+      0.017581993753024817,
+      0.017168446874996027,
+      0.019599945938686178
+     ],
+     "rules": {
+      "decay": true,
+      "alive": true,
+      "one_exp": true
+     },
+     "failed_rules": [],
+     "flagged": false,
+     "none": -0.5038685643327916,
+     "v1": -0.6324274776053523,
+     "v1_branch": "exp",
+     "v11": -0.6324274776053523,
+     "v11_branch": "exp",
+     "err": {
+      "none": 0.051701668686807034,
+      "v1": 0.07685724458575371,
+      "v11": 0.07685724458575371
+     },
+     "std": {
+      "none": 0.008269813242300498,
+      "v1": 0.03080659439821162,
+      "v11": 0.03080659439821162
+     },
+     "e": 0.03842862229287686,
+     "v1_vs_none": "no clear difference",
+     "class": "ambiguous",
+     "v11_vs_none": "no clear difference",
+     "v11_vs_v1": "no clear difference"
+    },
+    {
+     "case": "ibm_fez 24 Nov | QFT-6",
+     "group": "ibm_fez 24 Nov",
+     "round": "r2",
+     "circuit": "QFT-6",
+     "observable": "X2",
+     "exact": -0.3826834323650883,
+     "asymptote": 0.0,
+     "width": 2.0,
+     "scaled": [
+      -0.3163106486146724,
+      -0.34637679713456204,
+      -0.26204491713975003
+     ],
+     "d": [
+      -0.3163106486146724,
+      -0.34637679713456204,
+      -0.26204491713975003
+     ],
+     "se_d": [
+      0.017784857283701307,
+      0.01779203172734836,
+      0.017887226915439588
+     ],
+     "rules": {
+      "decay": true,
+      "alive": true,
+      "one_exp": false
+     },
+     "failed_rules": [
+      "one_exp"
+     ],
+     "flagged": true,
+     "none": -0.29047664533384293,
+     "v1": -0.34894341956918634,
+     "v1_branch": "linear",
+     "v11": -0.3163106486146724,
+     "v11_branch": "flag:one_exp",
+     "err": {
+      "none": 0.09220678703124535,
+      "v1": 0.03374001279590194,
+      "v11": 0.06637278375041589
+     },
+     "std": {
+      "none": 0.009314466326804586,
+      "v1": 0.020208651363671937,
+      "v11": 0.017784857283701307
+     },
+     "e": 0.01687000639795097,
+     "v1_vs_none": "clearly better",
+     "class": "good",
+     "v11_vs_none": "clearly better",
+     "v11_vs_v1": "clearly worse"
+    },
+    {
+     "case": "ibm_fez 24 Nov | QFT-6",
+     "group": "ibm_fez 24 Nov",
+     "round": "r2",
+     "circuit": "QFT-6",
+     "observable": "X3",
+     "exact": -0.7071067811865471,
+     "asymptote": 0.0,
+     "width": 2.0,
+     "scaled": [
+      -0.6093486733743002,
+      -0.34905934671080285,
+      -0.09325776705874488
+     ],
+     "d": [
+      -0.6093486733743002,
+      -0.34905934671080285,
+      -0.09325776705874488
+     ],
+     "se_d": [
+      0.017067951350798916,
+      0.02046987187005108,
+      0.02075930329213864
+     ],
+     "rules": {
+      "decay": true,
+      "alive": true,
+      "one_exp": false
+     },
+     "failed_rules": [
+      "one_exp"
+     ],
+     "flagged": true,
+     "none": -0.5680580762250453,
+     "v1": -0.9547949907599828,
+     "v1_branch": "exp",
+     "v11": -0.6093486733743002,
+     "v11_branch": "flag:one_exp",
+     "err": {
+      "none": 0.1390487049615018,
+      "v1": 0.24768820957343562,
+      "v11": 0.09775810781224692
+     },
+     "std": {
+      "none": 0.007933453863178477,
+      "v1": 0.06839069291368266,
+      "v11": 0.017067951350798916
+     },
+     "e": 0.12384410478671781,
+     "v1_vs_none": "clearly worse",
+     "class": "failure",
+     "v11_vs_none": "clearly better",
+     "v11_vs_v1": "clearly better"
+    },
+    {
+     "case": "ibm_fez 24 Nov | QFT-6",
+     "group": "ibm_fez 24 Nov",
+     "round": "r2",
+     "circuit": "QFT-6",
+     "observable": "X4",
+     "exact": -1.8041124150158794e-15,
+     "asymptote": 0.0,
+     "width": 2.0,
+     "scaled": [
+      -0.0752224001311429,
+      -0.15068566034127365,
+      -0.2365066229331869
+     ],
+     "d": [
+      -0.0752224001311429,
+      -0.15068566034127365,
+      -0.2365066229331869
+     ],
+     "se_d": [
+      0.019080062400005572,
+      0.01894843265216428,
+      0.01947015724361506
+     ],
+     "rules": {
+      "decay": false,
+      "alive": true,
+      "one_exp": true
+     },
+     "failed_rules": [
+      "decay"
+     ],
+     "flagged": true,
+     "none": -0.047855573598242454,
+     "v1": -0.03317506070033475,
+     "v1_branch": "linear",
+     "v11": -0.0752224001311429,
+     "v11_branch": "flag:decay",
+     "err": {
+      "none": 0.04785557359824065,
+      "v1": 0.033175060700332944,
+      "v11": 0.07522240013114109
+     },
+     "std": {
+      "none": 0.009579571355666488,
+      "v1": 0.02003100751569608,
+      "v11": 0.019080062400005572
+     },
+     "e": 0.016587530350166472,
+     "v1_vs_none": "no clear difference",
+     "class": "ambiguous",
+     "v11_vs_none": "clearly worse",
+     "v11_vs_v1": "clearly worse"
+    },
+    {
+     "case": "ibm_fez 24 Nov | QFT-6",
+     "group": "ibm_fez 24 Nov",
+     "round": "r2",
+     "circuit": "QFT-6",
+     "observable": "X5",
+     "exact": -0.9999999999999989,
+     "asymptote": 0.0,
+     "width": 2.0,
+     "scaled": [
+      -0.9150089638072157,
+      -0.7792220479766002,
+      -0.5781673880727048
+     ],
+     "d": [
+      -0.9150089638072157,
+      -0.7792220479766002,
+      -0.5781673880727048
+     ],
+     "se_d": [
+      0.01355677344033679,
+      0.01570144725810053,
+      0.018704230421281734
+     ],
+     "rules": {
+      "decay": true,
+      "alive": true,
+      "one_exp": false
+     },
+     "failed_rules": [
+      "one_exp"
+     ],
+     "flagged": true,
+     "none": -0.8605406438055209,
+     "v1": -1.01009731508639,
+     "v1_branch": "exp",
+     "v11": -0.9150089638072157,
+     "v11_branch": "flag:one_exp",
+     "err": {
+      "none": 0.13945935619447802,
+      "v1": 0.010097315086391001,
+      "v11": 0.08499103619278314
+     },
+     "std": {
+      "none": 0.0050895080193486915,
+      "v1": 0.01124798666837284,
+      "v11": 0.01355677344033679
+     },
+     "e": 0.0050486575431955005,
+     "v1_vs_none": "clearly better",
+     "class": "good",
+     "v11_vs_none": "clearly better",
+     "v11_vs_v1": "clearly worse"
+    },
+    {
+     "case": "ibm_fez 24 Nov | QFT-6",
+     "group": "ibm_fez 24 Nov",
+     "round": "r2",
+     "circuit": "QFT-6",
+     "observable": "Y0",
+     "exact": -0.8819212643483549,
+     "asymptote": 0.0,
+     "width": 2.0,
+     "scaled": [
+      -0.8044033123092401,
+      -0.6212523467886106,
+      -0.32821080195560387
+     ],
+     "d": [
+      -0.8044033123092401,
+      -0.6212523467886106,
+      -0.32821080195560387
+     ],
+     "se_d": [
+      0.012012757658767382,
+      0.015004007042474413,
+      0.019048876988797644
+     ],
+     "rules": {
+      "decay": true,
+      "alive": true,
+      "one_exp": false
+     },
+     "failed_rules": [
+      "one_exp"
+     ],
+     "flagged": true,
+     "none": -0.8053300219696247,
+     "v1": -0.9417665364497118,
+     "v1_branch": "exp",
+     "v11": -0.8044033123092401,
+     "v11_branch": "flag:one_exp",
+     "err": {
+      "none": 0.07659124237873027,
+      "v1": 0.05984527210135682,
+      "v11": 0.07751795203911482
+     },
+     "std": {
+      "none": 0.005814324489540149,
+      "v1": 0.018775707660506083,
+      "v11": 0.012012757658767382
+     },
+     "e": 0.02992263605067841,
+     "v1_vs_none": "no clear difference",
+     "class": "ambiguous",
+     "v11_vs_none": "no clear difference",
+     "v11_vs_v1": "no clear difference"
+    },
+    {
+     "case": "ibm_fez 24 Nov | QFT-6",
+     "group": "ibm_fez 24 Nov",
+     "round": "r2",
+     "circuit": "QFT-6",
+     "observable": "Y1",
+     "exact": 0.8314696123025465,
+     "asymptote": 0.0,
+     "width": 2.0,
+     "scaled": [
+      0.6732075989556047,
+      0.6128982686566309,
+      0.461389463271405
+     ],
+     "d": [
+      0.6732075989556047,
+      0.6128982686566309,
+      0.461389463271405
+     ],
+     "se_d": [
+      0.015420469769588354,
+      0.014594453349966225,
+      0.01706299227750712
+     ],
+     "rules": {
+      "decay": true,
+      "alive": true,
+      "one_exp": false
+     },
+     "failed_rules": [
+      "one_exp"
+     ],
+     "flagged": true,
+     "none": 0.7096188747731396,
+     "v1": 0.7582884349211615,
+     "v1_branch": "exp",
+     "v11": 0.6732075989556047,
+     "v11_branch": "flag:one_exp",
+     "err": {
+      "none": 0.1218507375294069,
+      "v1": 0.07318117738138497,
+      "v11": 0.1582620133469418
+     },
+     "std": {
+      "none": 0.006735662444746327,
+      "v1": 0.02183626326875029,
+      "v11": 0.015420469769588356
+     },
+     "e": 0.03659058869069248,
+     "v1_vs_none": "clearly better",
+     "class": "good",
+     "v11_vs_none": "clearly worse",
+     "v11_vs_v1": "clearly worse"
+    },
+    {
+     "case": "ibm_fez 24 Nov | QFT-6",
+     "group": "ibm_fez 24 Nov",
+     "round": "r2",
+     "circuit": "QFT-6",
+     "observable": "Y2",
+     "exact": -0.9238795325112864,
+     "asymptote": 0.0,
+     "width": 2.0,
+     "scaled": [
+      -0.7932571140784958,
+      -0.5172584751536025,
+      -0.21189827889627366
+     ],
+     "d": [
+      -0.7932571140784958,
+      -0.5172584751536025,
+      -0.21189827889627366
+     ],
+     "se_d": [
+      0.013825766648235245,
+      0.017087741735228864,
+      0.019706588472968127
+     ],
+     "rules": {
+      "decay": true,
+      "alive": true,
+      "one_exp": false
+     },
+     "failed_rules": [
+      "one_exp"
+     ],
+     "flagged": true,
+     "none": -0.8125895501002962,
+     "v1": -0.9434904157627902,
+     "v1_branch": "exp",
+     "v11": -0.7932571140784958,
+     "v11_branch": "flag:one_exp",
+     "err": {
+      "none": 0.1112899824109902,
+      "v1": 0.01961088325150384,
+      "v11": 0.13062241843279065
+     },
+     "std": {
+      "none": 0.0058565936785820874,
+      "v1": 0.01437960614145914,
+      "v11": 0.013825766648235245
+     },
+     "e": 0.00980544162575192,
+     "v1_vs_none": "clearly better",
+     "class": "good",
+     "v11_vs_none": "clearly worse",
+     "v11_vs_v1": "clearly worse"
+    },
+    {
+     "case": "ibm_fez 24 Nov | QFT-6",
+     "group": "ibm_fez 24 Nov",
+     "round": "r2",
+     "circuit": "QFT-6",
+     "observable": "Y3",
+     "exact": 0.7071067811865465,
+     "asymptote": 0.0,
+     "width": 2.0,
+     "scaled": [
+      0.6608497111046273,
+      0.6563574808294399,
+      0.5739999257843396
+     ],
+     "d": [
+      0.6608497111046273,
+      0.6563574808294399,
+      0.5739999257843396
+     ],
+     "se_d": [
+      0.015559391847222723,
+      0.015583513090478878,
+      0.016838598116401825
+     ],
+     "rules": {
+      "decay": true,
+      "alive": true,
+      "one_exp": false
+     },
+     "failed_rules": [
+      "one_exp"
+     ],
+     "flagged": true,
+     "none": 0.6347311108988445,
+     "v1": 0.6982432634528523,
+     "v1_branch": "exp",
+     "v11": 0.6608497111046273,
+     "v11_branch": "flag:one_exp",
+     "err": {
+      "none": 0.07237567028770198,
+      "v1": 0.008863517733694204,
+      "v11": 0.04625707008191915
+     },
+     "std": {
+      "none": 0.007485444455231432,
+      "v1": 0.013044882318554206,
+      "v11": 0.015559391847222723
+     },
+     "e": 0.004431758866847102,
+     "v1_vs_none": "clearly better",
+     "class": "good",
+     "v11_vs_none": "clearly better",
+     "v11_vs_v1": "clearly worse"
+    },
+    {
+     "case": "ibm_fez 24 Nov | QFT-6",
+     "group": "ibm_fez 24 Nov",
+     "round": "r2",
+     "circuit": "QFT-6",
+     "observable": "Y4",
+     "exact": -0.9999999999999992,
+     "asymptote": 0.0,
+     "width": 2.0,
+     "scaled": [
+      -0.896208380255188,
+      -0.7217284795029597,
+      -0.550193387202246
+     ],
+     "d": [
+      -0.896208380255188,
+      -0.7217284795029597,
+      -0.550193387202246
+     ],
+     "se_d": [
+      0.010624394660020074,
+      0.01406957687355732,
+      0.01774783773556152
+     ],
+     "rules": {
+      "decay": true,
+      "alive": true,
+      "one_exp": true
+     },
+     "failed_rules": [],
+     "flagged": false,
+     "none": -0.8762059413506544,
+     "v1": -0.9822213271098373,
+     "v1_branch": "exp",
+     "v11": -0.9822213271098373,
+     "v11_branch": "exp",
+     "err": {
+      "none": 0.12379405864934478,
+      "v1": 0.017778672890161884,
+      "v11": 0.017778672890161884
+     },
+     "std": {
+      "none": 0.004491030366565704,
+      "v1": 0.00911362636389666,
+      "v11": 0.00911362636389666
+     },
+     "e": 0.008889336445080942,
+     "v1_vs_none": "clearly better",
+     "class": "good",
+     "v11_vs_none": "clearly better",
+     "v11_vs_v1": "no clear difference"
+    },
+    {
+     "case": "ibm_fez 24 Nov | QFT-6",
+     "group": "ibm_fez 24 Nov",
+     "round": "r2",
+     "circuit": "QFT-6",
+     "observable": "Y5",
+     "exact": 3.6056227448177935e-15,
+     "asymptote": 0.0,
+     "width": 2.0,
+     "scaled": [
+      -0.006774146182173507,
+      -0.08795870495682237,
+      -0.16914326373147115
+     ],
+     "d": [
+      -0.006774146182173507,
+      -0.08795870495682237,
+      -0.16914326373147115
+     ],
+     "se_d": [
+      0.020739050831293217,
+      0.021003825312353352,
+      0.01955762947673846
+     ],
+     "rules": {
+      "decay": false,
+      "alive": true,
+      "one_exp": true
+     },
+     "failed_rules": [
+      "decay"
+     ],
+     "flagged": true,
+     "none": -0.013659375298500294,
+     "v1": 0.03381813320515092,
+     "v1_branch": "linear",
+     "v11": -0.006774146182173507,
+     "v11_branch": "flag:decay",
+     "err": {
+      "none": 0.0136593752985039,
+      "v1": 0.03381813320514731,
+      "v11": 0.006774146182177113
+     },
+     "std": {
+      "none": 0.00853992678647467,
+      "v1": 0.02119403484093104,
+      "v11": 0.013068318783998637
+     },
+     "e": 0.016909066602573655,
+     "v1_vs_none": "no clear difference",
+     "class": "ambiguous",
+     "v11_vs_none": "no clear difference",
+     "v11_vs_v1": "clearly better"
+    }
+   ],
+   "class": "failure",
+   "flagged": true,
+   "rules_fired": [
+    "decay",
+    "one_exp"
+   ],
+   "v11_clearly_worse_than_none": true
+  },
+  {
+   "case": "ibm_fez 24 Nov | QAOA-5-p2",
+   "group": "ibm_fez 24 Nov",
+   "circuit": "QAOA-5-p2",
+   "records": [
+    {
+     "case": "ibm_fez 24 Nov | QAOA-5-p2",
+     "group": "ibm_fez 24 Nov",
+     "round": "r1",
+     "circuit": "QAOA-5-p2",
+     "observable": "<cut>",
+     "exact": 3.999999976490651,
+     "asymptote": 2.5,
+     "width": 5.0,
+     "scaled": [
+      3.8820399754128987,
+      3.6637029497641103,
+      3.4225954630408695
+     ],
+     "d": [
+      1.3820399754128987,
+      1.1637029497641103,
+      0.9225954630408695
+     ],
+     "se_d": [
+      0.01341028926133503,
+      0.016712587147214263,
+      0.019329468723860998
+     ],
+     "rules": {
+      "decay": true,
+      "alive": true,
+      "one_exp": true
+     },
+     "failed_rules": [],
+     "flagged": false,
+     "none": 3.806858343681345,
+     "v1": 4.040127653644299,
+     "v1_branch": "exp",
+     "v11": 4.040127653644299,
+     "v11_branch": "exp",
+     "err": {
+      "none": 0.19314163280930607,
+      "v1": 0.040127677153647845,
+      "v11": 0.040127677153647845
+     },
+     "std": {
+      "none": 0.005903956183995693,
+      "v1": 0.019559604520912943,
+      "v11": 0.019559604520912943
+     },
+     "e": 0.008025535430729569,
+     "v1_vs_none": "clearly better",
+     "class": "good",
+     "v11_vs_none": "clearly better",
+     "v11_vs_v1": "no clear difference"
+    },
+    {
+     "case": "ibm_fez 24 Nov | QAOA-5-p2",
+     "group": "ibm_fez 24 Nov",
+     "round": "r2",
+     "circuit": "QAOA-5-p2",
+     "observable": "<cut>",
+     "exact": 3.999999976490651,
+     "asymptote": 2.5,
+     "width": 5.0,
+     "scaled": [
+      3.895028981313514,
+      3.6414874623089193,
+      3.4019403254199023
+     ],
+     "d": [
+      1.395028981313514,
+      1.1414874623089193,
+      0.9019403254199023
+     ],
+     "se_d": [
+      0.013348356915484597,
+      0.015536398373298448,
+      0.0195944690180111
+     ],
+     "rules": {
+      "decay": true,
+      "alive": true,
+      "one_exp": true
+     },
+     "failed_rules": [],
+     "flagged": false,
+     "none": 3.8131626707421913,
+     "v1": 4.062058671951592,
+     "v1_branch": "exp",
+     "v11": 4.062058671951592,
+     "v11_branch": "exp",
+     "err": {
+      "none": 0.18683730574845958,
+      "v1": 0.06205869546094078,
+      "v11": 0.06205869546094078
+     },
+     "std": {
+      "none": 0.006231755348826065,
+      "v1": 0.020980738965154174,
+      "v11": 0.020980738965154174
+     },
+     "e": 0.012411739092188156,
+     "v1_vs_none": "clearly better",
+     "class": "good",
+     "v11_vs_none": "clearly better",
+     "v11_vs_v1": "no clear difference"
+    }
+   ],
+   "class": "good",
+   "flagged": false,
+   "rules_fired": [],
+   "v11_clearly_worse_than_none": false
+  },
+  {
+   "case": "ibm_fez 24 Nov | QAOA-6",
+   "group": "ibm_fez 24 Nov",
+   "circuit": "QAOA-6",
+   "records": [
+    {
+     "case": "ibm_fez 24 Nov | QAOA-6",
+     "group": "ibm_fez 24 Nov",
+     "round": "r1",
+     "circuit": "QAOA-6",
+     "observable": "<cut>",
+     "exact": 5.92154268829788,
+     "asymptote": 4.5,
+     "width": 9.0,
+     "scaled": [
+      5.775604791314667,
+      5.659924426607883,
+      5.563663695416933
+     ],
+     "d": [
+      1.2756047913146666,
+      1.1599244266078834,
+      1.063663695416933
+     ],
+     "se_d": [
+      0.023580091738459194,
+      0.025818008233292753,
+      0.025698959434520368
+     ],
+     "rules": {
+      "decay": true,
+      "alive": true,
+      "one_exp": true
+     },
+     "failed_rules": [],
+     "flagged": false,
+     "none": 5.761295252650683,
+     "v1": 5.833266200680171,
+     "v1_branch": "exp",
+     "v11": 5.833266200680171,
+     "v11_branch": "exp",
+     "err": {
+      "none": 0.16024743564719657,
+      "v1": 0.08827648761770845,
+      "v11": 0.08827648761770845
+     },
+     "std": {
+      "none": 0.010640524937558772,
+      "v1": 0.03167819828351268,
+      "v11": 0.03167819828351268
+     },
+     "e": 0.009808498624189829,
+     "v1_vs_none": "clearly better",
+     "class": "good",
+     "v11_vs_none": "clearly better",
+     "v11_vs_v1": "no clear difference"
+    },
+    {
+     "case": "ibm_fez 24 Nov | QAOA-6",
+     "group": "ibm_fez 24 Nov",
+     "round": "r2",
+     "circuit": "QAOA-6",
+     "observable": "<cut>",
+     "exact": 5.92154268829788,
+     "asymptote": 4.5,
+     "width": 9.0,
+     "scaled": [
+      5.788346987040583,
+      5.6907196107644955,
+      5.567852318055996
+     ],
+     "d": [
+      1.2883469870405833,
+      1.1907196107644955,
+      1.067852318055996
+     ],
+     "se_d": [
+      0.025218214543442388,
+      0.024887168992003293,
+      0.026634333767353306
+     ],
+     "rules": {
+      "decay": true,
+      "alive": true,
+      "one_exp": true
+     },
+     "failed_rules": [],
+     "flagged": false,
+     "none": 5.7547998853758715,
+     "v1": 5.856159902668882,
+     "v1_branch": "exp",
+     "v11": 5.856159902668882,
+     "v11_branch": "exp",
+     "err": {
+      "none": 0.16674280292200816,
+      "v1": 0.06538278562899791,
+      "v11": 0.06538278562899791
+     },
+     "std": {
+      "none": 0.011667658796676007,
+      "v1": 0.03194027255658616,
+      "v11": 0.03194027255658616
+     },
+     "e": 0.007264753958777546,
+     "v1_vs_none": "clearly better",
+     "class": "good",
+     "v11_vs_none": "clearly better",
+     "v11_vs_v1": "no clear difference"
+    }
+   ],
+   "class": "good",
+   "flagged": false,
+   "rules_fired": [],
+   "v11_clearly_worse_than_none": false
+  },
+  {
+   "case": "ibm_marrakesh 25 Nov | Heisenberg-4",
+   "group": "ibm_marrakesh 25 Nov",
+   "circuit": "Heisenberg-4",
+   "records": [
+    {
+     "case": "ibm_marrakesh 25 Nov | Heisenberg-4",
+     "group": "ibm_marrakesh 25 Nov",
+     "round": "25N",
+     "circuit": "Heisenberg-4",
+     "observable": "M_stag",
+     "exact": -0.6462202414743252,
+     "asymptote": 0.0,
+     "width": 2.0,
+     "scaled": [
+      -0.535075094227476,
+      -0.38096080514547376,
+      -0.23349470337353623
+     ],
+     "d": [
+      -0.535075094227476,
+      -0.38096080514547376,
+      -0.23349470337353623
+     ],
+     "se_d": [
+      0.007550328179728465,
+      0.00749679675255397,
+      0.007525708680914372
+     ],
+     "rules": {
+      "decay": true,
+      "alive": true,
+      "one_exp": false
+     },
+     "failed_rules": [
+      "one_exp"
+     ],
+     "flagged": true,
+     "none": -0.5220519170011101,
+     "v1": -0.6658771307668583,
+     "v1_branch": "exp",
+     "v11": -0.535075094227476,
+     "v11_branch": "flag:one_exp",
+     "err": {
+      "none": 0.12416832447321513,
+      "v1": 0.019656889292533064,
+      "v11": 0.11114514724684921
+     },
+     "std": {
+      "none": 0.003614432552193333,
+      "v1": 0.012190572544373092,
+      "v11": 0.007550328179728465
+     },
+     "e": 0.009828444646266532,
+     "v1_vs_none": "clearly better",
+     "class": "good",
+     "v11_vs_none": "clearly better",
+     "v11_vs_v1": "clearly worse"
+    }
+   ],
+   "class": "good",
+   "flagged": true,
+   "rules_fired": [
+    "one_exp"
+   ],
+   "v11_clearly_worse_than_none": false
+  },
+  {
+   "case": "ibm_marrakesh 25 Nov | QPE-4",
+   "group": "ibm_marrakesh 25 Nov",
+   "circuit": "QPE-4",
+   "records": [
+    {
+     "case": "ibm_marrakesh 25 Nov | QPE-4",
+     "group": "ibm_marrakesh 25 Nov",
+     "round": "25N",
+     "circuit": "QPE-4",
+     "observable": "P(1011)",
+     "exact": 0.9999999999999989,
+     "asymptote": 0.0625,
+     "width": 1.0,
+     "scaled": [
+      0.8891477856523888,
+      0.6930998797395791,
+      0.5025282125837528
+     ],
+     "d": [
+      0.8266477856523888,
+      0.6305998797395791,
+      0.4400282125837528
+     ],
+     "se_d": [
+      0.006538050824354058,
+      0.007240987112682136,
+      0.007506371751532905
+     ],
+     "rules": {
+      "decay": true,
+      "alive": true,
+      "one_exp": false
+     },
+     "failed_rules": [
+      "one_exp"
+     ],
+     "flagged": true,
+     "none": 0.8399368115447016,
+     "v1": 0.98488997246005,
+     "v1_branch": "exp",
+     "v11": 0.8891477856523888,
+     "v11_branch": "flag:one_exp",
+     "err": {
+      "none": 0.16006318845529732,
+      "v1": 0.015110027539948945,
+      "v11": 0.11085221434761006
+     },
+     "std": {
+      "none": 0.0022211945177454348,
+      "v1": 0.007611032237505517,
+      "v11": 0.006538050824354059
+     },
+     "e": 0.015110027539948945,
+     "v1_vs_none": "clearly better",
+     "class": "good",
+     "v11_vs_none": "clearly better",
+     "v11_vs_v1": "clearly worse"
+    }
+   ],
+   "class": "good",
+   "flagged": true,
+   "rules_fired": [
+    "one_exp"
+   ],
+   "v11_clearly_worse_than_none": false
+  },
+  {
+   "case": "ibm_marrakesh 26 Nov | Heisenberg-4",
+   "group": "ibm_marrakesh 26 Nov",
+   "circuit": "Heisenberg-4",
+   "records": [
+    {
+     "case": "ibm_marrakesh 26 Nov | Heisenberg-4",
+     "group": "ibm_marrakesh 26 Nov",
+     "round": "26N",
+     "circuit": "Heisenberg-4",
+     "observable": "M_stag",
+     "exact": -0.6462202414743252,
+     "asymptote": 0.0,
+     "width": 2.0,
+     "scaled": [
+      -0.5433545914307206,
+      -0.11320016388801273,
+      0.04114376624419851
+     ],
+     "d": [
+      -0.5433545914307206,
+      -0.11320016388801273,
+      0.04114376624419851
+     ],
+     "se_d": [
+      0.008691860455450357,
+      0.008239578773872127,
+      0.008198991134009612
+     ],
+     "rules": {
+      "decay": false,
+      "alive": true,
+      "one_exp": false
+     },
+     "failed_rules": [
+      "decay",
+      "one_exp"
+     ],
+     "flagged": true,
+     "none": -0.5224090831483694,
+     "v1": -0.6435107646143676,
+     "v1_branch": "linear",
+     "v11": -0.5433545914307206,
+     "v11_branch": "flag:decay+one_exp",
+     "err": {
+      "none": 0.1238111583259558,
+      "v1": 0.0027094768599575936,
+      "v11": 0.1028656500436046
+     },
+     "std": {
+      "none": 0.0038834479057100212,
+      "v1": 0.006168482476639964,
+      "v11": 0.008691860455450355
+     },
+     "e": 0.0013547384299787968,
+     "v1_vs_none": "clearly better",
+     "class": "good",
+     "v11_vs_none": "clearly better",
+     "v11_vs_v1": "clearly worse"
+    }
+   ],
+   "class": "good",
+   "flagged": true,
+   "rules_fired": [
+    "decay",
+    "one_exp"
+   ],
+   "v11_clearly_worse_than_none": false
+  },
+  {
+   "case": "ibm_marrakesh 26 Nov | QPE-4",
+   "group": "ibm_marrakesh 26 Nov",
+   "circuit": "QPE-4",
+   "records": [
+    {
+     "case": "ibm_marrakesh 26 Nov | QPE-4",
+     "group": "ibm_marrakesh 26 Nov",
+     "round": "26N",
+     "circuit": "QPE-4",
+     "observable": "P(1011)",
+     "exact": 0.9999999999999989,
+     "asymptote": 0.0625,
+     "width": 1.0,
+     "scaled": [
+      0.7228061430839741,
+      0.05403450173269338,
+      0.22047821207984553
+     ],
+     "d": [
+      0.6603061430839741,
+      -0.008465498267306623,
+      0.15797821207984553
+     ],
+     "se_d": [
+      0.007610439007834719,
+      0.002998250347080298,
+      0.006039023660225375
+     ],
+     "rules": {
+      "decay": false,
+      "alive": true,
+      "one_exp": true
+     },
+     "failed_rules": [
+      "decay"
+     ],
+     "flagged": true,
+     "none": 0.6933583745945023,
+     "v1": 0.7091855672186006,
+     "v1_branch": "linear",
+     "v11": 0.7228061430839741,
+     "v11_branch": "flag:decay",
+     "err": {
+      "none": 0.30664162540549655,
+      "v1": 0.2908144327813983,
+      "v11": 0.27719385691602483
+     },
+     "std": {
+      "none": 0.0030545320113967394,
+      "v1": 0.008240593392178336,
+      "v11": 0.007610439007834719
+     },
+     "e": 0.2908144327813983,
+     "v1_vs_none": "clearly better",
+     "class": "failure",
+     "v11_vs_none": "clearly better",
+     "v11_vs_v1": "clearly better"
+    }
+   ],
+   "class": "failure",
+   "flagged": true,
+   "rules_fired": [
+    "decay"
+   ],
+   "v11_clearly_worse_than_none": false
+  }
+ ]
+}

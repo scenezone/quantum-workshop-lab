@@ -1,0 +1,38 @@
+[
+ {
+  "read_at_utc": "2026-11-26T17:27:23+00:00",
+  "usage_remaining_ru": 1.1378489999999992,
+  "usage_consumed_ru": 8.862151,
+  "usage_limit_ru": 10,
+  "usage_remaining_seconds": 56,
+  "usage_consumed_seconds": 544,
+  "usage_period": {
+   "start_time": "2026-10-29T17:27:23.932Z",
+   "end_time": "2026-11-26T17:27:23.932Z"
+  }
+ },
+ {
+  "read_at_utc": "2026-11-26T17:27:24+00:00",
+  "usage_remaining_ru": 1.1378489999999992,
+  "usage_consumed_ru": 8.862151,
+  "usage_limit_ru": 10,
+  "usage_remaining_seconds": 56,
+  "usage_consumed_seconds": 544,
+  "usage_period": {
+   "start_time": "2026-10-29T17:27:24.733Z",
+   "end_time": "2026-11-26T17:27:24.733Z"
+  }
+ },
+ {
+  "read_at_utc": "2026-11-26T17:28:24+00:00",
+  "usage_remaining_ru": 0.6331009999999999,
+  "usage_consumed_ru": 9.366899,
+  "usage_limit_ru": 10,
+  "usage_remaining_seconds": 24,
+  "usage_consumed_seconds": 576,
+  "usage_period": {
+   "start_time": "2026-10-29T17:28:24.670Z",
+   "end_time": "2026-11-26T17:28:24.670Z"
+  }
+ }
+]

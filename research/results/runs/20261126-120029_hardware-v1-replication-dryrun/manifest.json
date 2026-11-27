@@ -1,0 +1,59 @@
+{
+ "run_id": "20261126-120029_hardware-v1-replication-dryrun",
+ "kind": "hardware-v1-replication-dryrun",
+ "created": "2026-11-26T12:00:29",
+ "command": "python.exe hardware_v1_replication.py",
+ "method": [
+  "Four jobs, one at a time, in the reverse of the 25 Nov order: IBM Estimator resilience_level 2; recipe v1 (Sampler: all-gate folding 1/3/5; Sampler: readout calibration); none (1 Sampler).",
+  "Plan, compilation (level 2, best of 20 seeds), shots and analysis from hardware_v2.py (Part F).",
+  "Error = |estimate - exact|; spread = bootstrap std; clearly better = gap > combined spread."
+ ],
+ "config": {
+  "backend": "fake_kingston",
+  "submit": false,
+  "order": [
+   "ibm_rl2",
+   "recipe_v1",
+   "none"
+  ],
+  "max_rus": null,
+  "budget_qs_per_circuit": 6.0,
+  "circuits": [
+   "Heisenberg-4",
+   "QPE-4"
+  ],
+  "recipe_v1": "v1",
+  "shots_per_pub": {
+   "none": 23486,
+   "v1_scales": 6155,
+   "v1_cal": 2308,
+   "ibm": 23486,
+   "v2_twirl": 778,
+   "v2_cal": 2334,
+   "sec_twirl": 781,
+   "sec_cal": 2343
+  },
+  "estimated_quantum_seconds": {
+   "none": 11.99993684,
+   "recipe_v1": 11.999317172000001,
+   "ibm_rl2": 46.550243576272806
+  },
+  "reference_run": "20261125-145032_hardware-v2",
+  "bootstrap": 500
+ },
+ "environment": {
+  "python": "3.12.10",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "packages": {
+   "qiskit": "2.6.2",
+   "qiskit-aer": "0.18.4",
+   "qiskit-ibm-runtime": "0.52.1",
+   "mitiq": "1.1.0",
+   "numpy": "2.2.6",
+   "scipy": "1.17.1"
+  },
+  "git_commit": "9c7a3327f2e81ebc1c3fbbeba78efdeb0647338a",
+  "git_research_dirty": true
+ },
+ "preregistration_sha256": "037d45941177382b3e364e9e4b80dcbc2470ebbda02c75c9435fc136c9e35252"
+}
