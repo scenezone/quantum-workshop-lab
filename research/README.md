@@ -2,11 +2,11 @@
 
 Experiments for the planned mitigation and optimization layer on top of Qiskit. This folder is separate from the app: nothing in `backend/` or `frontend/` imports it, and CI does not run it.
 
-Everything runs on local simulators (Qiskit Aer with fake IBM backend noise). No IBM account or hardware minutes are used.
+Most scripts run on local simulators (Qiskit Aer with fake IBM backend noise). The `hardware*.py` scripts can submit to IBM Quantum, but only with `--submit` and a saved account. Hardware work ended on 26 Nov 2026; the final record is at the top of `POC_REPORT.md`.
 
 | File | What it is |
 |---|---|
-| [POC_REPORT.md](POC_REPORT.md) | Proof-of-concept simulation report: method, data, results, conclusion |
+| [POC_REPORT.md](POC_REPORT.md) | Proof-of-concept report. The final record (every hardware round, failures, limitations) is at the top; the simulation report follows |
 | [PREREGISTRATION.md](PREREGISTRATION.md) | Targets written before results: held-out set, recipe, hardware targets, deviations |
 | [DECISIONS.md](DECISIONS.md) | Agreed rules: budget, baselines, metrics, observables, open items |
 | `baseline.py` | 14 training circuits, no mitigation, optimization levels 0-3, two backends |
@@ -22,6 +22,12 @@ Everything runs on local simulators (Qiskit Aer with fake IBM backend noise). No
 | `folding.py` | Native unitary folding for ZNE (with self-checks) |
 | `runlog.py` | Run folders: manifest + raw counts for every run |
 | `zne_smoke.py` | Negative result: mitiq's own folding mis-scales ECR circuits |
+| `recipe_v2.py`, `twirl.py`, `heldout_v2.py`, `mitigation_v2.py`, `v2_design_replay.py` | Recipe v2 (twirling + two-qubit folding 1/2/3 + clip), its held-out circuits and simulator test (Part F). Failed on hardware |
+| `hardware_v2.py` | v2 hardware round (Part F) |
+| `hardware_v1_replication.py` | Replication round of recipe v1 (Part G) |
+| `recipe_v1_1.py`, `v1_1_design_replay.py` | v1.1 flag rules and their replay on saved hardware data (0 RU, design data). Failed the replay |
+| `recipe_v1_2.py`, `heldout_v12.py`, `hardware_v1_2.py` | v1.2 (v1 + decay/alive flags, post hoc), four new circuits, and its hardware round (Part H) |
+| `results/raw_counts/` | Byte-identical copies of every hardware run's raw counts and account reads, with `SHA256SUMS.txt` |
 
 ## Setup
 

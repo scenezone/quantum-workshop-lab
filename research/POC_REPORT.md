@@ -1,8 +1,136 @@
-# Proof of concept: choosing error mitigation per circuit (simulation)
+# Proof of concept: choosing error mitigation per circuit (simulation and IBM hardware)
 
-GoQuantum Labs · optimization and error-mitigation layer · simulation results, 21 November 2026, updated 23 November 2026
+GoQuantum Labs · optimization and error-mitigation layer · simulation results 21-23 November 2026, hardware 24-26 November 2026, final record 27 November 2026
 
-**Status:** simulator only. No real-hardware data yet. All numbers come from Qiskit Aer using noise models of IBM devices (`FakeKingston`, Heron r2; `FakeSherbrooke`, Eagle). The mitigation methods are our own implementations, **not** Qiskit Runtime resilience levels, which have no effect on simulated backends.
+**Status:** final record. Hardware work has stopped: 0.633 RU of the trial's 10 RU are left, which is below the reserve plus one round. Recipe v1 stays as it is. The v1.2 flags are reported as an **untested safety net**.
+
+**No claim is made about IBM's resilience levels.** Some rounds ran them, and their pre-registered targets are listed below as a record only. Sections 0-9 are the earlier record, kept as written; where they compare with IBM levels, the note at the top of Section 0.3 applies.
+
+## Final record (27 November 2026)
+
+### R.1 What we can and cannot say
+
+1. **Recipe v1 reduced error against no mitigation on real hardware, but not everywhere.**
+   - There are 16 independent cases (device + calibration day + circuit), on `ibm_fez` and `ibm_marrakesh`.
+   - In **14** of them v1 was clearly better than no mitigation in every round it ran.
+   - Grover-4-3it: clearly better in one fez round, no clear difference in the other.
+   - Ising-4: no clear difference in fez round 1, clearly worse in fez round 2.
+2. **The first test on circuits never used before** (26 Nov, four new circuits): v1 was clearly better than no mitigation on all four, and it cut error by 45-87%. That is four circuits, one device and one day: a direction, not a proof.
+3. **"Clearly better than no mitigation" does not mean "accurate".** Three results still had large errors:
+   - Grover-4-3it on fez: about 0.33.
+   - QPE-4 on marrakesh, 26 Nov: 0.291, against 0.015 for the same circuit and device a day earlier.
+   - Draper-adder-4 on 26 Nov: 0.195 (R.5).
+4. **Recipe v2 (twirling) failed** its main target. **v1.1 (three flag rules) failed** its design replay. **v1.2 (two flag rules)** passed its safety target T1 on four new circuits, but no flag fired, so v1.2 equalled v1 everywhere. Its flags have never been tested on data they were not designed on.
+5. **Nothing here supports a claim about IBM's resilience levels**, in either direction.
+
+### R.2 Every hardware round
+
+Errors are |estimate − exact|. For fez, where several circuits have more than one observable, the error is the RMSE over a circuit's observables. ± is the bootstrap std (500 multinomial resamples of the counts). "Clearly" = gap > √(σa² + σb²). The run folders are under `results/runs/`.
+
+| Date (IST) | Device | Run | Circuits | Methods | RU | Pre-registered targets on our method (outcome) | Targets against IBM levels (recorded only, no claim) |
+|---|---|---|---|---|---|---|---|
+| 24 Nov 10:42 | `ibm_fez` | `20261124-104212_hardware-smoke` | Bell | none, IBM L1 | 0.071 | smoke check only | – |
+| 24 Nov 10:44 | `ibm_fez` | `20261124-104424_hardware-round1` | 8 (Bell, GHZ-5 + 6 held-out) | none, v1, IBM L1, IBM L2 | 2.777 | H3 v1 clearly better than none on ≥ 6/8: **PASS** (7/8) | H1 **FAIL**, H2 PASS |
+| 24 Nov 10:58 | `ibm_fez` | `20261124-105849_hardware-round2` (reversed order) | same 8 | same | 2.777 | H3: **PASS** (6/8) | H1 **FAIL**, H2 PASS |
+| 25 Nov 14:50 | `ibm_marrakesh` | `20261125-145032_hardware-v2` | Heisenberg-4, QPE-4 | none, v1, v2, v2 at 1/1.5/2, IBM L2 | 1.836 | G1 v2 clearly better than v1: **FAIL on both**. G3 v2 clearly better than none: PASS on both | G2 Heisenberg **FAIL**, QPE PASS; G2-cost PASS |
+| 26 Nov 12:04 | `ibm_marrakesh` | `20261126-120458_hardware-v1-replication` (reversed order) | Heisenberg-4, QPE-4 | none, v1, IBM L2 | 1.303 | R1 v1 clearly better than none: PASS on both | R2 Heisenberg PASS, QPE **FAIL**; R2-cost PASS. The v1 vs L2 verdict changed between 25 and 26 Nov on both circuits |
+| 26 Nov 22:57 | `ibm_marrakesh` | `20261126-225723_hardware-v1-2` | W-4, Toffoli-3, CDKM-adder-3, Draper-adder-4 (new) | none, v1 (v1.2 from v1's counts) | 0.505 | T1 v1.2 not clearly worse than none: **PASS on all 4** | – (no IBM level run) |
+
+**RU accounting:**
+- The six runs used **9.268 RU**.
+- The account showed **9.367 of 10 RU consumed** in the read saved after the last round (26 Nov, 17:28:24 UTC). An unsaved re-read at 17:36 UTC showed the same.
+- 0.099 RU of that is not in any run folder; it was already consumed before the 25 Nov round.
+- Every account read is saved: `results/account_reads/` and each run's `account_reads.json`.
+
+### R.3 Recipe v1 against no mitigation, every circuit and round
+
+| Case (device, day) | Circuit | 2q gates | None | v1 | v1 vs none |
+|---|---|---|---|---|---|
+| fez 24 Nov r1 / r2 | Bell | 1 | 0.080 / 0.057 | 0.013 / 0.015 | clearly better / clearly better |
+| | GHZ-5 | 4 | 0.118 / 0.132 | 0.014 / 0.010 | clearly better / clearly better |
+| | Mirror-4 | 12 | 0.120 / 0.100 | 0.021 / 0.033 | clearly better / clearly better |
+| | QAOA-5 p=2 | 34 | 0.193 / 0.187 | 0.040 / 0.062 | clearly better / clearly better |
+| | QAOA-6 | 31 | 0.160 / 0.167 | 0.088 / 0.065 | clearly better / clearly better |
+| | QFT-6 | 88 | 0.123 / 0.110 | 0.085 / 0.084 | clearly better / clearly better |
+| | **Grover-4-3it** | 111 | 0.438 / 0.431 | **0.336 / 0.329** | clearly better / no clear difference |
+| | **Ising-4** | 36 | 0.009 / 0.002 | **0.023 / 0.016** | no clear difference / **clearly worse** |
+| marrakesh 25 Nov | Heisenberg-4 | 44 | 0.124 ± 0.004 | 0.020 ± 0.012 | clearly better |
+| | QPE-4 | 26 | 0.160 ± 0.002 | 0.015 ± 0.008 | clearly better |
+| marrakesh 26 Nov | Heisenberg-4 | 44 | 0.124 ± 0.004 | 0.003 ± 0.006 | clearly better |
+| | **QPE-4** | 26 | 0.307 ± 0.003 | **0.291 ± 0.008** | clearly better, but barely |
+| marrakesh 26 Nov (new) | W-4 | 6 | 0.093 ± 0.003 | 0.039 ± 0.008 | clearly better |
+| | Toffoli-3 | 7 | 0.069 ± 0.002 | 0.009 ± 0.007 | clearly better |
+| | CDKM-adder-3 | 70 | 0.286 ± 0.004 | 0.066 ± 0.017 | clearly better |
+| | **Draper-adder-4** | 70 | 0.356 ± 0.004 | **0.195 ± 0.014** | clearly better; large error left |
+
+The fez rows are seen data (the v2 and v1.1 work was designed on them). Heisenberg-4 and QPE-4 were seen data after 25 Nov. Only the last four rows are on circuits never used before.
+
+### R.4 What was tried and did not work
+
+- **Recipe v2** = Pauli twirling + two-qubit-only folding at 1/2/3 + clipping (Part F).
+  - It passed its held-out simulator gate (S1) on both circuits.
+  - On hardware it was clearly **worse** than v1 on both circuits: 0.047 vs 0.020, and 0.040 vs 0.015.
+  - The round did not isolate twirling from the other changes, so it does not show which change hurt.
+- **Replication of v1** (Part G), same circuits and device one day later:
+  - Heisenberg-4 held up.
+  - QPE-4 did not: 0.015 became 0.291.
+  - On 26 Nov the QPE readout-corrected values at scales 1/3/5 were 0.723 / 0.054 / 0.220. They are not monotone, so v1's guard fell back to linear extrapolation and reported the result with no warning.
+- **v1.1** = v1 + three flag rules from physics (`decay`, `alive`, `one_exp`, k = 2), fixed before a replay of all saved hardware data (`20261126-223700_v1-1-design-replay`, 0 RU, design data).
+  - All 4 failure cases were flagged.
+  - So were **3 of 8 good cases**, every time by `one_exp`. Real decays are not one exponential to within shot noise.
+  - v1.1 was clearly worse than none on 1 of 12 cases.
+  - It was not run on hardware.
+- **v1.2** = v1.1 without `one_exp`. **This choice was made after the replay, so it is post hoc.**
+  - It was pre-registered in Part H and tested once, on four new circuits.
+  - T1 passed. No flag fired, so v1.2 = v1 on every circuit.
+
+### R.5 Limitations
+
+1. **Draper-adder-4 bias: 0.805 vs 1.0.**
+   - The decay looked clean: d = 0.610 / 0.414 / 0.278 at scales 1/3/5. It is monotone, the signal is far above noise (SE 0.009), and even the single-exponential check passed.
+   - The exponential extrapolation still under-corrected, leaving an error of 0.195 ± 0.014. That is less than half of the uncorrected error (0.356), but far from the answer.
+   - The flag rules only check the *shape* of the decay. They cannot see a bias like this.
+   - So a v1 result with no flag is **not** a guarantee of accuracy. On a 70-CZ circuit the bias left after correction can be about 0.2.
+2. **Day-to-day variation is larger than the bootstrap spread.** QPE-4 on the same device moved from 0.015 to 0.291 in one day. The ± values above cover shot noise only, not drift. One round per circuit is not enough to rank close methods.
+3. **The v1.2 flags are an untested safety net.**
+   - They never fired on new data.
+   - Their only evidence is the replay they were chosen on.
+   - When they do fire, the value reported (scale-1 readout-corrected) is about as good as no mitigation: they can prevent a bad extrapolation, not recover accuracy.
+4. **Small sample.**
+   - 16 independent cases, 2 devices, 3 days.
+   - At most 8 qubits and 111 two-qubit gates.
+   - 3-6 estimated QPU seconds per circuit per method.
+   - The new circuits all use one observable type: probability of the right answer, with exact value 1, at the edge of the range.
+5. **The simulator did not predict hardware.**
+   - Grover-4-3it was the recipe's biggest simulator win and one of its worst hardware results.
+   - v2 passed in simulation and failed on hardware.
+6. **Readout model.** Tensored correction assumes independent per-qubit readout errors.
+7. **No claim about IBM's resilience levels.** Rounds that ran them were too few and too inconsistent: the v1 vs L2 verdict changed on both circuits within one day.
+
+### R.6 Record and integrity
+
+- **Code and data:** everything behind this report is committed. The git tag **`poc-final-20261127`** marks the final state, including `results/FINGERPRINTS.md` generated from that state.
+- **Pre-registration:**
+  - `PREREGISTRATION.md` Parts A-H; Part C is the deviations log.
+  - `python fingerprint.py` rebuilds every earlier version of the file that a run recorded and checks the hash.
+  - It also checks every frozen file (Parts F7, G5, H6) and `recipe.py`.
+  - Result at the tag: all match, none differ.
+- **Raw counts:**
+  - `results/raw_counts/` holds byte-identical copies of the raw counts and job metrics (`results.json`) of all six hardware runs, plus every account read.
+  - `SHA256SUMS.txt` in that folder lists their hashes.
+  - Every number in R.2-R.5 is computed from these files.
+- **Runs after 24 Nov** (each has `manifest.json` with the pre-registration hash it ran under):
+
+| Run | What |
+|---|---|
+| `20261125-124533_mitigation-v2-test` | v2 held-out simulator test (S1) |
+| `20261125-125318_hardware-v2-dryrun` | v2 hardware pipeline dry run (not evidence) |
+| `20261125-145032_hardware-v2` | v2 hardware round, `ibm_marrakesh` |
+| `20261126-120029_hardware-v1-replication-dryrun` | replication dry run (not evidence) |
+| `20261126-120458_hardware-v1-replication` | v1 replication round, `ibm_marrakesh` |
+| `20261126-223700_v1-1-design-replay` | v1.1 replay of saved hardware data, 0 RU (design data) |
+| `20261126-224957_hardware-v1-2-dryrun` | v1.2 dry run on `FakeMarrakesh` (not evidence) |
+| `20261126-225723_hardware-v1-2` | v1.2 round on four new circuits, `ibm_marrakesh` |
 
 ## 0. Update, 23 November: pre-registered test on held-out circuits
 
@@ -75,6 +203,8 @@ Across all 11 method variants on the held-out set, the recipe had the **lowest w
 **Ising-4: mitigation brought no benefit.** No mitigation was the most accurate method at every noise level: RMSE 0.0045 at ×1 vs 0.0088 for the recipe, within the spread. At ×2 the recipe was clearly worse (0.0122 ± 0.0080 vs 0.0034 ± 0.0020). The cause is the observable: the exact magnetization (−0.010) is almost equal to its fully-mixed value (0), so noise barely moves it, and extrapolation only adds variance. A future recipe could skip mitigation when the raw value is already close to the fully-mixed value. That would be a new version, tested on new circuits.
 
 ### 0.3 Real hardware, 24 November (`ibm_fez`, Heron r2)
+
+> **Note added 27 November:** this section is the 24 Nov record and is kept as written. Its statements comparing the recipe with IBM's resilience levels are **withdrawn as claims**. Later rounds showed that such comparisons were not stable from one day to the next (final record, R.5 item 7). The data and target outcomes stand.
 
 **What ran.** Plan and targets pre-registered (A7, Part E, Part C log):
 1. A Bell smoke job.

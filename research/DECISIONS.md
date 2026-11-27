@@ -69,6 +69,29 @@ Results: held-out T1, T2 and T3 **PASS**; O1 (old median target) **NOT MET** (�
 - Usage: about 5.6 RU of 9.9 (343 charged QPU seconds); 4.28 RU remain. Per round, charged seconds: none 27, recipe 29, IBM level 1 30, IBM level 2 83 (`results/hardware_usage.md`, written by `hardware_usage.py` for the reviewer's upgrade-cost estimate). `job.usage()` had shown 0 s for two short jobs; charged seconds come from IBM's job metrics (Part C, after round 2). The trial account expires around 4 Dec 2026; upgrading (card → Pay-As-You-Go) is the owner's decision.
 - Recipe v1 is not modified. Any v2 (twirling, smaller scale factors for deep circuits, clipping instead of linear fallback) must be pre-registered and tested on new circuits and new hardware runs.
 
+## Round 7: v2, replication, v1.1 / v1.2 (25-27 Nov 2026)
+
+- **Recipe v2** (Part F, scales 1/2/3 chosen by the reviewer):
+  - passed its simulator gate S1;
+  - failed G1 on `ibm_marrakesh` (25 Nov): clearly worse than v1 on both circuits.
+- **v1 replication** (Part G, 26 Nov):
+  - Heisenberg-4 repeated.
+  - QPE-4 did not: error 0.015 → 0.291. The guard fired and v1 fell back to linear extrapolation with no warning.
+- **v1.1 flag rules** (`decay`, `alive`, `one_exp`, k = 2): fixed from physics before a 0 RU replay of all saved hardware data.
+  - The replay used 12 independent cases (device + day + circuit), with an "ambiguous" class.
+  - It flagged 4/4 failures but also 3/8 good cases (all by `one_exp`), so v1.1 failed.
+  - Rules were not tuned after the replay.
+- **v1.2** = v1.1 without `one_exp`: the reviewer's choice after the replay, so post hoc.
+  - Part H: four new circuits, none + v1 only, no IBM levels, 0.5 RU reserve.
+  - T1 PASS on 4/4, but no flag fired.
+- **Final decisions (reviewer, 27 Nov):**
+  - **v1 stays as it is.**
+  - The v1.2 flags are reported as an **untested safety net**.
+  - **Hardware stops** (0.633 RU left).
+  - **No claim about IBM's resilience levels** for now.
+  - The Draper-adder-4 bias (0.805 vs 1.0, clean decay, no flag) is recorded as a limitation.
+- **Record:** git tag `poc-final-20261127`, `results/FINGERPRINTS.md`, and raw counts copied to `results/raw_counts/` with SHA-256 sums.
+
 ## Seeds and repeats
 
 - 10-20 transpiler seeds; report best of seeds. (Implemented: 20 seeds, best = fewest two-qubit gates, then lowest depth.)

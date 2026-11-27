@@ -1,0 +1,34 @@
+[
+  {
+    "read_at_utc": "2026-11-25T08:32:52Z",
+    "read_at_ist": "2026-11-25 14:02:52",
+    "time_source": "equals the usage_period end_time the API returned (rolling window ends at the read)",
+    "usage_consumed_ru": 5.722967,
+    "usage_remaining_ru": 4.277033,
+    "usage_limit_ru": 10,
+    "usage_consumed_seconds": 349,
+    "usage_remaining_seconds": 251,
+    "usage_limit_seconds": 600,
+    "usage_limit_reached": false,
+    "usage_period": {
+      "start_time": "2026-10-28T08:32:52.606Z",
+      "end_time": "2026-11-25T08:32:52.606Z"
+    }
+  },
+  {
+    "read_at_utc": "2026-11-25T09:09:07Z",
+    "read_at_ist": "2026-11-25 14:39:07",
+    "time_source": "local clock (UTC) around the API call, 09:08:59-09:09:07",
+    "usage_consumed_ru": 5.722967,
+    "usage_remaining_ru": 4.277033,
+    "usage_limit_ru": 10,
+    "usage_consumed_seconds": 349,
+    "usage_remaining_seconds": 251,
+    "usage_limit_seconds": 600,
+    "usage_limit_reached": false,
+    "usage_period": {
+      "start_time": "2026-10-28T09:09:06.096Z",
+      "end_time": "2026-11-25T09:09:06.096Z"
+    }
+  }
+]
