@@ -6,3 +6,5 @@
 /hardware_v2.py text eol=crlf
 /mitigation_v2.py text eol=crlf
 /recipe_v2.py text eol=crlf
+# Hashed by its run (20261127-155639_failure-analysis) with CRLF line endings; keep them CRLF everywhere.
+/failure_analysis.py text eol=crlf
